@@ -1,5 +1,7 @@
 using FinanceCenter.Components;
 using FinanceCenter.Data;
+using FinanceCenter.Repositories;
+using FinanceCenter.Services;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 
@@ -21,6 +23,10 @@ namespace FinanceCenter
                 options.UseMySql(connectionString, serverVersion)
                     .EnableSensitiveDataLogging(builder.Environment.IsDevelopment())
                     .EnableDetailedErrors(builder.Environment.IsDevelopment()));
+
+            // 註冊 Repository 和 Service
+            builder.Services.AddScoped<FinanceRepository>();
+            builder.Services.AddScoped<FinanceService>();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
