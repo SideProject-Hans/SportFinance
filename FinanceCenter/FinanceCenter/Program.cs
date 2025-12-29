@@ -1,4 +1,6 @@
 using FinanceCenter.Components;
+using FinanceCenter.Data;
+using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 
 namespace FinanceCenter
@@ -10,6 +12,15 @@ namespace FinanceCenter
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddMudServices();
+
+            // 設定 Entity Framework Core with MySQL
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            var serverVersion = ServerVersion.AutoDetect(connectionString);
+
+            builder.Services.AddDbContext<FinanceCenterDbContext>(options =>
+                options.UseMySql(connectionString, serverVersion)
+                    .EnableSensitiveDataLogging(builder.Environment.IsDevelopment())
+                    .EnableDetailedErrors(builder.Environment.IsDevelopment()));
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
