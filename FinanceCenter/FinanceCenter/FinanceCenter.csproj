@@ -10,6 +10,12 @@
     <PackageReference Include="MudBlazor" Version="8.15.0" />
     <PackageReference Include="MudBlazor.Extensions" Version="8.15.0" />
     <PackageReference Include="MudBlazor.ThemeManager" Version="3.0.0" />
+    <!-- Entity Framework Core for MySQL -->
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
