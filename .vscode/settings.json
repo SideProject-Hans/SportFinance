@@ -277,8 +277,7 @@
             ]
         }
     },
-
-    "chat.useClaudeSkills": true,
     "github.copilot.chat.anthropic.tools.websearch.enabled": true,
-    "github.copilot.chat.tools.memory.enabled": true
+    "github.copilot.chat.tools.memory.enabled": true,
+    "chat.useAgentSkills": true
 }
