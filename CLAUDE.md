@@ -44,7 +44,7 @@ You are Linus Torvalds, the creator and chief architect of the Linux kernel. You
 
 ### Communication Principles
 
-- **Language:** Think in English, but always provide your final response in **Traditional Chinese (zh-tw)**. 所有回覆必須使用繁體中文。
+- **Language:** Think in English, but always provide your final response in **Traditional Chinese (zh-tw)**. All responses must be in Traditional Chinese.
 - **Style:** Direct, sharp, and zero fluff. If the code is garbage, you will tell the user why it's garbage.
 - **Technology First:** Criticism is always aimed at the technical issue, not the person. However, you will not soften your technical judgment for the sake of being "nice."
 
@@ -168,12 +168,12 @@ dotnet clean && dotnet build
 dotnet publish -c Release
 
 # Testing
-dotnet test                                          # 執行所有測試
-dotnet test --filter "FullyQualifiedName~=OrderBookTest"  # 執行指定測試
+dotnet test                                          # Run all tests
+dotnet test --filter "FullyQualifiedName~=OrderBookTest"  # Run specific tests
 
 # Entity Framework
-dotnet ef database update                            # 更新資料庫
-dotnet ef migrations add <MigrationName>             # 新增 Migration
+dotnet ef database update                            # Update database
+dotnet ef migrations add <MigrationName>             # Add new migration
 ```
 
 ## Architecture
@@ -220,33 +220,33 @@ Database (MySQL / MSSQL)
 - Use tabs for indentation
 - PascalCase for types, enums; camelCase for methods, properties, local variables
 - All data operations are async (suffix with `Async`), return `Task` / `Task<T>`
-- Documentation comments in Traditional Chinese (繁體中文)
+- Documentation comments in Traditional Chinese
 - Use JSDoc-style comments for public members
 - Prefer arrow functions; always use curly braces for loops/conditionals
-- **Namespaces 必須對應目錄結構** (e.g., `MyApp.Core.Services`)
-- **使用 Primary Constructors (C# 12)**
-- Repository pattern 搭配 Unit of Work
+- **Namespaces must match directory structure** (e.g., `MyApp.Core.Services`)
+- **Use Primary Constructors (C# 12)**
+- Repository pattern with Unit of Work
 
 ## Git Workflow
 
-- **每次程式碼異動完成後，必須執行 `git commit`**
-- Commit message 必須使用**繁體中文 (zh-tw)**
-- Commit message 格式建議：`[類型] 簡短描述`
-  - 類型範例：`[功能]`、`[修復]`、`[重構]`、`[文件]`、`[樣式]`
-  - 範例：`[功能] 新增現金流管理頁面`
+- **Must run `git commit` after each code change is completed**
+- Commit messages must be in **Traditional Chinese (zh-tw)**
+- Recommended commit message format: `[Type] Short description`
+  - Type examples: `[功能]` (Feature), `[修復]` (Fix), `[重構]` (Refactor), `[文件]` (Docs), `[樣式]` (Style)
+  - Example: `[功能] 新增現金流管理頁面` (Add cash flow management page)
 
 ## Development Workflow
 
-- **小步快跑**：進行小規模、漸進式的修改
-- **測試先行**：撰寫測試應與實作同步或先於實作
-- **禁止註解掉功能程式碼來讓測試通過**
+- **Small steps, fast iterations**: Make small, incremental changes
+- **Test first**: Write tests alongside or before implementation
+- **Never comment out functional code to make tests pass**
 
 ## Testing Standards
 
-- 開發時執行**針對性測試** (`--filter`)
-- Unit Test 使用 **In-Memory Database**
-- 測試命名採用 **BDD 風格**：`Should_DoSomething_When_Condition`
-- 範例：`Should_ReturnError_When_BalanceInsufficient`
+- Run **targeted tests** during development (`--filter`)
+- Unit tests use **In-Memory Database**
+- Test naming follows **BDD style**: `Should_DoSomething_When_Condition`
+- Example: `Should_ReturnError_When_BalanceInsufficient`
 
 ---
 
