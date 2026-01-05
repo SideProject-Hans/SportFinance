@@ -166,22 +166,30 @@ dotnet clean && dotnet build
 
 # Publish for production
 dotnet publish -c Release
+
+# Testing
+dotnet test                                          # 執行所有測試
+dotnet test --filter "FullyQualifiedName~=OrderBookTest"  # 執行指定測試
+
+# Entity Framework
+dotnet ef database update                            # 更新資料庫
+dotnet ef migrations add <MigrationName>             # 新增 Migration
 ```
 
 ## Architecture
 
-Three-layer architecture with Repository pattern:
+Three-layer architecture with Repository pattern + Unit of Work:
 
 ```
-UI Layer (Blazor Components)     → Components/Pages/, Components/Layout/
+UI Layer (Pages/Views)           → Components/Pages/, Components/Layout/
     ↓
-Service Layer                    → Services/FinanceService.cs
+Service Layer                    → Services/
     ↓
-Repository Layer                 → Repositories/FinanceRepository.cs
+Repository Layer (Unit of Work)  → Repositories/
     ↓
 EF Core DbContext                → Data/FinanceCenterDbContext.cs
     ↓
-MySQL Database
+Database (MySQL / MSSQL)
 ```
 
 ## Key Technologies
@@ -211,10 +219,13 @@ MySQL Database
 
 - Use tabs for indentation
 - PascalCase for types, enums; camelCase for methods, properties, local variables
-- All data operations are async (suffix with `Async`)
+- All data operations are async (suffix with `Async`), return `Task` / `Task<T>`
 - Documentation comments in Traditional Chinese (繁體中文)
 - Use JSDoc-style comments for public members
 - Prefer arrow functions; always use curly braces for loops/conditionals
+- **Namespaces 必須對應目錄結構** (e.g., `MyApp.Core.Services`)
+- **使用 Primary Constructors (C# 12)**
+- Repository pattern 搭配 Unit of Work
 
 ## Git Workflow
 
@@ -223,6 +234,19 @@ MySQL Database
 - Commit message 格式建議：`[類型] 簡短描述`
   - 類型範例：`[功能]`、`[修復]`、`[重構]`、`[文件]`、`[樣式]`
   - 範例：`[功能] 新增現金流管理頁面`
+
+## Development Workflow
+
+- **小步快跑**：進行小規模、漸進式的修改
+- **測試先行**：撰寫測試應與實作同步或先於實作
+- **禁止註解掉功能程式碼來讓測試通過**
+
+## Testing Standards
+
+- 開發時執行**針對性測試** (`--filter`)
+- Unit Test 使用 **In-Memory Database**
+- 測試命名採用 **BDD 風格**：`Should_DoSomething_When_Condition`
+- 範例：`Should_ReturnError_When_BalanceInsufficient`
 
 ---
 
