@@ -239,34 +239,84 @@ You **MUST** execute `dotnet build`, `git add`, and `git commit` immediately aft
 3. Deleting files
 4. Refactoring code
 
-### Commit Execution Flow
+### Commit Execution Flow (Automated Pipeline)
+
+**🔄 MANDATORY AUTOMATED PIPELINE - NO USER INTERACTION REQUIRED**
+
+The following pipeline MUST be executed automatically after ANY file modification. Do NOT ask for permission or confirmation at any step.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    AUTOMATED CI PIPELINE                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   [File Change] ──► [Build] ──► [Test] ──► [Commit]            │
+│        │              │           │           │                 │
+│        │              ▼           ▼           ▼                 │
+│        │           FAIL?       FAIL?      SUCCESS!              │
+│        │              │           │                             │
+│        │              ▼           ▼                             │
+│        │         [Fix Error] ◄────┘                             │
+│        │              │                                         │
+│        └──────────────┘  (Loop until all pass)                  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Pipeline Steps:**
 
 ```bash
-# Step 1: Build the project (MUST PASS before commit)
+# Step 1: Build the project
 cd FinanceCenter/FinanceCenter
 dotnet build
 
-# Step 2: If build fails, FIX THE ERRORS first. Do NOT proceed until build succeeds.
+# Step 2: If build FAILS → Fix errors → Go back to Step 1
+# If build PASSES → Continue to Step 3
 
-# Step 3: Check changes
-git status
+# Step 3: Run unit tests
+dotnet test
 
-# Step 4: Stage changes
-git add <changed-files>
-# Or stage all
+# Step 4: If tests FAIL → Fix errors → Go back to Step 1
+# If tests PASS → Continue to Step 5
+
+# Step 5: Stage and commit
 git add .
-
-# Step 5: Commit (message MUST be in Traditional Chinese)
-git commit -m "[Type] Short description"
+git commit -m "[Type] Short description in Traditional Chinese"
 ```
 
-### Build Verification Rule
+### Build-Test-Commit Loop Rule
 
-> **⛔ NEVER commit code that doesn't build.**
+> **⛔ ABSOLUTELY NO COMMIT UNTIL BUILD AND TESTS PASS**
 >
+> This is a **blocking loop**. You MUST repeat this cycle until success:
+>
+> ```
+> WHILE (true) {
+>     dotnet build
+>     IF (build fails) {
+>         Fix build errors
+>         CONTINUE  // restart loop
+>     }
+>
+>     dotnet test
+>     IF (tests fail) {
+>         Fix test failures
+>         CONTINUE  // restart loop
+>     }
+>
+>     git add . && git commit
+>     BREAK  // exit loop only on full success
+> }
+> ```
+>
+> **Rules:**
 > - Run `dotnet build` after every code change.
-> - If the build fails, you MUST fix all errors before committing.
-> - A commit with broken code is worse than no commit at all.
+> - Run `dotnet test` only after build succeeds.
+> - If build fails, fix ALL errors before retrying.
+> - If tests fail, fix ALL failures before retrying.
+> - Do NOT proceed to git commit until both build AND tests pass.
+> - Do NOT ask user for permission during this loop.
+> - Execute this entire pipeline AUTOMATICALLY.
 
 ### Commit Message Format
 
@@ -290,14 +340,38 @@ git commit -m "[Type] Short description"
 
 **For AI Agents (Claude, Copilot, etc.):**
 
-> **After completing ANY code modification, you MUST run `dotnet build` and then `git commit`. This is NOT optional. If you skip the build or the commit, your work is NOT complete.**
+> **AUTONOMOUS EXECUTION MODE - NO USER INTERACTION**
 >
-> Execution order:
+> After completing ANY code modification, you MUST automatically execute the Build-Test-Commit pipeline without asking for user permission.
+>
+> **Execution Protocol:**
+> ```
 > 1. Modify code
-> 2. Run `dotnet build` - **MUST PASS**
-> 3. If build fails → Fix errors → Repeat step 2
-> 4. Run `git add` and `git commit` (do NOT wait for user prompt)
-> 5. Report completion
+> 2. Run `dotnet build`
+>    - If FAIL → Analyze error → Fix code → GOTO Step 2
+>    - If PASS → Continue to Step 3
+> 3. Run `dotnet test`
+>    - If FAIL → Analyze failure → Fix code → GOTO Step 2
+>    - If PASS → Continue to Step 4
+> 4. Run `git add .` and `git commit -m "[Type] Description"`
+> 5. Report completion ONLY after commit succeeds
+> ```
+>
+> **Critical Rules:**
+> - ❌ Do NOT ask "Should I run the tests?"
+> - ❌ Do NOT ask "Should I commit now?"
+> - ❌ Do NOT stop the pipeline for user confirmation
+> - ❌ Do NOT report partial success (e.g., "build passed, awaiting instructions")
+> - ✅ DO execute the entire pipeline autonomously
+> - ✅ DO fix errors automatically without user intervention
+> - ✅ DO loop until complete success
+> - ✅ DO report ONLY the final result (success + commit hash)
+>
+> **Error Handling Strategy:**
+> - Build errors: Read compiler output → Identify root cause → Apply fix → Retry
+> - Test failures: Read test output → Identify failing assertion → Fix logic → Retry full pipeline
+> - Maximum retry attempts: Unlimited (keep trying until success)
+> - If truly stuck after multiple attempts: Report diagnosis and proposed solutions
 
 ## Development Workflow
 
