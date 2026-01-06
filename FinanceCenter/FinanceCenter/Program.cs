@@ -2,6 +2,7 @@ using FinanceCenter.Components;
 using FinanceCenter.Data;
 using FinanceCenter.Repositories;
 using FinanceCenter.Services;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 
@@ -12,6 +13,12 @@ namespace FinanceCenter
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // 強制啟用 Static Web Assets（解決非 Development 環境的問題）
+            if (!builder.Environment.IsDevelopment())
+            {
+                builder.WebHost.UseStaticWebAssets();
+            }
 
             builder.Services.AddMudServices();
 
