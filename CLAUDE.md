@@ -229,60 +229,75 @@ Database (MySQL / MSSQL)
 
 ## Git Workflow
 
-### 🚨 強制規則：每次異動必須 Commit
+### 🚨 Mandatory Rule: Commit After Every Change
 
-**這是鐵律，不是建議。違反者等同於沒完成工作。**
+**This is an iron law, not a suggestion. Failure to comply means the work is incomplete.**
 
-當你完成以下任何一項操作時，**必須立即執行 `git add` 和 `git commit`**：
-1. 新增檔案
-2. 修改現有檔案
-3. 刪除檔案
-4. 重構程式碼
+You **MUST** execute `dotnet build`, `git add`, and `git commit` immediately after completing any of the following:
+1. Adding new files
+2. Modifying existing files
+3. Deleting files
+4. Refactoring code
 
-### Commit 執行流程
+### Commit Execution Flow
 
 ```bash
-# 步驟 1: 檢查變更
+# Step 1: Build the project (MUST PASS before commit)
+cd FinanceCenter/FinanceCenter
+dotnet build
+
+# Step 2: If build fails, FIX THE ERRORS first. Do NOT proceed until build succeeds.
+
+# Step 3: Check changes
 git status
 
-# 步驟 2: 加入變更
+# Step 4: Stage changes
 git add <changed-files>
-# 或全部加入
+# Or stage all
 git add .
 
-# 步驟 3: 提交（訊息必須用繁體中文）
-git commit -m "[類型] 簡短描述"
+# Step 5: Commit (message MUST be in Traditional Chinese)
+git commit -m "[Type] Short description"
 ```
 
-### Commit Message 格式
+### Build Verification Rule
 
-- **語言**：必須使用**繁體中文 (zh-tw)**
-- **格式**：`[類型] 簡短描述`
-- **類型選項**：
-  - `[功能]` - 新增功能 (Feature)
-  - `[修復]` - 修復 Bug (Fix)
-  - `[重構]` - 重構程式碼 (Refactor)
-  - `[文件]` - 更新文件 (Docs)
-  - `[樣式]` - 調整樣式/格式 (Style)
-  - `[測試]` - 新增或修改測試 (Test)
-  - `[雜項]` - 其他瑣碎事項 (Chore)
+> **⛔ NEVER commit code that doesn't build.**
+>
+> - Run `dotnet build` after every code change.
+> - If the build fails, you MUST fix all errors before committing.
+> - A commit with broken code is worse than no commit at all.
 
-**範例**：
+### Commit Message Format
+
+- **Language**: MUST use **Traditional Chinese (zh-tw)**
+- **Format**: `[Type] Short description`
+- **Type Options**:
+  - `[功能]` - New feature (Feature)
+  - `[修復]` - Bug fix (Fix)
+  - `[重構]` - Code refactoring (Refactor)
+  - `[文件]` - Documentation update (Docs)
+  - `[樣式]` - Style/formatting changes (Style)
+  - `[測試]` - Add or modify tests (Test)
+  - `[雜項]` - Miscellaneous (Chore)
+
+**Examples**:
 - `[功能] 新增現金流管理頁面`
 - `[修復] 修正日期格式解析錯誤`
 - `[重構] 簡化 Repository 層邏輯`
 
-### ⚠️ Agent 行為強制指令
+### ⚠️ Mandatory Agent Behavior
 
-**對於 AI Agent（Claude、Copilot 等）：**
+**For AI Agents (Claude, Copilot, etc.):**
 
-> **你在完成任何程式碼修改後，必須執行 `git add` 和 `git commit`。這不是可選的。如果你沒有執行 commit，你的工作就不算完成。**
+> **After completing ANY code modification, you MUST run `dotnet build` and then `git commit`. This is NOT optional. If you skip the build or the commit, your work is NOT complete.**
 >
-> 執行順序：
-> 1. 修改程式碼
-> 2. 確認修改正確
-> 3. **立即執行 git commit**（不要等用戶提醒）
-> 4. 回報完成
+> Execution order:
+> 1. Modify code
+> 2. Run `dotnet build` - **MUST PASS**
+> 3. If build fails → Fix errors → Repeat step 2
+> 4. Run `git add` and `git commit` (do NOT wait for user prompt)
+> 5. Report completion
 
 ## Development Workflow
 
