@@ -4,26 +4,15 @@
 -- ============================================
 
 CREATE TABLE IF NOT EXISTS `CashFlow` (
-    -- 主鍵識別碼
     `Id` INT NOT NULL AUTO_INCREMENT COMMENT '唯一識別碼',
-
-    -- 建立日期
     `CreateDay` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '建立日期',
-
-    -- 申請資訊
     `Department` VARCHAR(100) NOT NULL COMMENT '申請部門',
     `Applicant` VARCHAR(50) NOT NULL COMMENT '申請人',
     `Reason` VARCHAR(500) NOT NULL COMMENT '申請原因',
-
-    -- 金額資訊
     `Expense` DECIMAL(18, 2) NOT NULL DEFAULT 0.00 COMMENT '支出金額',
     `Income` DECIMAL(18, 2) NOT NULL DEFAULT 0.00 COMMENT '收入金額',
     `Fee` DECIMAL(18, 2) NOT NULL DEFAULT 0.00 COMMENT '手續費',
-
-    -- 主鍵設定
     PRIMARY KEY (`Id`),
-
-    -- 索引設定 (提升查詢效能)
     INDEX `idx_createday` (`CreateDay`),
     INDEX `idx_department` (`Department`),
     INDEX `idx_applicant` (`Applicant`)
