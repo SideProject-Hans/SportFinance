@@ -31,9 +31,9 @@ namespace FinanceCenter
                     .EnableSensitiveDataLogging(builder.Environment.IsDevelopment())
                     .EnableDetailedErrors(builder.Environment.IsDevelopment()));
 
-            // 註冊 Repository 和 Service
-            builder.Services.AddScoped<FinanceRepository>();
-            builder.Services.AddScoped<FinanceService>();
+            // 註冊 Unit of Work 和 Service
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IFinanceService, FinanceService>();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()

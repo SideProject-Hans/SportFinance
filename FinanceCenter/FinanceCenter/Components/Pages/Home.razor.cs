@@ -12,7 +12,7 @@ namespace FinanceCenter.Components.Pages;
 public partial class Home
 {
 	[Inject]
-	private FinanceService FinanceService { get; set; } = null!;
+	private IFinanceService FinanceService { get; set; } = null!;
 
 	[Inject]
 	private IDialogService DialogService { get; set; } = null!;
