@@ -237,18 +237,22 @@
         "AMENDED",
         "Annalyn's",
         "Antiforgery",
+        "appsettings",
         "blazor",
+        "braindead",
         "chdir",
         "createday",
         "duotify",
         "exercism",
         "Hsts",
+        "microkernels",
         "nosnippet",
         "RATIFICATION",
         "rendermode",
         "snackbars",
         "speckit",
-        "stylesheet"
+        "stylesheet",
+        "userspace"
     ],
 
     // *********************************************************************

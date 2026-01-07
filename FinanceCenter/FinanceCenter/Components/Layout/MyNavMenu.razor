@@ -1,9 +1,11 @@
-﻿<MudNavMenu>
-    <MudNavLink Href="/" Match="NavLinkMatch.All">Dashboard</MudNavLink>
-    <MudNavLink Href="/servers" Match="NavLinkMatch.Prefix">Servers</MudNavLink>
-    <MudNavGroup Title="Settings" Expanded="true">
-        <MudNavLink Href="/users"  Match="NavLinkMatch.Prefix">Users</MudNavLink>
-        <MudNavLink Href="/security"  Match="NavLinkMatch.Prefix">Security</MudNavLink>
+@using Microsoft.AspNetCore.Components.Routing
+
+<MudNavMenu>
+    <MudNavGroup Title="交易明細" Expanded="true" Icon="@Icons.Material.Filled.AccountBalance">
+        <MudNavLink Href="/transactions/shanghai" Match="NavLinkMatch.Prefix">上海銀行</MudNavLink>
+        <MudNavLink Href="/transactions/tcb" Match="NavLinkMatch.Prefix">合作金庫</MudNavLink>
     </MudNavGroup>
-    <MudNavLink Href="/about"  Match="NavLinkMatch.Prefix">About</MudNavLink>
+    <MudNavLink Href="/department-expenses" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Receipt">部門活動開銷紀錄</MudNavLink>
+    <MudNavLink Href="/annual-budget" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PieChart">年度預算</MudNavLink>
+    <MudNavLink Href="/settings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Settings">設定</MudNavLink>
 </MudNavMenu>
