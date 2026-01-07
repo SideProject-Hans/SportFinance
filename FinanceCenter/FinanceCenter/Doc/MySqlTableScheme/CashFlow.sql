@@ -6,6 +6,7 @@
 CREATE TABLE IF NOT EXISTS `CashFlow` (
     `Id` INT NOT NULL AUTO_INCREMENT COMMENT '唯一識別碼',
     `CreateDay` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '建立日期',
+    `RemittanceDate` DATE NULL COMMENT '匯款日期',
     `Department` VARCHAR(100) NOT NULL COMMENT '申請部門',
     `Applicant` VARCHAR(50) NOT NULL COMMENT '申請人',
     `Reason` VARCHAR(500) NOT NULL COMMENT '申請原因',
