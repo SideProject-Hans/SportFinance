@@ -23,6 +23,12 @@ public class CashFlow
     public DateTime CreateDay { get; set; } = DateTime.Now;
 
     /// <summary>
+    /// 匯款日期
+    /// </summary>
+    [Column("RemittanceDate")]
+    public DateOnly? RemittanceDate { get; set; }
+
+    /// <summary>
     /// 申請部門
     /// </summary>
     [Required]
