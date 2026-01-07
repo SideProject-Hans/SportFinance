@@ -1,8 +1,8 @@
 namespace FinanceCenter.Components.Pages;
 
 /// <summary>
-/// Dashboard 首頁
+/// 活動開銷紀錄頁面
 /// </summary>
-public partial class Home
+public partial class ActivityExpenses
 {
 }

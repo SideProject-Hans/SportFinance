@@ -1,8 +1,8 @@
 namespace FinanceCenter.Components.Pages;
 
 /// <summary>
-/// Dashboard 首頁
+/// 上海銀行帳戶明細頁面
 /// </summary>
-public partial class Home
+public partial class ShanghaiBank
 {
 }
