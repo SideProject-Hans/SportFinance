@@ -1,5 +1,8 @@
 ﻿<MudNavMenu>
-    <MudNavLink Href="/" Match="NavLinkMatch.All">銀行帳戶明細</MudNavLink>
+    <MudNavGroup Title="銀行帳戶明細" Expanded="true">
+        <MudNavLink Href="/" Match="NavLinkMatch.All">上海銀行</MudNavLink>
+        <MudNavLink Href="/bank/tcb" Match="NavLinkMatch.Prefix">合作金庫</MudNavLink>
+    </MudNavGroup>
     <MudNavLink Href="/annual-budget" Match="NavLinkMatch.Prefix">年度預算</MudNavLink>
     <MudNavLink Href="/activity-expenses" Match="NavLinkMatch.Prefix">活動開銷紀錄</MudNavLink>
     <MudNavLink Href="/settings" Match="NavLinkMatch.Prefix">設定</MudNavLink>
