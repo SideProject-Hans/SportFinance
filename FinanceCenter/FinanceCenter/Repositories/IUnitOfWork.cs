@@ -6,5 +6,7 @@ namespace FinanceCenter.Repositories;
 public interface IUnitOfWork : IDisposable
 {
 	IFinanceRepository Finance { get; }
+	IShanghaiBankRepository ShanghaiBank { get; }
+	ITaiwanCooperativeBankRepository TaiwanCooperativeBank { get; }
 	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

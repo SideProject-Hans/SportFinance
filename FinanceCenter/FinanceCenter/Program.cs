@@ -34,6 +34,8 @@ namespace FinanceCenter
             // 註冊 Unit of Work 和 Service
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IFinanceService, FinanceService>();
+            builder.Services.AddScoped<IShanghaiBankService, ShanghaiBankService>();
+            builder.Services.AddScoped<ITaiwanCooperativeBankService, TaiwanCooperativeBankService>();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()

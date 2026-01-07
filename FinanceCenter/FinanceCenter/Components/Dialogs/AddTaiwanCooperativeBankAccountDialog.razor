@@ -1,0 +1,21 @@
+@using FinanceCenter.Data.Entities
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">新增合作金庫帳戶明細</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="_isValid">
+            <MudTextField @bind-Value="Account.Department" Label="申請部門" Required="true" RequiredError="請輸入申請部門" />
+            <MudTextField @bind-Value="Account.Applicant" Label="申請人" Required="true" RequiredError="請輸入申請人" />
+            <MudTextField @bind-Value="Account.Reason" Label="申請原因" Required="true" RequiredError="請輸入申請原因" Lines="3" />
+            <MudNumericField @bind-Value="Account.Income" Label="收入金額" Format="N2" Min="0" />
+            <MudNumericField @bind-Value="Account.Expense" Label="支出金額" Format="N2" Min="0" />
+            <MudNumericField @bind-Value="Account.Fee" Label="手續費" Format="N2" Min="0" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">取消</MudButton>
+        <MudButton Color="Color.Primary" Disabled="@(!_isValid)" OnClick="Submit">確定</MudButton>
+    </DialogActions>
+</MudDialog>

@@ -8,8 +8,12 @@ namespace FinanceCenter.Repositories;
 public class UnitOfWork(FinanceCenterDbContext context) : IUnitOfWork
 {
 	private IFinanceRepository? _finance;
+	private IShanghaiBankRepository? _shanghaiBank;
+	private ITaiwanCooperativeBankRepository? _taiwanCooperativeBank;
 
 	public IFinanceRepository Finance => _finance ??= new FinanceRepository(context);
+	public IShanghaiBankRepository ShanghaiBank => _shanghaiBank ??= new ShanghaiBankRepository(context);
+	public ITaiwanCooperativeBankRepository TaiwanCooperativeBank => _taiwanCooperativeBank ??= new TaiwanCooperativeBankRepository(context);
 
 	public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
 	{
