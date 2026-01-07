@@ -3,7 +3,9 @@
     "allow": [
       "Bash(dotnet build:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(dotnet test)",
+      "Bash(dotnet test:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
