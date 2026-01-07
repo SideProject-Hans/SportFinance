@@ -71,8 +71,8 @@ public class CashFlow
     public decimal Fee { get; set; } = 0.00m;
 
     /// <summary>
-    /// 計算淨金額 (收入 - 支出 - 手續費)
+    /// 累計淨金額（由外部計算後設定）
     /// </summary>
     [NotMapped]
-    public decimal NetAmount => Income - Expense - Fee;
+    public decimal NetAmount { get; set; }
 }

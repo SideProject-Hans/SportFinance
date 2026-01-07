@@ -12,7 +12,7 @@
         <MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="RefreshDataAsync" Class="ml-2" />
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => x.CreateDay" Title="建立日期" Format="yyyy-MM-dd" Sortable="true" />
+        <PropertyColumn Property="x => x.RemittanceDate" Title="匯款日期" Format="yyyy-MM-dd" Sortable="false" />
         <PropertyColumn Property="x => x.Department" Title="申請部門" Sortable="true" />
         <PropertyColumn Property="x => x.Applicant" Title="申請人" Sortable="true" />
         <PropertyColumn Property="x => x.Reason" Title="申請原因" />

@@ -31,11 +31,26 @@ public partial class Home
 	}
 
 	/// <summary>
-	/// 載入所有現金流資料
+	/// 載入所有現金流資料，按匯款日期排序並計算累計淨金額
 	/// </summary>
 	private async Task LoadCashFlowsAsync()
 	{
-		CashFlows = await FinanceService.GetAllCashFlowsAsync();
+		var data = await FinanceService.GetAllCashFlowsAsync();
+		CashFlows = data.OrderBy(x => x.RemittanceDate).ToList();
+		CalculateRunningNetAmount();
+	}
+
+	/// <summary>
+	/// 計算累計淨金額
+	/// </summary>
+	private void CalculateRunningNetAmount()
+	{
+		decimal runningTotal = 0;
+		foreach (var item in CashFlows)
+		{
+			runningTotal = runningTotal - item.Expense + item.Income - item.Fee;
+			item.NetAmount = runningTotal;
+		}
 	}
 
 	/// <summary>
