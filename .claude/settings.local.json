@@ -1,0 +1,12 @@
+{
+  "enabledMcpjsonServers": [
+    "filesystem",
+    "github",
+    "memory",
+    "sequential-thinking",
+    "fetch",
+    "git",
+    "time"
+  ],
+  "enableAllProjectMcpServers": true
+}
