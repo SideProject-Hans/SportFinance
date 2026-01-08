@@ -25,18 +25,75 @@ public partial class TaiwanCooperativeBank
 
 	private List<TaiwanCooperativeBankAccount> Accounts { get; set; } = new();
 
+	/// <summary>
+	/// 可選擇的年份清單
+	/// </summary>
+	private List<int> AvailableYears { get; set; } = new();
+
+	/// <summary>
+	/// 目前選擇的年份
+	/// </summary>
+	private int SelectedYear { get; set; } = DateTime.Now.Year;
+
+	/// <summary>
+	/// 年初餘額（上一年度累計淨金額）
+	/// </summary>
+	private decimal OpeningBalance { get; set; }
+
+	/// <summary>
+	/// 本年度淨金額總和
+	/// </summary>
+	private decimal CurrentYearNetAmount => Accounts.Sum(a => a.NetAmount);
+
+	/// <summary>
+	/// 目前餘額（年初餘額 + 本年度淨金額）
+	/// </summary>
+	private decimal CurrentBalance => OpeningBalance + CurrentYearNetAmount;
+
 	protected override async Task OnInitializedAsync()
 	{
+		await LoadAvailableYearsAsync();
+		await LoadDataAsync();
+	}
+
+	/// <summary>
+	/// 載入可選擇的年份清單
+	/// </summary>
+	private async Task LoadAvailableYearsAsync()
+	{
+		AvailableYears = await TaiwanCooperativeBankService.GetAvailableYearsAsync();
+		
+		// 如果有資料，預設選擇最新年份
+		if (AvailableYears.Count > 0 && !AvailableYears.Contains(SelectedYear))
+		{
+			SelectedYear = AvailableYears.First();
+		}
+		
+		// 如果沒有資料，加入當前年份作為預設選項
+		if (AvailableYears.Count == 0)
+		{
+			AvailableYears.Add(DateTime.Now.Year);
+		}
+	}
+
+	/// <summary>
+	/// 年份變更事件處理
+	/// </summary>
+	private async Task OnYearChangedAsync(int year)
+	{
+		SelectedYear = year;
 		await LoadDataAsync();
 	}
 
 	private async Task LoadDataAsync()
 	{
-		Accounts = await TaiwanCooperativeBankService.GetAllAsync();
+		Accounts = await TaiwanCooperativeBankService.GetByYearAsync(SelectedYear);
+		OpeningBalance = await TaiwanCooperativeBankService.GetOpeningBalanceAsync(SelectedYear);
 	}
 
 	private async Task RefreshDataAsync()
 	{
+		await LoadAvailableYearsAsync();
 		await LoadDataAsync();
 	}
 

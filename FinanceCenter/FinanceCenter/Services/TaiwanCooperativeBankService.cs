@@ -56,6 +56,36 @@ public class TaiwanCooperativeBankService(IUnitOfWork unitOfWork) : ITaiwanCoope
 		return true;
 	}
 
+	public async Task<List<TaiwanCooperativeBankAccount>> GetByYearAsync(int year)
+	{
+		var allAccounts = await unitOfWork.TaiwanCooperativeBank.GetAllAsync();
+		return allAccounts
+			.Where(a => a.RemittanceDate.HasValue && a.RemittanceDate.Value.Year == year)
+			.OrderBy(a => a.RemittanceDate)
+			.ToList();
+	}
+
+	public async Task<List<int>> GetAvailableYearsAsync()
+	{
+		var allAccounts = await unitOfWork.TaiwanCooperativeBank.GetAllAsync();
+		return allAccounts
+			.Where(a => a.RemittanceDate.HasValue)
+			.Select(a => a.RemittanceDate!.Value.Year)
+			.Distinct()
+			.OrderByDescending(y => y)
+			.ToList();
+	}
+
+	public async Task<decimal> GetOpeningBalanceAsync(int year)
+	{
+		var allAccounts = await unitOfWork.TaiwanCooperativeBank.GetAllAsync();
+		
+		// 計算指定年份之前所有資料的淨金額總和
+		return allAccounts
+			.Where(a => a.RemittanceDate.HasValue && a.RemittanceDate.Value.Year < year)
+			.Sum(a => a.NetAmount);
+	}
+
 	public async Task<int> ImportFromExcelAsync(string filePath)
 	{
 		if (!File.Exists(filePath))

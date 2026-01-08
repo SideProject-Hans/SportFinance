@@ -4,14 +4,41 @@
 
 <MudText Typo="Typo.h4" Class="mb-4">合作金庫帳戶明細</MudText>
 
+<MudPaper Class="pa-4 mb-4">
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="3">
+            <MudSelect T="int" Label="選擇年份" Value="@SelectedYear" ValueChanged="OnYearChangedAsync" Variant="Variant.Outlined" Dense="true">
+                @foreach (var year in AvailableYears)
+                {
+                    <MudSelectItem Value="@year">@year 年</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudField Label="年初餘額" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.AccountBalance">
+                <MudText Typo="Typo.body1" Color="@(OpeningBalance >= 0 ? Color.Success : Color.Error)">@OpeningBalance.ToString("N0")</MudText>
+            </MudField>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudField Label="本年度淨額" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.TrendingUp">
+                <MudText Typo="Typo.body1" Color="@(CurrentYearNetAmount >= 0 ? Color.Success : Color.Error)">@CurrentYearNetAmount.ToString("N0")</MudText>
+            </MudField>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudField Label="目前餘額" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.AccountBalanceWallet">
+                <MudText Typo="Typo.body1" Color="@(CurrentBalance >= 0 ? Color.Success : Color.Error)">@CurrentBalance.ToString("N0")</MudText>
+            </MudField>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
 <MudDataGrid T="TaiwanCooperativeBankAccount" Items="@Accounts" Filterable="true" SortMode="SortMode.Multiple" Hover="true" Dense="true">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">帳戶明細紀錄</MudText>
+        <MudText Typo="Typo.h6">@SelectedYear 年帳戶明細紀錄</MudText>
         <MudSpacer />
         <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.RestartAlt" OnClick="OpenInitializeDialogAsync" Class="mr-2">初始化</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddDialogAsync">新增</MudButton>
         <MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="RefreshDataAsync" Class="ml-2" />
-    </ToolBarContent>
     <Columns>
         <PropertyColumn Property="x => x.CreateDay" Title="建立日期" Format="yyyy-MM-dd" Sortable="true" />
         <PropertyColumn Property="x => x.Department" Title="申請部門" Sortable="true" />
@@ -21,6 +48,11 @@
         <PropertyColumn Property="x => x.Income" Title="收入金額" Format="N0" CellStyle="text-align: right" />
         <PropertyColumn Property="x => x.Fee" Title="手續費" Format="N0" CellStyle="text-align: right" />
         <PropertyColumn Property="x => x.NetAmount" Title="淨金額" Format="N0" CellStyle="text-align: right" Sortable="false" Filterable="false" />
+        <TemplateColumn Title="匯款日期" Sortable="true">
+            <CellTemplate>
+                @(context.Item.RemittanceDate?.ToString("yyyy-MM-dd") ?? "-")
+            </CellTemplate>
+        </TemplateColumn>
     </Columns>
     <PagerContent>
         <MudDataGridPager T="TaiwanCooperativeBankAccount" />
