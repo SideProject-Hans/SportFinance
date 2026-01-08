@@ -1,3 +1,4 @@
+using ClosedXML.Excel;
 using FinanceCenter.Data.Entities;
 using FinanceCenter.Repositories;
 
@@ -53,5 +54,71 @@ public class ShanghaiBankService(IUnitOfWork unitOfWork) : IShanghaiBankService
 		unitOfWork.ShanghaiBank.Delete(account);
 		await unitOfWork.SaveChangesAsync();
 		return true;
+	}
+
+	public async Task<int> ImportFromExcelAsync(string filePath)
+	{
+		if (!File.Exists(filePath))
+		{
+			throw new FileNotFoundException($"Excel 檔案不存在: {filePath}");
+		}
+
+		// 先清空現有資料
+		await unitOfWork.ShanghaiBank.ClearAllAsync();
+		await unitOfWork.SaveChangesAsync();
+
+		var accounts = new List<ShanghaiBankAccount>();
+
+		using var workbook = new XLWorkbook(filePath);
+		var worksheet = workbook.Worksheet(1);
+		var rows = worksheet.RowsUsed().Skip(1); // 跳過標題列
+
+		ShanghaiBankAccount? previousAccount = null;
+
+		foreach (var row in rows)
+		{
+			// 讀取 Excel 欄位
+			var year = row.Cell(1).GetValue<int>();      // 年度 (民國年)
+			var month = row.Cell(2).GetValue<int>();     // 月
+			var day = row.Cell(3).GetValue<int>();       // 日
+			var reason = row.Cell(5).GetString().Trim(); // 內容摘要
+			var income = row.Cell(6).GetValue<decimal?>() ?? 0;   // 存入金額
+			var expense = row.Cell(7).GetValue<decimal?>() ?? 0;  // 支出金額
+			var applicant = row.Cell(9).GetString().Trim(); // 申請人
+
+			// 處理手續費特殊邏輯：將金額加到前一筆紀錄的 Fee 欄位
+			if (reason == "手續費")
+			{
+				if (previousAccount != null)
+				{
+					previousAccount.Fee = expense;
+				}
+				continue; // 不建立新紀錄
+			}
+
+			// 民國年轉西元年
+			var westernYear = year + 1911;
+			var remittanceDate = new DateOnly(westernYear, month, day);
+
+			var account = new ShanghaiBankAccount
+			{
+				CreateDay = DateTime.Now,
+				RemittanceDate = remittanceDate,
+				Department = "",
+				Applicant = applicant,
+				Reason = reason,
+				Income = income,
+				Expense = expense,
+				Fee = 0
+			};
+
+			accounts.Add(account);
+			previousAccount = account;
+		}
+
+		unitOfWork.ShanghaiBank.AddRange(accounts);
+		await unitOfWork.SaveChangesAsync();
+
+		return accounts.Count;
 	}
 }

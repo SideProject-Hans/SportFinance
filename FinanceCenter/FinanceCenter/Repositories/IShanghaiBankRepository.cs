@@ -12,6 +12,8 @@ public interface IShanghaiBankRepository
 	Task<List<ShanghaiBankAccount>> GetByDepartmentAsync(string department);
 	Task<List<ShanghaiBankAccount>> GetByDateRangeAsync(DateTime startDate, DateTime endDate);
 	void Add(ShanghaiBankAccount account);
+	void AddRange(IEnumerable<ShanghaiBankAccount> accounts);
 	void Update(ShanghaiBankAccount account);
 	void Delete(ShanghaiBankAccount account);
+	Task ClearAllAsync();
 }

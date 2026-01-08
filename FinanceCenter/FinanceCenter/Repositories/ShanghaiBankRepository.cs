@@ -42,6 +42,11 @@ public class ShanghaiBankRepository(FinanceCenterDbContext context) : IShanghaiB
 		context.ShanghaiBankAccounts.Add(account);
 	}
 
+	public void AddRange(IEnumerable<ShanghaiBankAccount> accounts)
+	{
+		context.ShanghaiBankAccounts.AddRange(accounts);
+	}
+
 	public void Update(ShanghaiBankAccount account)
 	{
 		context.ShanghaiBankAccounts.Update(account);
@@ -50,5 +55,11 @@ public class ShanghaiBankRepository(FinanceCenterDbContext context) : IShanghaiB
 	public void Delete(ShanghaiBankAccount account)
 	{
 		context.ShanghaiBankAccounts.Remove(account);
+	}
+
+	public async Task ClearAllAsync()
+	{
+		var allAccounts = await context.ShanghaiBankAccounts.ToListAsync();
+		context.ShanghaiBankAccounts.RemoveRange(allAccounts);
 	}
 }
