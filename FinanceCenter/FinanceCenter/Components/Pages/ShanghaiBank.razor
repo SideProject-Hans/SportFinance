@@ -4,18 +4,7 @@
 
 <MudText Typo="Typo.h4" Class="mb-4">上海銀行帳戶明細</MudText>
 
-<MudButtonGroup OverrideStyles="false" Class="mb-4">
-    @foreach (var year in AvailableYears)
-    {
-        <MudButton Variant="@(year == SelectedYear ? Variant.Filled : Variant.Outlined)"
-                   Color="Color.Primary"
-                   OnClick="@(() => OnYearSelected(year))">
-            @year
-        </MudButton>
-    }
-</MudButtonGroup>
-
-<MudDataGrid T="ShanghaiBankAccount" Items="@FilteredAccounts" Filterable="false" SortMode="SortMode.None" Hover="true" Dense="true">
+<MudDataGrid T="ShanghaiBankAccount" Items="@Accounts" Filterable="true" SortMode="SortMode.Multiple" Hover="true" Dense="true">
     <ToolBarContent>
         <MudText Typo="Typo.h6">帳戶明細紀錄</MudText>
         <MudSpacer />
@@ -24,14 +13,14 @@
         <MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="RefreshDataAsync" Class="ml-2" />
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => x.RemittanceDate" Title="日期" Format="MM-dd" Sortable="false" Filterable="false" CellStyle="width: 60px" />
-        <PropertyColumn Property="x => x.Department" Title="部門" Sortable="false" Filterable="false" CellStyle="width: 100px" />
-        <PropertyColumn Property="x => x.Applicant" Title="申請人" Sortable="false" Filterable="false" CellStyle="width: 100px" />
-        <PropertyColumn Property="x => x.Reason" Title="申請原因" Sortable="false" Filterable="false" CellStyle="width: 200px" />
-        <PropertyColumn Property="x => x.Expense" Title="支出" Format="N0" Sortable="false" Filterable="false" CellStyle="text-align: right; width: 90px" />
-        <PropertyColumn Property="x => x.Income" Title="收入" Format="N0" Sortable="false" Filterable="false" CellStyle="text-align: right; width: 90px" />
-        <PropertyColumn Property="x => x.Fee" Title="手續費" Format="N0" Sortable="false" Filterable="false" CellStyle="text-align: right; width: 140px" />
-        <PropertyColumn Property="x => x.NetAmount" Title="淨金額" Format="N0" Sortable="false" Filterable="false" CellStyle="text-align: right; width: 100px" />
+        <PropertyColumn Property="x => x.CreateDay" Title="建立日期" Format="yyyy-MM-dd" Sortable="true" />
+        <PropertyColumn Property="x => x.Department" Title="申請部門" Sortable="true" />
+        <PropertyColumn Property="x => x.Applicant" Title="申請人" Sortable="true" />
+        <PropertyColumn Property="x => x.Reason" Title="申請原因" />
+        <PropertyColumn Property="x => x.Expense" Title="支出金額" Format="N0" CellStyle="text-align: right" />
+        <PropertyColumn Property="x => x.Income" Title="收入金額" Format="N0" CellStyle="text-align: right" />
+        <PropertyColumn Property="x => x.Fee" Title="手續費" Format="N0" CellStyle="text-align: right" />
+        <PropertyColumn Property="x => x.NetAmount" Title="淨金額" Format="N0" CellStyle="text-align: right" Sortable="false" Filterable="false" />
     </Columns>
     <PagerContent>
         <MudDataGridPager T="ShanghaiBankAccount" />

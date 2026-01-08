@@ -14,4 +14,5 @@ public interface ITaiwanCooperativeBankService
 	Task<TaiwanCooperativeBankAccount> AddAsync(TaiwanCooperativeBankAccount account);
 	Task<TaiwanCooperativeBankAccount> UpdateAsync(TaiwanCooperativeBankAccount account);
 	Task<bool> DeleteAsync(int id);
+	Task<int> ImportFromExcelAsync(string filePath);
 }

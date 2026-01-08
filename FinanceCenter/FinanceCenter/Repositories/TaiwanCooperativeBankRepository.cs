@@ -42,6 +42,11 @@ public class TaiwanCooperativeBankRepository(FinanceCenterDbContext context) : I
 		context.TaiwanCooperativeBankAccounts.Add(account);
 	}
 
+	public void AddRange(IEnumerable<TaiwanCooperativeBankAccount> accounts)
+	{
+		context.TaiwanCooperativeBankAccounts.AddRange(accounts);
+	}
+
 	public void Update(TaiwanCooperativeBankAccount account)
 	{
 		context.TaiwanCooperativeBankAccounts.Update(account);
@@ -50,5 +55,11 @@ public class TaiwanCooperativeBankRepository(FinanceCenterDbContext context) : I
 	public void Delete(TaiwanCooperativeBankAccount account)
 	{
 		context.TaiwanCooperativeBankAccounts.Remove(account);
+	}
+
+	public async Task ClearAllAsync()
+	{
+		var allAccounts = await context.TaiwanCooperativeBankAccounts.ToListAsync();
+		context.TaiwanCooperativeBankAccounts.RemoveRange(allAccounts);
 	}
 }

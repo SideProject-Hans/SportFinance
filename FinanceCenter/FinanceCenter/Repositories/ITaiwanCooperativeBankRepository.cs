@@ -12,6 +12,8 @@ public interface ITaiwanCooperativeBankRepository
 	Task<List<TaiwanCooperativeBankAccount>> GetByDepartmentAsync(string department);
 	Task<List<TaiwanCooperativeBankAccount>> GetByDateRangeAsync(DateTime startDate, DateTime endDate);
 	void Add(TaiwanCooperativeBankAccount account);
+	void AddRange(IEnumerable<TaiwanCooperativeBankAccount> accounts);
 	void Update(TaiwanCooperativeBankAccount account);
 	void Delete(TaiwanCooperativeBankAccount account);
+	Task ClearAllAsync();
 }
