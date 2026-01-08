@@ -1,0 +1,27 @@
+@page "/bank/scsb"
+
+<PageTitle>上海銀行帳戶明細</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">上海銀行帳戶明細</MudText>
+
+<MudDataGrid T="ShanghaiBankAccount" Items="@Accounts" Filterable="true" SortMode="SortMode.Multiple" Hover="true" Dense="true">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">帳戶明細紀錄</MudText>
+        <MudSpacer />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddDialogAsync">新增</MudButton>
+        <MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="RefreshDataAsync" Class="ml-2" />
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.CreateDay" Title="建立日期" Format="yyyy-MM-dd" Sortable="true" />
+        <PropertyColumn Property="x => x.Department" Title="申請部門" Sortable="true" />
+        <PropertyColumn Property="x => x.Applicant" Title="申請人" Sortable="true" />
+        <PropertyColumn Property="x => x.Reason" Title="申請原因" />
+        <PropertyColumn Property="x => x.Expense" Title="支出金額" Format="N0" CellStyle="text-align: right" />
+        <PropertyColumn Property="x => x.Income" Title="收入金額" Format="N0" CellStyle="text-align: right" />
+        <PropertyColumn Property="x => x.Fee" Title="手續費" Format="N0" CellStyle="text-align: right" />
+        <PropertyColumn Property="x => x.NetAmount" Title="淨金額" Format="N0" CellStyle="text-align: right" Sortable="false" Filterable="false" />
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="ShanghaiBankAccount" />
+    </PagerContent>
+</MudDataGrid>

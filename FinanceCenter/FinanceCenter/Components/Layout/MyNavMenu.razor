@@ -1,11 +1,11 @@
 @using Microsoft.AspNetCore.Components.Routing
 
 <MudNavMenu>
-    <MudNavGroup Title="交易明細" Expanded="true" Icon="@Icons.Material.Filled.AccountBalance">
-        <MudNavLink Href="/transactions/shanghai" Match="NavLinkMatch.Prefix">上海銀行</MudNavLink>
-        <MudNavLink Href="/transactions/tcb" Match="NavLinkMatch.Prefix">合作金庫</MudNavLink>
+    <MudNavGroup Title="銀行帳戶明細" Expanded="true">
+        <MudNavLink Href="/bank/scsb" Match="NavLinkMatch.Prefix">上海銀行</MudNavLink>
+        <MudNavLink Href="/bank/tcb" Match="NavLinkMatch.Prefix">合作金庫</MudNavLink>
     </MudNavGroup>
-    <MudNavLink Href="/department-expenses" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Receipt">部門活動開銷紀錄</MudNavLink>
-    <MudNavLink Href="/annual-budget" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PieChart">年度預算</MudNavLink>
-    <MudNavLink Href="/settings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Settings">設定</MudNavLink>
+    <MudNavLink Href="/annual-budget" Match="NavLinkMatch.Prefix">年度預算</MudNavLink>
+    <MudNavLink Href="/activity-expenses" Match="NavLinkMatch.Prefix">活動開銷紀錄</MudNavLink>
+    <MudNavLink Href="/settings" Match="NavLinkMatch.Prefix">設定</MudNavLink>
 </MudNavMenu>
