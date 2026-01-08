@@ -70,50 +70,53 @@ public class ShanghaiBankService(IUnitOfWork unitOfWork) : IShanghaiBankService
 		var accounts = new List<ShanghaiBankAccount>();
 
 		using var workbook = new XLWorkbook(filePath);
-		var worksheet = workbook.Worksheet(1);
-		var rows = worksheet.RowsUsed().Skip(1); // 跳過標題列
 
-		ShanghaiBankAccount? previousAccount = null;
-
-		foreach (var row in rows)
+		// 遍歷所有頁簽 (2019~2025)
+		foreach (var worksheet in workbook.Worksheets)
 		{
-			// 讀取 Excel 欄位
-			var year = row.Cell(1).GetValue<int>();      // 年度 (民國年)
-			var month = row.Cell(2).GetValue<int>();     // 月
-			var day = row.Cell(3).GetValue<int>();       // 日
-			var reason = row.Cell(5).GetString().Trim(); // 內容摘要
-			var income = row.Cell(6).GetValue<decimal?>() ?? 0;   // 存入金額
-			var expense = row.Cell(7).GetValue<decimal?>() ?? 0;  // 支出金額
-			var applicant = row.Cell(9).GetString().Trim(); // 申請人
+			var rows = worksheet.RowsUsed().Skip(1); // 跳過標題列
+			ShanghaiBankAccount? previousAccount = null;
 
-			// 處理手續費特殊邏輯：將金額加到前一筆紀錄的 Fee 欄位
-			if (reason == "手續費")
+			foreach (var row in rows)
 			{
-				if (previousAccount != null)
+				// 讀取 Excel 欄位
+				var year = row.Cell(1).GetValue<int>();      // 年度 (民國年)
+				var month = row.Cell(2).GetValue<int>();     // 月
+				var day = row.Cell(3).GetValue<int>();       // 日
+				var reason = row.Cell(5).GetString().Trim(); // 內容摘要
+				var income = row.Cell(6).GetValue<decimal?>() ?? 0;   // 存入金額
+				var expense = row.Cell(7).GetValue<decimal?>() ?? 0;  // 支出金額
+				var applicant = row.Cell(9).GetString().Trim(); // 申請人
+
+				// 處理手續費特殊邏輯：將金額加到前一筆紀錄的 Fee 欄位
+				if (reason == "手續費")
 				{
-					previousAccount.Fee = expense;
+					if (previousAccount != null)
+					{
+						previousAccount.Fee = expense;
+					}
+					continue; // 不建立新紀錄
 				}
-				continue; // 不建立新紀錄
+
+				// 民國年轉西元年
+				var westernYear = year + 1911;
+				var remittanceDate = new DateOnly(westernYear, month, day);
+
+				var account = new ShanghaiBankAccount
+				{
+					CreateDay = DateTime.Now,
+					RemittanceDate = remittanceDate,
+					Department = "",
+					Applicant = applicant,
+					Reason = reason,
+					Income = income,
+					Expense = expense,
+					Fee = 0
+				};
+
+				accounts.Add(account);
+				previousAccount = account;
 			}
-
-			// 民國年轉西元年
-			var westernYear = year + 1911;
-			var remittanceDate = new DateOnly(westernYear, month, day);
-
-			var account = new ShanghaiBankAccount
-			{
-				CreateDay = DateTime.Now,
-				RemittanceDate = remittanceDate,
-				Department = "",
-				Applicant = applicant,
-				Reason = reason,
-				Income = income,
-				Expense = expense,
-				Fee = 0
-			};
-
-			accounts.Add(account);
-			previousAccount = account;
 		}
 
 		unitOfWork.ShanghaiBank.AddRange(accounts);
