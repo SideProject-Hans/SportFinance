@@ -22,6 +22,12 @@ public partial class Settings
 
 	private List<Department> Departments { get; set; } = new();
 	private List<BankInitialBalance> BankBalances { get; set; } = new();
+	private int SelectedTab { get; set; } = 0;
+
+	private void SelectTab(int tab)
+	{
+		SelectedTab = tab;
+	}
 
 	protected override async Task OnInitializedAsync()
 	{
