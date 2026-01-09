@@ -318,7 +318,67 @@ DEALLOCATE PREPARE stmt;
 
 ## Git Workflow
 
-### 🚨 Iron Rule: Commit After Every Change
+### 🚨 Iron Rule #1: Always Work on Feature Branches
+
+> **NEVER commit directly to `main` branch**
+>
+> All changes must be developed on a feature branch and merged only after verification.
+
+**Branch Workflow:**
+
+```
+[New Task] → [Create Branch] → [Develop] → [Build & Test] → [Commit] → [Merge to Main]
+     │              │              │              │             │              │
+     │         feature/xxx     Multiple      All Pass?      Push to      Only when
+     │                         commits                      branch       complete!
+```
+
+**Branch Naming Convention:**
+
+```bash
+# Format: <type>/<short-description>
+feature/add-department-page      # New feature
+fix/date-format-error            # Bug fix
+refactor/settings-layout         # Code refactoring
+style/update-navbar-design       # UI/style changes
+```
+
+**Agent Mandatory Behavior:**
+
+> **FEATURE BRANCH MODE**
+>
+> When starting ANY new task:
+> 1. Check current branch with `git branch --show-current`
+> 2. If on `main`, create a new feature branch FIRST
+> 3. All commits go to the feature branch
+> 4. Only merge to `main` when the task is FULLY complete and verified
+>
+> **Critical Rules:**
+> - ❌ DO NOT commit to `main` directly
+> - ❌ DO NOT merge incomplete work to `main`
+> - ✅ Create a new branch for each task/feature
+> - ✅ Merge only after build + test pass
+
+**Branch Commands:**
+
+```bash
+# Create and switch to a new branch
+git checkout -b feature/your-feature-name
+
+# Switch back to main
+git checkout main
+
+# Merge feature branch to main (after verification)
+git checkout main
+git merge feature/your-feature-name
+
+# Delete feature branch after merge
+git branch -d feature/your-feature-name
+```
+
+---
+
+### 🚨 Iron Rule #2: Commit After Every Change
 
 **After completing any file modification, the Build-Test-Commit pipeline must be executed automatically.**
 
@@ -354,13 +414,47 @@ DEALLOCATE PREPARE stmt;
 > After modifying code, automatically execute:
 > 1. `dotnet build` — Fix and retry on failure
 > 2. `dotnet test` — Fix and retry on failure
-> 3. `git add . && git commit` — Execute only after Build and Test pass
+> 3. `git add <specific-files> && git commit` — Execute only after Build and Test pass
 >
 > **Critical Rules:**
 > - ❌ DO NOT ask "Should I run the tests?"
 > - ❌ DO NOT ask "Should I commit now?"
 > - ✅ Execute the entire pipeline automatically
 > - ✅ Report only the final result (success + commit hash)
+
+### 🚨 Git Add Rules: Only Add Related Files
+
+> **NEVER use `git add .` or `git add -A`**
+>
+> This is a shared repository. Other developers may have uncommitted changes in their working directory.
+> Using `git add .` will accidentally include their work-in-progress files into your commit.
+
+**Correct Approach:**
+
+```bash
+# ✅ CORRECT: Only add files YOU modified in this task
+git add path/to/file1.cs path/to/file2.razor
+
+# ❌ WRONG: Never add all files blindly
+git add .
+git add -A
+git add --all
+```
+
+**Before Committing, Always:**
+
+1. Run `git status` to see all changed files
+2. Identify which files are related to YOUR current task
+3. Only `git add` those specific files
+4. Ignore unrelated changes (config files, other features, etc.)
+
+**Common Files to EXCLUDE from commits:**
+
+- `.claude/` - Local Claude Code settings
+- `.mcp.json` - Local MCP configuration
+- `**/bin/`, `**/obj/` - Build artifacts (should be in .gitignore)
+- `appsettings.Development.json` - Local dev settings
+- `__pycache__/` - Python cache files
 
 ---
 
