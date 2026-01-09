@@ -24,6 +24,7 @@ public partial class Settings
 	private List<BankInitialBalance> BankBalances { get; set; } = new();
 	private int SelectedTab { get; set; } = 0;
 	private IEnumerable<int> AvailableYears => Enumerable.Range(DateTime.Now.Year - 5, 11);
+	private CancellationTokenSource? _saveCts;
 
 	private void SelectTab(int tab)
 	{
@@ -144,5 +145,21 @@ public partial class Settings
 		}
 
 		Snackbar.Add("儲存成功", Severity.Success);
+	}
+
+	private void ScheduleSave()
+	{
+		_saveCts?.Cancel();
+		_saveCts = new CancellationTokenSource();
+		var token = _saveCts.Token;
+
+		_ = Task.Run(async () =>
+		{
+			await Task.Delay(400, token);
+			if (!token.IsCancellationRequested)
+			{
+				await InvokeAsync(SaveBankBalancesAsync);
+			}
+		}, token);
 	}
 }
