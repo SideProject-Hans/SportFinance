@@ -1,5 +1,5 @@
 -- 銀行初始金額資料表
-CREATE TABLE BankInitialBalance (
+CREATE TABLE IF NOT EXISTS BankInitialBalance (
     Id INT PRIMARY KEY AUTO_INCREMENT,
     BankType VARCHAR(50) NOT NULL,
     InitialBalance DECIMAL(18, 2) NOT NULL DEFAULT 0.00,
