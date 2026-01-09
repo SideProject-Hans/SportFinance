@@ -405,10 +405,16 @@ dotnet build
 dotnet test
 # If fail → Fix → Go back to Step 3 (rebuild) → Repeat until success
 
-# Step 5: Only after build + test pass, merge to main
+# Step 5: Only after build + test pass, merge to main (preserve branch history)
 git checkout main
-git merge feature/your-feature-name  # Should be fast-forward, no conflicts
+git merge --no-ff feature/your-feature-name -m "[功能] 合併 feature/your-feature-name"
 ```
+
+> **Why `--no-ff`?**
+> - Preserves the complete commit history of the feature branch
+> - Creates a merge commit that clearly shows when the feature was integrated
+> - Makes it easy to see the full context of a feature in `git log --graph`
+> - Allows easy revert of an entire feature if needed
 
 **Conflict Resolution Priority:**
 
