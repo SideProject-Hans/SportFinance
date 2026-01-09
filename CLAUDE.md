@@ -318,19 +318,100 @@ DEALLOCATE PREPARE stmt;
 
 ## Git Workflow
 
+### 🚨 Iron Rule #0: Use Git Worktree for Parallel Development
+
+> **ALWAYS use Git Worktree when starting a new task**
+>
+> Git Worktree allows maintaining multiple working directories from a single Git repository, preventing branch conflicts when multiple developers or agents work in parallel.
+
+**What is Git Worktree?**
+
+Git Worktree lets you checkout different branches in separate directories while sharing the same `.git` folder. Benefits:
+- Each task has an isolated working directory
+- No need to stash or commit half-finished work to switch tasks
+- Multiple Claude Code agents can work in parallel on different branches
+- Saves disk space by sharing the `.git` directory
+
+**Worktree Directory Structure:**
+
+```
+SportFinance/                    # Main repository (main branch)
+├── .git/                        # Shared Git data
+├── FinanceCenter/
+└── ...
+
+../SportFinance-worktrees/       # Worktree storage directory (sibling to main repo)
+├── feature-add-department/      # Worktree 1: feature/add-department
+├── fix-date-format/             # Worktree 2: fix/date-format-error
+└── refactor-settings/           # Worktree 3: refactor/settings-layout
+```
+
+**Worktree Commands:**
+
+```bash
+# List all worktrees
+git worktree list
+
+# Create new worktree with a new branch
+git worktree add ../SportFinance-worktrees/<worktree-name> -b <branch-name>
+
+# Example: Create worktree for a new feature
+git worktree add ../SportFinance-worktrees/feature-add-department -b feature/add-department
+
+# Create worktree and checkout an existing branch
+git worktree add ../SportFinance-worktrees/<worktree-name> <existing-branch>
+
+# Remove worktree (cleanup after task completion)
+git worktree remove ../SportFinance-worktrees/<worktree-name>
+
+# Prune stale worktree references
+git worktree prune
+```
+
+**Agent Mandatory Behavior:**
+
+> **WORKTREE-FIRST MODE**
+>
+> When starting ANY new task:
+> 1. Run `git worktree list` to check existing worktrees
+> 2. Create a new worktree with a feature branch: `git worktree add ../SportFinance-worktrees/<name> -b <branch>`
+> 3. Change working directory to the new worktree
+> 4. All development happens in this isolated worktree
+> 5. After merge to main, remove the worktree: `git worktree remove <path>`
+>
+> **Critical Rules:**
+> - ✅ ALWAYS create a worktree before starting development
+> - ✅ Each task gets its own worktree + branch
+> - ✅ Worktree names should match branch names (without type prefix)
+> - ✅ Clean up worktrees after successful merge
+> - ❌ DO NOT work directly in the main repository for new features
+> - ❌ DO NOT checkout different branches in the same worktree (Git prevents this anyway)
+
+**Worktree Naming Convention:**
+
+```bash
+# Worktree directory name = branch name with type prefix, using hyphens
+# Branch: feature/add-department-page → Worktree: feature-add-department-page
+# Branch: fix/date-format-error → Worktree: fix-date-format-error
+
+git worktree add ../SportFinance-worktrees/feature-add-department-page -b feature/add-department-page
+```
+
+---
+
 ### 🚨 Iron Rule #1: Always Work on Feature Branches
 
 > **NEVER commit directly to `main` branch**
 >
-> All changes must be developed on a feature branch and merged only after verification.
+> All changes must be developed on a feature branch (in a dedicated worktree) and merged only after verification.
 
-**Branch Workflow:**
+**Branch Workflow (with Worktree):**
 
 ```
-[New Task] → [Create Branch] → [Develop] → [Build & Test] → [Commit] → [Merge to Main]
-     │              │              │              │             │              │
-     │         feature/xxx     Multiple      All Pass?      Push to      Only when
-     │                         commits                      branch       complete!
+[New Task] → [Create Worktree+Branch] → [Develop] → [Build & Test] → [Commit] → [Merge to Main] → [Remove Worktree]
+     │               │                      │              │             │              │               │
+     │      git worktree add            Multiple      All Pass?      Push to      Only when      git worktree
+     │      -b feature/xxx              commits                      branch       complete!         remove
 ```
 
 **Branch Naming Convention:**
@@ -345,27 +426,43 @@ style/update-navbar-design       # UI/style changes
 
 **Agent Mandatory Behavior:**
 
-> **FEATURE BRANCH MODE**
+> **FEATURE BRANCH MODE (via Worktree)**
 >
 > When starting ANY new task:
-> 1. Check current branch with `git branch --show-current`
-> 2. If on `main`, create a new feature branch FIRST
-> 3. All commits go to the feature branch
-> 4. Only merge to `main` when the task is FULLY complete and verified
+> 1. Check current worktrees with `git worktree list`
+> 2. Create a new worktree with branch: `git worktree add ../SportFinance-worktrees/<name> -b <branch>`
+> 3. Navigate to the worktree directory
+> 4. All commits go to the feature branch in this worktree
+> 5. Only merge to `main` when the task is FULLY complete and verified
+> 6. Remove the worktree after merge
 >
 > **Critical Rules:**
 > - ❌ DO NOT commit to `main` directly
 > - ❌ DO NOT merge incomplete work to `main`
-> - ✅ Create a new branch for each task/feature
+> - ❌ DO NOT skip worktree creation
+> - ✅ Create a new worktree + branch for each task/feature
 > - ✅ Merge only after build + test pass
+> - ✅ Clean up worktrees after merge
 
-**Branch Commands:**
+**Complete Workflow Commands:**
 
 ```bash
-# Create and switch to a new branch
-git checkout -b feature/your-feature-name
+# Step 1: Create worktree with new branch
+git worktree add ../SportFinance-worktrees/feature-your-feature -b feature/your-feature-name
 
-# Delete feature branch after merge
+# Step 2: Navigate to worktree (development happens here)
+cd ../SportFinance-worktrees/feature-your-feature
+
+# Step 3: After development complete, go back to main repo
+cd ../SportFinance
+
+# Step 4: Merge (see Iron Rule #2 below)
+# ...
+
+# Step 5: Clean up worktree
+git worktree remove ../SportFinance-worktrees/feature-your-feature
+
+# Optional: Also delete the branch if no longer needed
 git branch -d feature/your-feature-name
 ```
 
