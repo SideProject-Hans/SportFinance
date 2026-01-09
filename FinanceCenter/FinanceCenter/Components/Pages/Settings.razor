@@ -154,7 +154,8 @@
                                         </MudItem>
                                         <MudItem xs="12" sm="4">
                                             <MudNumericField T="decimal"
-                                                             @bind-Value="balance.InitialBalance"
+                                                             Value="balance.InitialBalance"
+                                                             ValueChanged="@(v => { balance.InitialBalance = v; ScheduleSave(); })"
                                                              Label="初始金額"
                                                              Format="N0"
                                                              Variant="Variant.Outlined"
@@ -164,7 +165,8 @@
                                         </MudItem>
                                         <MudItem xs="12" sm="4">
                                             <MudSelect T="int"
-                                                       @bind-Value="balance.EffectiveYear"
+                                                       Value="balance.EffectiveYear"
+                                                       ValueChanged="@(v => { balance.EffectiveYear = v; ScheduleSave(); })"
                                                        Label="生效年份"
                                                        Variant="Variant.Outlined">
                                                 @foreach (var year in AvailableYears)
@@ -178,15 +180,6 @@
                             }
                         </MudStack>
                     </MudCardContent>
-                    <MudDivider />
-                    <MudCardActions Class="pa-4 justify-end">
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                                   StartIcon="@Icons.Material.Filled.Save"
-                                   OnClick="SaveBankBalancesAsync">
-                            儲存設定
-                        </MudButton>
-                    </MudCardActions>
                 </MudCard>
                 break;
         }
