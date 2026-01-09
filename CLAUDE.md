@@ -535,7 +535,6 @@ git add --all
 - Creating or modifying `.razor` pages/components
 - Designing or adjusting page layouts
 - Handling styles, colors, fonts, spacing
-- Adding or modifying MudBlazor components
 - Building forms, tables, cards, navigation, or other UI elements
 - Handling responsive design (RWD)
 - Improving user experience (UX) flows
@@ -547,6 +546,38 @@ git add --all
 - `Components/Pages/*`
 - `Components/Layout/*`
 
+### UI 技術選擇原則
+
+> **"簡單的問題用簡單的工具解決。"**
+
+**MudBlazor 使用時機（僅限大框架）：**
+- `MudLayout` / `MudDrawer` / `MudAppBar` - 整體頁面框架
+- `MudNavMenu` - 主導航選單
+- `MudDialog` / `MudDialogProvider` - 對話框系統
+- `MudSnackbar` / `MudSnackbarProvider` - 通知系統
+- `MudThemeProvider` - 主題配置
+
+**原生 HTML/CSS/JS 使用時機（頁面內容）：**
+- 表單元素：`<input>`, `<select>`, `<textarea>`, `<button>`
+- 表格：`<table>`, `<thead>`, `<tbody>`, `<tr>`, `<td>`
+- 卡片、面板：`<div>` + CSS classes
+- 清單：`<ul>`, `<ol>`, `<li>`
+- 圖表：原生 Canvas 或輕量 JS 庫
+- 任何可以用原生元素簡單實現的 UI
+
+**決策流程：**
+```
+[UI 需求] → 能用原生 HTML/CSS 實現嗎？
+              │
+              ├── ✅ 是 → 使用原生 HTML/CSS/JS
+              │
+              └── ❌ 否 → 是框架級功能嗎？
+                           │
+                           ├── ✅ 是 → 使用 MudBlazor
+                           │
+                           └── ❌ 否 → 用原生 + 少量 CSS 解決
+```
+
 ### Agent Mandatory Behavior
 
 > **UI/UX SKILL ACTIVATION MODE**
@@ -556,11 +587,12 @@ git add --all
 > 2. Follow the design guidelines provided by the skill
 > 3. Ensure visual consistency and user experience quality
 >
-> **Critical Rules:**
-> - ❌ DO NOT modify UI without invoking `/ui-ux-pro-max`
-> - ❌ DO NOT design by intuition, use professional tools
-> - ✅ All UI changes must be reviewed through the skill
-> - ✅ Maintain design system consistency
+> **技術選擇規則：**
+> - ✅ 優先使用原生 HTML/CSS/JS 實現頁面內容
+> - ✅ 僅在框架級功能使用 MudBlazor
+> - ✅ 保持樣式一致性（可參考 MudBlazor 的 CSS 變數）
+> - ❌ 不要為了簡單的按鈕或輸入框引入 MudBlazor 元件
+> - ❌ 不要過度依賴元件庫，原生能做的就用原生
 
 ---
 
