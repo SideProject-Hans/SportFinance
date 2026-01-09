@@ -23,6 +23,7 @@ public partial class Settings
 	private List<Department> Departments { get; set; } = new();
 	private List<BankInitialBalance> BankBalances { get; set; } = new();
 	private int SelectedTab { get; set; } = 0;
+	private IEnumerable<int> AvailableYears => Enumerable.Range(DateTime.Now.Year - 5, 11);
 
 	private void SelectTab(int tab)
 	{

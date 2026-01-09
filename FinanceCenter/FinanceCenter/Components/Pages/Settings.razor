@@ -80,7 +80,6 @@
                                 <MudTh><MudText Typo="Typo.subtitle2" Style="font-weight: 600;">代號</MudText></MudTh>
                                 <MudTh><MudText Typo="Typo.subtitle2" Style="font-weight: 600;">名稱</MudText></MudTh>
                                 <MudTh><MudText Typo="Typo.subtitle2" Style="font-weight: 600;">狀態</MudText></MudTh>
-                                <MudTh><MudText Typo="Typo.subtitle2" Style="font-weight: 600;">排序</MudText></MudTh>
                                 <MudTh Style="width: 80px;"><MudText Typo="Typo.subtitle2" Style="font-weight: 600;">操作</MudText></MudTh>
                             </HeaderContent>
                             <RowTemplate>
@@ -97,9 +96,6 @@
                                              Variant="Variant.Filled">
                                         @(context.IsActive ? "啟用" : "停用")
                                     </MudChip>
-                                </MudTd>
-                                <MudTd DataLabel="排序">
-                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@context.SortOrder</MudText>
                                 </MudTd>
                                 <MudTd DataLabel="操作">
                                     <MudTooltip Text="編輯部門">
@@ -167,13 +163,15 @@
                                                              HideSpinButtons="true" />
                                         </MudItem>
                                         <MudItem xs="12" sm="4">
-                                            <MudNumericField T="int"
-                                                             @bind-Value="balance.EffectiveYear"
-                                                             Label="生效年份"
-                                                             Variant="Variant.Outlined"
-                                                             HideSpinButtons="true"
-                                                             Min="2000"
-                                                             Max="2100" />
+                                            <MudSelect T="int"
+                                                       @bind-Value="balance.EffectiveYear"
+                                                       Label="生效年份"
+                                                       Variant="Variant.Outlined">
+                                                @foreach (var year in AvailableYears)
+                                                {
+                                                    <MudSelectItem Value="year">@year</MudSelectItem>
+                                                }
+                                            </MudSelect>
                                         </MudItem>
                                     </MudGrid>
                                 </MudPaper>
