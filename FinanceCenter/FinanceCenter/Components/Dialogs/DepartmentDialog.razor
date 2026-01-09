@@ -1,19 +1,76 @@
 @using FinanceCenter.Data.Entities
 
-<MudDialog>
+<MudDialog Style="min-width: 400px;">
     <TitleContent>
-        <MudText Typo="Typo.h6">@(IsEdit ? "編輯部門" : "新增部門")</MudText>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudAvatar Color="Color.Primary" Variant="Variant.Filled" Size="Size.Small">
+                <MudIcon Icon="@(IsEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)" Size="Size.Small" />
+            </MudAvatar>
+            <MudText Typo="Typo.h6">@(IsEdit ? "編輯部門" : "新增部門")</MudText>
+        </MudStack>
     </TitleContent>
     <DialogContent>
         <MudForm @ref="_form" @bind-IsValid="_isValid">
-            <MudTextField @bind-Value="Department.Code" Label="部門代號" Required="true" RequiredError="請輸入部門代號" Disabled="@IsEdit" />
-            <MudTextField @bind-Value="Department.Name" Label="部門名稱" Required="true" RequiredError="請輸入部門名稱" />
-            <MudNumericField T="int" @bind-Value="Department.SortOrder" Label="排序順序" Min="0" />
-            <MudSwitch @bind-Value="Department.IsActive" Label="啟用" Color="Color.Primary" />
+            <MudStack Spacing="3">
+                <MudTextField @bind-Value="Department.Code"
+                              Label="部門代號"
+                              Placeholder="例如：HR、IT、FIN"
+                              Required="true"
+                              RequiredError="請輸入部門代號"
+                              Disabled="@IsEdit"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Tag"
+                              HelperText="@(IsEdit ? "部門代號建立後不可修改" : "請輸入唯一的部門代號")" />
+
+                <MudTextField @bind-Value="Department.Name"
+                              Label="部門名稱"
+                              Placeholder="例如：人力資源部"
+                              Required="true"
+                              RequiredError="請輸入部門名稱"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Business" />
+
+                <MudNumericField T="int"
+                                 @bind-Value="Department.SortOrder"
+                                 Label="排序順序"
+                                 Min="0"
+                                 Variant="Variant.Outlined"
+                                 Adornment="Adornment.Start"
+                                 AdornmentIcon="@Icons.Material.Filled.Sort"
+                                 HelperText="數字越小排序越前面" />
+
+                <MudPaper Elevation="0" Class="pa-3" Style="border: 1px solid var(--mud-palette-lines-default); border-radius: 8px;">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.body1">啟用狀態</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                @(Department.IsActive ? "此部門目前為啟用狀態" : "此部門目前為停用狀態")
+                            </MudText>
+                        </MudStack>
+                        <MudSwitch @bind-Value="Department.IsActive"
+                                   Color="Color.Success"
+                                   UnCheckedColor="Color.Default" />
+                    </MudStack>
+                </MudPaper>
+            </MudStack>
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">取消</MudButton>
-        <MudButton Color="Color.Primary" Disabled="@(!_isValid)" OnClick="Submit">確定</MudButton>
+        <MudStack Row="true" Spacing="2" Class="pa-2">
+            <MudButton Variant="Variant.Text"
+                       Color="Color.Default"
+                       OnClick="Cancel">
+                取消
+            </MudButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Disabled="@(!_isValid)"
+                       StartIcon="@(IsEdit ? Icons.Material.Filled.Save : Icons.Material.Filled.Add)"
+                       OnClick="Submit">
+                @(IsEdit ? "儲存變更" : "新增部門")
+            </MudButton>
+        </MudStack>
     </DialogActions>
 </MudDialog>

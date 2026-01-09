@@ -29,6 +29,13 @@ public partial class Settings
 		SelectedTab = tab;
 	}
 
+	private string GetNavCardClass(int tab)
+	{
+		return SelectedTab == tab
+			? "mud-border-primary"
+			: "";
+	}
+
 	protected override async Task OnInitializedAsync()
 	{
 		await LoadDataAsync();
