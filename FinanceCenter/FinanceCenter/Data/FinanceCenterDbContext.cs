@@ -28,6 +28,16 @@ public class FinanceCenterDbContext : DbContext
     /// </summary>
     public DbSet<TaiwanCooperativeBankAccount> TaiwanCooperativeBankAccounts { get; set; } = null!;
 
+    /// <summary>
+    /// 部門資料表
+    /// </summary>
+    public DbSet<Department> Departments { get; set; } = null!;
+
+    /// <summary>
+    /// 銀行初始金額資料表
+    /// </summary>
+    public DbSet<BankInitialBalance> BankInitialBalances { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -114,6 +124,31 @@ public class FinanceCenterDbContext : DbContext
             entity.HasIndex(e => e.CreateDay).HasDatabaseName("idx_tcb_createday");
             entity.HasIndex(e => e.Department).HasDatabaseName("idx_tcb_department");
             entity.HasIndex(e => e.Applicant).HasDatabaseName("idx_tcb_applicant");
+        });
+
+        // Department 實體配置
+        modelBuilder.Entity<Department>(entity =>
+        {
+            entity.ToTable("Department");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.SortOrder).HasDefaultValue(0);
+            entity.HasIndex(e => e.Code).IsUnique().HasDatabaseName("idx_dept_code");
+        });
+
+        // BankInitialBalance 實體配置
+        modelBuilder.Entity<BankInitialBalance>(entity =>
+        {
+            entity.ToTable("BankInitialBalance");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.BankType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.InitialBalance).HasPrecision(18, 2).HasDefaultValue(0.00m);
+            entity.Property(e => e.EffectiveYear).IsRequired();
+            entity.HasIndex(e => e.BankType).IsUnique().HasDatabaseName("idx_bank_type");
         });
     }
 }

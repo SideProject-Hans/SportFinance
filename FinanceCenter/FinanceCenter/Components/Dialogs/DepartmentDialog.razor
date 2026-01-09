@@ -1,0 +1,19 @@
+@using FinanceCenter.Data.Entities
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(IsEdit ? "編輯部門" : "新增部門")</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="_isValid">
+            <MudTextField @bind-Value="Department.Code" Label="部門代號" Required="true" RequiredError="請輸入部門代號" Disabled="@IsEdit" />
+            <MudTextField @bind-Value="Department.Name" Label="部門名稱" Required="true" RequiredError="請輸入部門名稱" />
+            <MudNumericField T="int" @bind-Value="Department.SortOrder" Label="排序順序" Min="0" />
+            <MudSwitch @bind-Value="Department.IsActive" Label="啟用" Color="Color.Primary" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">取消</MudButton>
+        <MudButton Color="Color.Primary" Disabled="@(!_isValid)" OnClick="Submit">確定</MudButton>
+    </DialogActions>
+</MudDialog>

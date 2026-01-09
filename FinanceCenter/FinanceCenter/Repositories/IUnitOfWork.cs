@@ -8,5 +8,7 @@ public interface IUnitOfWork : IDisposable
 	IFinanceRepository Finance { get; }
 	IShanghaiBankRepository ShanghaiBank { get; }
 	ITaiwanCooperativeBankRepository TaiwanCooperativeBank { get; }
+	IDepartmentRepository Department { get; }
+	IBankInitialBalanceRepository BankInitialBalance { get; }
 	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

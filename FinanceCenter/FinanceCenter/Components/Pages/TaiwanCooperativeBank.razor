@@ -42,7 +42,11 @@
     </ToolBarContent>
     <Columns>
         <PropertyColumn Property="x => x.RemittanceDate" Title="匯款日期" Format="MM-dd" Sortable="true" />
-        <PropertyColumn Property="x => x.Department" Title="申請部門" Sortable="true" />
+        <TemplateColumn Title="申請部門" Sortable="true">
+            <CellTemplate>
+                @GetDepartmentDisplay(context.Item.Department)
+            </CellTemplate>
+        </TemplateColumn>
         <PropertyColumn Property="x => x.Applicant" Title="申請人" Sortable="true" />
         <PropertyColumn Property="x => x.Reason" Title="申請原因" />
         <PropertyColumn Property="x => x.Expense" Title="支出金額" Format="N0" CellStyle="text-align: right" />

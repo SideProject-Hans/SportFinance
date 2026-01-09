@@ -15,6 +15,9 @@ public partial class ShanghaiBank
 	private IShanghaiBankService ShanghaiBankService { get; set; } = null!;
 
 	[Inject]
+	private ISettingsService SettingsService { get; set; } = null!;
+
+	[Inject]
 	private IDialogService DialogService { get; set; } = null!;
 
 	[Inject]
@@ -24,6 +27,7 @@ public partial class ShanghaiBank
 	private IWebHostEnvironment WebHostEnvironment { get; set; } = null!;
 
 	private List<ShanghaiBankAccount> Accounts { get; set; } = new();
+	private List<Department> Departments { get; set; } = new();
 
 	/// <summary>
 	/// 可選擇的年份清單
@@ -52,8 +56,16 @@ public partial class ShanghaiBank
 
 	protected override async Task OnInitializedAsync()
 	{
+		Departments = await SettingsService.GetAllDepartmentsAsync();
 		await LoadAvailableYearsAsync();
 		await LoadDataAsync();
+	}
+
+	private string GetDepartmentDisplay(string code)
+	{
+		if (string.IsNullOrEmpty(code)) return "-";
+		var dept = Departments.FirstOrDefault(d => d.Code == code);
+		return dept != null ? $"{dept.Code} - {dept.Name}" : code;
 	}
 
 	/// <summary>

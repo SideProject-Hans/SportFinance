@@ -1,0 +1,9 @@
+-- 部門資料表
+CREATE TABLE Department (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    Code VARCHAR(20) NOT NULL,
+    Name VARCHAR(100) NOT NULL,
+    IsActive BIT NOT NULL DEFAULT 1,
+    SortOrder INT NOT NULL DEFAULT 0,
+    UNIQUE INDEX idx_dept_code (Code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
