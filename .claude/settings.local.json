@@ -5,7 +5,21 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(dotnet test)",
-      "Bash(dotnet test:*)"
+      "Bash(dotnet test:*)",
+      "WebSearch",
+      "Bash(claude mcp list:*)",
+      "Bash(claude mcp add --help:*)",
+      "Bash(claude mcp add --scope user --transport stdio filesystem -- cmd /c npx -y @anthropic-ai/server-filesystem .)",
+      "Bash(cmd /c npx -y @modelcontextprotocol/server-filesystem --help)",
+      "Bash(npx:*)",
+      "Bash(python:*)",
+      "Bash(findstr:*)",
+      "Bash(chcp:*)",
+      "Bash(set:*)",
+      "Bash(python3:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git branch:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
