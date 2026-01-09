@@ -365,20 +365,66 @@ style/update-navbar-design       # UI/style changes
 # Create and switch to a new branch
 git checkout -b feature/your-feature-name
 
-# Switch back to main
-git checkout main
-
-# Merge feature branch to main (after verification)
-git checkout main
-git merge feature/your-feature-name
-
 # Delete feature branch after merge
 git branch -d feature/your-feature-name
 ```
 
 ---
 
-### 🚨 Iron Rule #2: Commit After Every Change
+### 🚨 Iron Rule #2: Merge Main to Feature Branch First
+
+> **NEVER merge feature branch directly to main without syncing first**
+>
+> Always merge `main` into your feature branch first, resolve any issues there, then merge back to `main`.
+
+**Merge Workflow:**
+
+```
+[Feature Complete] → [Merge main→feature] → [Resolve Conflicts] → [Build] → [Test] → [Merge feature→main]
+        │                    │                     │                │         │              │
+        │              git merge main         If any issue,      Pass?     Pass?      Fast-forward
+        │                                     check if main                            merge!
+        │                                     code was lost
+```
+
+**Step-by-Step Merge Process:**
+
+```bash
+# Step 1: On feature branch, merge main into it
+git checkout feature/your-feature-name
+git merge main
+
+# Step 2: If conflicts occur, resolve them
+# IMPORTANT: Check if any main branch code was accidentally overwritten or removed
+
+# Step 3: Build until success
+dotnet build
+# If fail → Fix → Rebuild → Repeat until success
+
+# Step 4: Run tests until success
+dotnet test
+# If fail → Fix → Go back to Step 3 (rebuild) → Repeat until success
+
+# Step 5: Only after build + test pass, merge to main
+git checkout main
+git merge feature/your-feature-name  # Should be fast-forward, no conflicts
+```
+
+**Conflict Resolution Priority:**
+
+When resolving merge conflicts, ALWAYS check:
+1. **Was main branch code accidentally removed?** - This is the most common mistake
+2. **Was main branch code accidentally overwritten?** - Preserve main's changes if they're newer
+3. **Are both changes needed?** - Manually combine both versions if necessary
+
+> **Critical Rule:**
+> - ❌ DO NOT blindly accept "ours" (feature branch) for all conflicts
+> - ✅ Carefully review each conflict to preserve main branch changes
+> - ✅ If unsure, ask the user before resolving
+
+---
+
+### 🚨 Iron Rule #3: Commit After Every Change
 
 **After completing any file modification, the Build-Test-Commit pipeline must be executed automatically.**
 
