@@ -1,26 +1,104 @@
 @using FinanceCenter.Data.Entities
 
 <MudDialog>
-    <TitleContent>
-        <MudText Typo="Typo.h6">新增合作金庫帳戶明細</MudText>
-    </TitleContent>
-    <DialogContent>
-        <MudForm @ref="_form" @bind-IsValid="_isValid">
-            <MudSelect T="string" @bind-Value="Account.Department" Label="申請部門" Required="true" RequiredError="請選擇申請部門">
-                @foreach (var dept in Departments)
-                {
-                    <MudSelectItem Value="@dept.Code">@dept.Code - @dept.Name</MudSelectItem>
-                }
-            </MudSelect>
-            <MudTextField @bind-Value="Account.Applicant" Label="申請人" Required="true" RequiredError="請輸入申請人" />
-            <MudTextField @bind-Value="Account.Reason" Label="申請原因" Required="true" RequiredError="請輸入申請原因" Lines="3" />
-            <MudNumericField @bind-Value="Account.Income" Label="收入金額" Format="N2" Min="0" />
-            <MudNumericField @bind-Value="Account.Expense" Label="支出金額" Format="N2" Min="0" />
-            <MudNumericField @bind-Value="Account.Fee" Label="手續費" Format="N2" Min="0" />
-        </MudForm>
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="Cancel">取消</MudButton>
-        <MudButton Color="Color.Primary" Disabled="@(!_isValid)" OnClick="Submit">確定</MudButton>
-    </DialogActions>
+	<TitleContent>
+		<MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+			<MudAvatar Color="Color.Primary" Size="Size.Small" Variant="Variant.Filled">
+				<MudIcon Icon="@Icons.Material.Filled.Add" Size="Size.Small" />
+			</MudAvatar>
+			<MudText Typo="Typo.h6">新增合作金庫帳戶明細</MudText>
+		</MudStack>
+	</TitleContent>
+	<DialogContent>
+		<MudForm @ref="_form" @bind-IsValid="_isValid" Class="mt-2">
+			<MudGrid Spacing="3">
+				@* 申請資訊區塊 *@
+				<MudItem xs="12">
+					<MudText Typo="Typo.subtitle2" Color="Color.Primary" Class="mb-2">
+						<MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" Class="mr-1" />
+						申請資訊
+					</MudText>
+				</MudItem>
+				<MudItem xs="12" sm="6">
+					<MudSelect T="string" @bind-Value="Account.Department" Label="申請部門"
+							   Required="true" RequiredError="請選擇申請部門"
+							   Variant="Variant.Outlined" Margin="Margin.Dense"
+							   Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Business">
+						@foreach (var dept in Departments)
+						{
+							<MudSelectItem Value="@dept.Code">@dept.Code - @dept.Name</MudSelectItem>
+						}
+					</MudSelect>
+				</MudItem>
+				<MudItem xs="12" sm="6">
+					<MudTextField @bind-Value="Account.Applicant" Label="申請人"
+								  Required="true" RequiredError="請輸入申請人"
+								  Variant="Variant.Outlined" Margin="Margin.Dense"
+								  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person" />
+				</MudItem>
+				<MudItem xs="12">
+					<MudTextField @bind-Value="Account.Reason" Label="申請原因"
+								  Required="true" RequiredError="請輸入申請原因"
+								  Variant="Variant.Outlined" Lines="2"
+								  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Description"
+								  Placeholder="請描述此筆交易的用途或原因" />
+				</MudItem>
+
+				@* 金額資訊區塊 *@
+				<MudItem xs="12" Class="mt-2">
+					<MudText Typo="Typo.subtitle2" Color="Color.Primary" Class="mb-2">
+						<MudIcon Icon="@Icons.Material.Filled.AttachMoney" Size="Size.Small" Class="mr-1" />
+						金額資訊
+					</MudText>
+				</MudItem>
+				<MudItem xs="12" sm="4">
+					<MudNumericField @bind-Value="Account.Income" Label="收入金額"
+									 Format="N0" Min="0"
+									 Variant="Variant.Outlined" Margin="Margin.Dense"
+									 Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.TrendingUp"
+									 AdornmentColor="Color.Success" />
+				</MudItem>
+				<MudItem xs="12" sm="4">
+					<MudNumericField @bind-Value="Account.Expense" Label="支出金額"
+									 Format="N0" Min="0"
+									 Variant="Variant.Outlined" Margin="Margin.Dense"
+									 Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.TrendingDown"
+									 AdornmentColor="Color.Error" />
+				</MudItem>
+				<MudItem xs="12" sm="4">
+					<MudNumericField @bind-Value="Account.Fee" Label="手續費"
+									 Format="N0" Min="0"
+									 Variant="Variant.Outlined" Margin="Margin.Dense"
+									 Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Receipt"
+									 AdornmentColor="Color.Warning" />
+				</MudItem>
+
+				@* 淨金額預覽 *@
+				<MudItem xs="12">
+					<MudPaper Class="pa-3 rounded-lg" Style="background-color: var(--mud-palette-background-grey);">
+						<MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+							<MudText Typo="Typo.body2" Color="Color.Secondary">淨金額預覽</MudText>
+							<MudChip T="string" Size="Size.Small"
+									 Color="@(NetAmountPreview >= 0 ? Color.Success : Color.Error)"
+									 Variant="Variant.Filled">
+								@(NetAmountPreview >= 0 ? "+" : "")@NetAmountPreview.ToString("N0")
+							</MudChip>
+						</MudStack>
+					</MudPaper>
+				</MudItem>
+			</MudGrid>
+		</MudForm>
+	</DialogContent>
+	<DialogActions>
+		<MudButton OnClick="Cancel" Variant="Variant.Text">取消</MudButton>
+		<MudButton Color="Color.Primary" Variant="Variant.Filled"
+				   Disabled="@(!_isValid)" OnClick="Submit"
+				   StartIcon="@Icons.Material.Filled.Save">
+			儲存
+		</MudButton>
+	</DialogActions>
 </MudDialog>
+
+@code {
+	private decimal NetAmountPreview => Account.Income - Account.Expense - Account.Fee;
+}

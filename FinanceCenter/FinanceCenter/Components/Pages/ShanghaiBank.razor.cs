@@ -125,13 +125,15 @@ public partial class ShanghaiBank
 	{
 		var parameters = new DialogParameters<ConfirmDialog>
 		{
-			{ x => x.ContentText, "此操作會清空所有現有資料，並從 Excel 檔案重新匯入。確定要繼續嗎？" },
+			{ x => x.Title, "初始化資料確認" },
+			{ x => x.ContentText, "此操作會清空所有現有資料，並從 Excel 檔案重新匯入。" },
+			{ x => x.WarningText, "此操作無法復原，請確認已備份重要資料。" },
 			{ x => x.ButtonText, "確認初始化" },
 			{ x => x.Color, Color.Error }
 		};
 
-		var options = new DialogOptions { CloseOnEscapeKey = true };
-		var dialog = await DialogService.ShowAsync<ConfirmDialog>("初始化資料確認", parameters, options);
+		var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small };
+		var dialog = await DialogService.ShowAsync<ConfirmDialog>(string.Empty, parameters, options);
 		var result = await dialog.Result;
 
 		if (result is { Canceled: false })
