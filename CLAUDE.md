@@ -229,25 +229,25 @@ Database (MySQL / MSSQL)
 
 ---
 
-## SQL 檔案冪等性規則
+## SQL File Idempotency Rules
 
-### 🚨 鐵律：所有 SQL 必須是冪等的（Idempotent）
+### 🚨 Iron Rule: All SQL Must Be Idempotent
 
-> **"Never break the database!"** — 所有 SQL 腳本必須能安全地重複執行，不會因物件已存在而失敗。
+> **"Never break the database!"** — All SQL scripts must be safely re-executable without failing due to existing objects.
 
-**核心原則：不存在才執行，存在則跳過。**
+**Core Principle: Execute only if not exists, skip if exists.**
 
-### 快速參考表
+### Quick Reference Table
 
-| 操作 | 正確語法 | 錯誤語法 |
-|-----|---------|---------|
+| Operation | Correct Syntax | Wrong Syntax |
+|-----------|---------------|--------------|
 | CREATE TABLE | `CREATE TABLE IF NOT EXISTS ...` | `CREATE TABLE ...` |
-| ALTER TABLE ADD COLUMN | 先檢查 `INFORMATION_SCHEMA.COLUMNS` | 直接 `ALTER TABLE ADD COLUMN` |
-| INSERT | `INSERT IGNORE` 或 `ON DUPLICATE KEY UPDATE` | 直接 `INSERT` |
-| CREATE INDEX | 先檢查 `INFORMATION_SCHEMA.STATISTICS` | 直接 `CREATE INDEX` |
+| ALTER TABLE ADD COLUMN | Check `INFORMATION_SCHEMA.COLUMNS` first | Direct `ALTER TABLE ADD COLUMN` |
+| INSERT | `INSERT IGNORE` or `ON DUPLICATE KEY UPDATE` | Direct `INSERT` |
+| CREATE INDEX | Check `INFORMATION_SCHEMA.STATISTICS` first | Direct `CREATE INDEX` |
 | DROP TABLE | `DROP TABLE IF EXISTS ...` | `DROP TABLE ...` |
 
-### SQL 範本
+### SQL Templates
 
 #### 1. CREATE TABLE
 ```sql
@@ -276,14 +276,14 @@ DEALLOCATE PREPARE stmt;
 
 #### 3. INSERT
 ```sql
--- 方法 1: INSERT IGNORE
+-- Method 1: INSERT IGNORE
 INSERT IGNORE INTO `table_name` (`id`, `name`) VALUES (1, 'value');
 
--- 方法 2: ON DUPLICATE KEY UPDATE
+-- Method 2: ON DUPLICATE KEY UPDATE
 INSERT INTO `table_name` (`id`, `name`) VALUES (1, 'value')
 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
--- 方法 3: WHERE NOT EXISTS
+-- Method 3: WHERE NOT EXISTS
 INSERT INTO `table_name` (`id`, `name`)
 SELECT 1, 'value'
 WHERE NOT EXISTS (SELECT 1 FROM `table_name` WHERE `id` = 1);
@@ -305,22 +305,22 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 ```
 
-### Agent 強制行為
+### Agent Mandatory Behavior
 
-> **產生或修改任何 SQL 檔案時，必須自動套用冪等性檢查。**
+> **When generating or modifying any SQL file, idempotency checks must be automatically applied.**
 >
-> - ❌ 禁止產生不含 `IF NOT EXISTS` 的 `CREATE TABLE`
-> - ❌ 禁止產生未經檢查的 `ALTER TABLE ADD COLUMN`
-> - ❌ 禁止產生可能造成主鍵衝突的 `INSERT`
-> - ✅ 所有 SQL 必須可重複執行且結果一致
+> - ❌ DO NOT generate `CREATE TABLE` without `IF NOT EXISTS`
+> - ❌ DO NOT generate unchecked `ALTER TABLE ADD COLUMN`
+> - ❌ DO NOT generate `INSERT` that may cause primary key conflicts
+> - ✅ All SQL must be re-executable with consistent results
 
 ---
 
 ## Git Workflow
 
-### 🚨 鐵律：每次變更後必須 Commit
+### 🚨 Iron Rule: Commit After Every Change
 
-**完成任何檔案修改後，必須自動執行 Build-Test-Commit 流程。**
+**After completing any file modification, the Build-Test-Commit pipeline must be executed automatically.**
 
 ```
 [File Change] → [dotnet build] → [dotnet test] → [git commit]
@@ -330,11 +330,11 @@ DEALLOCATE PREPARE stmt;
      └───────── [Fix & Retry] ◄──────┘
 ```
 
-### Commit Message 格式
+### Commit Message Format
 
-- **語言**: 繁體中文
-- **格式**: `[Type] 簡短描述`
-- **Type 選項**:
+- **Language**: Traditional Chinese (zh-tw)
+- **Format**: `[Type] Short description`
+- **Type Options**:
   - `[功能]` - New feature
   - `[修復]` - Bug fix
   - `[重構]` - Refactoring
@@ -343,24 +343,24 @@ DEALLOCATE PREPARE stmt;
   - `[測試]` - Tests
   - `[雜項]` - Chore
 
-**範例**:
+**Examples**:
 - `[功能] 新增現金流管理頁面`
 - `[修復] 修正日期格式解析錯誤`
 
-### Agent 強制行為
+### Agent Mandatory Behavior
 
 > **AUTONOMOUS EXECUTION MODE**
 >
-> 修改程式碼後，必須自動執行：
-> 1. `dotnet build` — 失敗則修正後重試
-> 2. `dotnet test` — 失敗則修正後重試
-> 3. `git add . && git commit` — Build 和 Test 都通過後才執行
+> After modifying code, automatically execute:
+> 1. `dotnet build` — Fix and retry on failure
+> 2. `dotnet test` — Fix and retry on failure
+> 3. `git add . && git commit` — Execute only after Build and Test pass
 >
-> **關鍵規則：**
-> - ❌ 不要問「要執行測試嗎？」
-> - ❌ 不要問「要 commit 嗎？」
-> - ✅ 自動執行整個流程
-> - ✅ 只回報最終結果（成功 + commit hash）
+> **Critical Rules:**
+> - ❌ DO NOT ask "Should I run the tests?"
+> - ❌ DO NOT ask "Should I commit now?"
+> - ✅ Execute the entire pipeline automatically
+> - ✅ Report only the final result (success + commit hash)
 
 ---
 
@@ -375,6 +375,46 @@ DEALLOCATE PREPARE stmt;
 - Run **targeted tests** during development (`--filter`)
 - Unit tests use **In-Memory Database**
 - Test naming follows **BDD style**: `Should_DoSomething_When_Condition`
+
+---
+
+## UI/UX Development Rules
+
+### 🚨 Iron Rule: UI/UX Work Must Use `/ui-ux-pro-max`
+
+> **When handling any UI/UX related task, the `/ui-ux-pro-max` skill must be invoked first.**
+
+**Trigger Conditions (invoke if ANY apply):**
+
+- Creating or modifying `.razor` pages/components
+- Designing or adjusting page layouts
+- Handling styles, colors, fonts, spacing
+- Adding or modifying MudBlazor components
+- Building forms, tables, cards, navigation, or other UI elements
+- Handling responsive design (RWD)
+- Improving user experience (UX) flows
+- Designing charts, dashboards, data visualizations
+
+**Applicable File Types:**
+- `*.razor` / `*.razor.cs`
+- `*.css` / `*.scss`
+- `Components/Pages/*`
+- `Components/Layout/*`
+
+### Agent Mandatory Behavior
+
+> **UI/UX SKILL ACTIVATION MODE**
+>
+> When a UI/UX related task is detected:
+> 1. **Immediately invoke** `/ui-ux-pro-max` skill
+> 2. Follow the design guidelines provided by the skill
+> 3. Ensure visual consistency and user experience quality
+>
+> **Critical Rules:**
+> - ❌ DO NOT modify UI without invoking `/ui-ux-pro-max`
+> - ❌ DO NOT design by intuition, use professional tools
+> - ✅ All UI changes must be reviewed through the skill
+> - ✅ Maintain design system consistency
 
 ---
 
