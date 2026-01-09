@@ -41,7 +41,7 @@
         <MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="RefreshDataAsync" Class="ml-2" />
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => x.CreateDay" Title="建立日期" Format="yyyy-MM-dd" Sortable="true" />
+        <PropertyColumn Property="x => x.RemittanceDate" Title="匯款日期" Format="MM-dd" Sortable="true" />
         <PropertyColumn Property="x => x.Department" Title="申請部門" Sortable="true" />
         <PropertyColumn Property="x => x.Applicant" Title="申請人" Sortable="true" />
         <PropertyColumn Property="x => x.Reason" Title="申請原因" />
@@ -49,11 +49,6 @@
         <PropertyColumn Property="x => x.Income" Title="收入金額" Format="N0" CellStyle="text-align: right" />
         <PropertyColumn Property="x => x.Fee" Title="手續費" Format="N0" CellStyle="text-align: right" />
         <PropertyColumn Property="x => x.NetAmount" Title="淨金額" Format="N0" CellStyle="text-align: right" Sortable="false" Filterable="false" />
-        <TemplateColumn Title="匯款日期" Sortable="true">
-            <CellTemplate>
-                @(context.Item.RemittanceDate?.ToString("yyyy-MM-dd") ?? "-")
-            </CellTemplate>
-        </TemplateColumn>
     </Columns>
     <PagerContent>
         <MudDataGridPager T="TaiwanCooperativeBankAccount" />

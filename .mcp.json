@@ -2,8 +2,10 @@
   "mcpServers": {
     "filesystem": {
       "type": "stdio",
-      "command": "npx",
+      "command": "cmd",
       "args": [
+        "/c",
+        "npx",
         "-y",
         "@anthropic-ai/server-filesystem",
         "."
@@ -12,8 +14,10 @@
     },
     "github": {
       "type": "stdio",
-      "command": "npx",
+      "command": "cmd",
       "args": [
+        "/c",
+        "npx",
         "-y",
         "@anthropic-ai/server-github"
       ],
@@ -21,8 +25,10 @@
     },
     "memory": {
       "type": "stdio",
-      "command": "npx",
+      "command": "cmd",
       "args": [
+        "/c",
+        "npx",
         "-y",
         "@anthropic-ai/server-memory"
       ],
@@ -30,8 +36,10 @@
     },
     "sequential-thinking": {
       "type": "stdio",
-      "command": "npx",
+      "command": "cmd",
       "args": [
+        "/c",
+        "npx",
         "-y",
         "@anthropic-ai/server-sequential-thinking"
       ],
@@ -39,8 +47,10 @@
     },
     "fetch": {
       "type": "stdio",
-      "command": "npx",
+      "command": "cmd",
       "args": [
+        "/c",
+        "npx",
         "-y",
         "@anthropic-ai/server-fetch"
       ],
@@ -48,8 +58,10 @@
     },
     "git": {
       "type": "stdio",
-      "command": "npx",
+      "command": "cmd",
       "args": [
+        "/c",
+        "npx",
         "-y",
         "@anthropic-ai/server-git"
       ],
@@ -57,8 +69,10 @@
     },
     "time": {
       "type": "stdio",
-      "command": "npx",
+      "command": "cmd",
       "args": [
+        "/c",
+        "npx",
         "-y",
         "@anthropic-ai/server-time"
       ],
