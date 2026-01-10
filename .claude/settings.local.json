@@ -26,7 +26,10 @@
       "Bash(git worktree:*)",
       "mcp__filesystem__directory_tree",
       "mcp__filesystem__edit_file",
-      "Bash(gh repo view:*)"
+      "Bash(gh repo view:*)",
+      "Bash(find:*)",
+      "Bash(git -C /Users/hanshuang/Documents/Github/SportFinance log --oneline -1 -- FinanceCenter/FinanceCenter/appsettings.json)",
+      "Bash(/usr/bin/find:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
