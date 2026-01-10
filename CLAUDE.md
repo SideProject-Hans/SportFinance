@@ -155,12 +155,36 @@ git checkout main
 git merge --no-ff feature/xxx -m "[功能] 合併 feature/xxx"
 ```
 
-### Build-Test-Commit Pipeline (Auto-execute, don't ask)
+### Build-Review-Test-Commit Pipeline (Auto-execute, don't ask)
+
 ```
-[File Change] → [dotnet build] → [dotnet test] → [git commit]
-                     │                │
-                  FAIL? ───────────> Fix first
+[File Change] → [dotnet build] → [Linus Review] → [dotnet test] → [git commit]
+                     │                 │                │
+                  FAIL? ─────────> Fix first ←─────────┘
 ```
+
+**Linus Review Gate (Must pass before testing)**
+
+> Mandatory code review after successful build, before running tests.
+
+Review output format:
+```
+【Taste Rating】🟢 Good / 🟡 Mediocre / 🔴 Garbage
+【Fatal Flaw】[Most critical issue, or None]
+【Direction】[Improvement path or Approved]
+```
+
+| Rating | Action |
+|--------|--------|
+| 🟢 Good | Proceed to test phase |
+| 🟡 Mediocre | List suggestions, developer decides whether to fix before testing |
+| 🔴 Garbage | **Blocked** — must refactor and rebuild |
+
+Review criteria:
+- Adding unnecessary special cases (violates Good Taste)
+- Breaking existing functionality (violates Never Break Userspace)
+- Over-engineering (violates Pragmatism)
+- Nesting depth >3 levels (violates Simplicity)
 
 ### Git Add Rules
 ```bash
