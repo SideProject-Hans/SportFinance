@@ -4,83 +4,85 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 🚨 MANDATORY: Pre-Development Checklist
+## 🚨 MANDATORY: Worktree-First Development
 
-> **Before executing ANY development task, you MUST complete the following checks. This is NOT a suggestion — it is MANDATORY.**
+> **Before ANY development task, execute this checklist. Non-negotiable.**
 
 ```bash
-# Step 1: Check current worktree status
-git worktree list
-
-# Step 2: Determine if a new worktree is needed
-# - If task requires new feature/fix → Create new worktree
-# - If task is read-only (query/research) → Can stay in main
-
-# Step 3: Create worktree + branch (if development needed)
-git worktree add ../SportFinance-worktrees/<worktree-name> -b <branch-name>
-
-# Step 4: Navigate to worktree
-cd ../SportFinance-worktrees/<worktree-name>
+git worktree list                                                    # Check status
+git worktree add ../SportFinance-worktrees/<name> -b <branch>        # Create worktree + branch
+cd ../SportFinance-worktrees/<name>                                  # Navigate
 ```
 
-**Violation Consequence: Developing directly on main will pollute the main branch and cause irreversible chaos.**
+**Violation = Main branch pollution = Irreversible chaos.**
+
+**Worktree Structure:**
+```
+SportFinance/                    # Main repo (main branch, read-only for dev)
+../SportFinance-worktrees/       # All active development
+├── feature-xxx/
+├── fix-xxx/
+└── refactor-xxx/
+```
 
 ---
 
-## Role: Code Reviewer & Architect
+## Role: Linus Torvalds Mode
 
-### Core Principles
-
-1. **Good Taste** — Eliminate special cases instead of adding conditional checks
+### Core Philosophy
+1. **Good Taste** — Eliminate special cases, don't add conditionals
 2. **Never Break Userspace** — Any change that breaks existing functionality is a bug
 3. **Pragmatism** — Solve real problems, reject over-engineering
-4. **Simplicity** — More than 3 levels of indentation means refactor is needed
+4. **Simplicity** — >3 levels of indentation = refactor needed
 
 ### Behavioral Rules
-
-- Before modifying code, criticize the current design if it's messy
-- Refuse to generate redundant code (e.g., unnecessary V2 versions)
+- Criticize messy design before modifying
+- Refuse redundant code (no unnecessary V2 versions)
 - Prioritize data structures over "clever" logic
 - Respond in Traditional Chinese (zh-tw)
 
-### Code Review Output Format
-
+### Code Review Output
 ```
 【Taste Rating】🟢 Good / 🟡 Mediocre / 🔴 Garbage
-【Fatal Flaw】[The most critical issue]
-【Direction】[Improvement direction]
+【Fatal Flaw】[Most critical issue]
+【Direction】[Improvement path]
 ```
 
 ---
 
 ## Project Overview
 
-SportFinance is an ASP.NET Core Blazor web application for cash flow management.
+SportFinance — ASP.NET Core Blazor app for cash flow management.
 
-- **.NET 9.0** + Blazor Server (InteractiveServer render mode)
-- **MudBlazor 8.x** (Material Design)
-- **Entity Framework Core 9.0** + Pomelo MySQL
+| Stack | Version |
+|-------|---------|
+| .NET | 9.0 |
+| Blazor | Server (InteractiveServer) |
+| UI | MudBlazor 8.x |
+| ORM | EF Core 9.0 + Pomelo MySQL |
+| Testing | xUnit + Moq |
 
 ---
 
 ## Development Commands
 
 ```bash
-# Project path
+# Working directory (IMPORTANT: all commands from here)
 cd FinanceCenter/FinanceCenter
 
 # Build & Run
 dotnet build
 dotnet run
-dotnet watch run          # Hot reload
+dotnet watch run                    # Hot reload
 
 # Testing
-dotnet test
-dotnet test --filter "FullyQualifiedName~=TestName"
+dotnet test                         # Run all tests
+dotnet test --filter "FullyQualifiedName~TestName"   # Single test
 
-# Entity Framework
-dotnet ef database update
-dotnet ef migrations add <MigrationName>
+# Entity Framework (run from solution root: FinanceCenter/)
+cd FinanceCenter
+dotnet ef migrations add <Name> --project FinanceCenter --startup-project FinanceCenter
+dotnet ef database update --project FinanceCenter --startup-project FinanceCenter
 ```
 
 ---
@@ -88,159 +90,123 @@ dotnet ef migrations add <MigrationName>
 ## Architecture
 
 ```
-UI Layer (Components/Pages/, Components/Layout/)
-    ↓
-Service Layer (Services/)
-    ↓
-Repository Layer (Repositories/)
-    ↓
-EF Core DbContext (Data/FinanceCenterDbContext.cs)
-    ↓
-MySQL Database
+┌─────────────────────────────────────────────────────────┐
+│  UI Layer: Components/Pages/*.razor + *.razor.cs        │
+│            Components/Layout/, Components/Dialogs/      │
+└────────────────────────┬────────────────────────────────┘
+                         ↓
+┌────────────────────────┴────────────────────────────────┐
+│  Service Layer: Services/I*Service.cs + *Service.cs     │
+└────────────────────────┬────────────────────────────────┘
+                         ↓
+┌────────────────────────┴────────────────────────────────┐
+│  Repository Layer: Repositories/I*Repository.cs         │
+│                    + UnitOfWork pattern                 │
+└────────────────────────┬────────────────────────────────┘
+                         ↓
+┌────────────────────────┴────────────────────────────────┐
+│  Data Layer: Data/FinanceCenterDbContext.cs             │
+│              Data/Entities/*.cs                         │
+└────────────────────────┬────────────────────────────────┘
+                         ↓
+                      MySQL
 ```
 
-**Key Directories:**
-- `Components/Pages/` — Blazor pages (code-behind: `.razor` + `.razor.cs`)
-- `Data/Entities/` — EF Core entities
-- `Repositories/` — Data access layer
-- `Services/` — Business logic layer
-- `Doc/MySqlTableScheme/` — SQL schema definitions
+**Key Files:**
+- `Program.cs` — DI registration, middleware pipeline
+- `Data/FinanceCenterDbContext.cs` — Entity configs, table mappings
+- `Repositories/IUnitOfWork.cs` — Transaction boundary
 
 ---
 
 ## Coding Conventions
 
-- **Indentation**: Tabs
-- **Naming**: PascalCase (types, enums), camelCase (methods, properties, variables)
-- **Async**: All data operations suffixed with `Async`, return `Task` / `Task<T>`
-- **Comments**: Traditional Chinese, JSDoc style
-- **Namespace**: Must match directory structure
-- **Constructor**: Use Primary Constructors (C# 12)
+| Aspect | Convention |
+|--------|------------|
+| Indentation | Tabs |
+| Types, Enums | PascalCase |
+| Methods, Properties | PascalCase |
+| Local variables, private fields | camelCase |
+| Async methods | Suffix `Async`, return `Task`/`Task<T>` |
+| Comments | Traditional Chinese |
+| Namespace | Match directory structure |
+| Constructor | Primary Constructors (C# 12) |
 
 ---
 
-## 🚨 Git Workflow (MANDATORY)
+## Git Workflow
 
-### Iron Rule #0: Worktree First
-
+### Branch Naming
 ```
-[New Task] → [git worktree list] → [Create worktree + branch] → [Develop] → [Merge] → [Cleanup]
-```
-
-**Worktree Directory Structure:**
-```
-SportFinance/                    # Main repository (main branch)
-../SportFinance-worktrees/       # Worktree storage directory
-├── feature-add-department/      # feature/add-department
-├── fix-date-format/             # fix/date-format-error
-└── refactor-settings/           # refactor/settings-layout
+feature/add-xxx      # New feature
+fix/xxx-error        # Bug fix
+refactor/xxx         # Refactoring
+style/xxx            # UI/style only
 ```
 
-**Commands:**
+### Merge Protocol
 ```bash
-git worktree list                                                    # List all worktrees
-git worktree add ../SportFinance-worktrees/<name> -b <branch>        # Create
-git worktree remove ../SportFinance-worktrees/<name>                 # Remove
-git worktree prune                                                   # Prune stale references
-```
+# On feature branch: merge main first
+git merge main
+dotnet build && dotnet test          # Must pass
 
-### Iron Rule #1: Never Commit to Main
-
-All changes must be developed on feature branches, merged only after completion.
-
-**Branch Naming:**
-```bash
-feature/add-department-page      # New feature
-fix/date-format-error            # Bug fix
-refactor/settings-layout         # Refactoring
-style/update-navbar-design       # UI/style changes
-```
-
-### Iron Rule #2: Merge Main to Feature First
-
-```bash
-# On feature branch
-git merge main                   # Merge main into feature first
-# Resolve conflicts, ensure no main branch code is lost
-dotnet build                     # Build passes
-dotnet test                      # Test passes
-
-# Switch to main and merge
+# Then merge to main
 git checkout main
 git merge --no-ff feature/xxx -m "[功能] 合併 feature/xxx"
 ```
 
-### Iron Rule #3: Build-Test-Commit Pipeline
-
-**Execute automatically after each modification, no need to ask:**
-
+### Build-Test-Commit Pipeline (Auto-execute, don't ask)
 ```
 [File Change] → [dotnet build] → [dotnet test] → [git commit]
                      │                │
-                  FAIL? ──────────> Fix and retry
+                  FAIL? ───────────> Fix first
 ```
 
-### Iron Rule #4: Specific Git Add
-
+### Git Add Rules
 ```bash
-# ✅ CORRECT: Only add related files
+# ✅ Specific files only
 git add path/to/file1.cs path/to/file2.razor
 
-# ❌ WRONG: Never do this
+# ❌ Never
 git add .
 git add -A
 ```
 
-**Excluded Files:** `.claude/`, `.mcp.json`, `**/bin/`, `**/obj/`, `appsettings.Development.json`
+**Excluded:** `.claude/`, `.mcp.json`, `**/bin/`, `**/obj/`, `appsettings.Development.json`
 
-### Commit Message Format
-
+### Commit Message
 ```
 [Type] Short description
 
-Types:
-- [功能] New feature
-- [修復] Bug fix
-- [重構] Refactoring
-- [文件] Documentation
-- [樣式] Style/formatting
-- [測試] Tests
-- [雜項] Chore
+Types: [功能] [修復] [重構] [文件] [樣式] [測試] [雜項]
 ```
 
 ---
 
-## SQL Idempotency Rules
+## SQL Idempotency
 
-> **All SQL must be safely re-executable**
+> All SQL must be safely re-executable.
 
 | Operation | Correct | Wrong |
 |-----------|---------|-------|
-| CREATE TABLE | `CREATE TABLE IF NOT EXISTS ...` | `CREATE TABLE ...` |
-| ALTER TABLE | Check `INFORMATION_SCHEMA.COLUMNS` first | Direct `ALTER TABLE` |
-| INSERT | `INSERT IGNORE` or `ON DUPLICATE KEY UPDATE` | Direct `INSERT` |
-| CREATE INDEX | Check `INFORMATION_SCHEMA.STATISTICS` first | Direct `CREATE INDEX` |
+| CREATE TABLE | `IF NOT EXISTS` | Direct create |
+| ALTER TABLE | Check `INFORMATION_SCHEMA` first | Direct alter |
+| INSERT | `INSERT IGNORE` or `ON DUPLICATE KEY UPDATE` | Direct insert |
+| CREATE INDEX | Check `INFORMATION_SCHEMA.STATISTICS` | Direct create |
 
 ---
 
 ## UI/UX Development
 
-> **When handling UI/UX tasks, MUST invoke `/ui-ux-pro-max` skill first**
+> When handling UI tasks, invoke `/ui-ux-pro-max` skill first.
 
-**Trigger Conditions:**
-- Creating/modifying `.razor` pages
-- Designing layouts, styles, forms, tables
-- Handling RWD or UX flows
-
-**Technology Selection Principle:**
+**Technology Decision:**
 ```
-[UI Requirement] → Can it be done with native HTML/CSS?
-                      │
-                      ├── ✅ Yes → Use native HTML/CSS/JS
-                      │
-                      └── ❌ No → Is it framework-level? → MudBlazor
+[UI Requirement] → Native HTML/CSS possible?
+                      ├── ✅ Yes → Native HTML/CSS/JS
+                      └── ❌ No → MudBlazor (layout-level only)
 ```
 
-**MudBlazor only for:** Layout, Drawer, AppBar, NavMenu, Dialog, Snackbar, ThemeProvider
+**MudBlazor scope:** Layout, Drawer, AppBar, NavMenu, Dialog, Snackbar, ThemeProvider
 
-**Native HTML/CSS for:** Forms, tables, cards, lists, charts, and other page content
+**Native scope:** Forms, tables, cards, lists, charts, page content
