@@ -124,24 +124,42 @@ Page.razor.cs → Service.MethodAsync() → UnitOfWork.Repo.Query()
 feature/add-xxx    fix/xxx-error    refactor/xxx    style/xxx
 ```
 
-### Build-Review-Test-Commit Pipeline (Auto-execute)
+### Development Pipeline (Auto-execute)
 
 ```
-[File Change] → [dotnet build] → [Linus Review] → [dotnet test] → [git commit]
-                     │                 │                │
-                  FAIL? ─────────> Fix first ←─────────┘
+[Code Change]
+      ↓
+[code-simplifier:code-simplifier] ← Simplify & refine code
+      ↓
+[pr-review-toolkit:code-reviewer] ← Review for bugs & quality
+      ↓
+[dotnet build] ─── FAIL? ──┐
+      ↓                    │
+[Linus Review] ─── NOT 🟢? ─┼──→ Fix and restart pipeline
+      ↓                    │
+[dotnet test] ─── FAIL? ───┘
+      ↓
+[git commit]
 ```
 
-**🚨 MANDATORY: Linus Review Gate**
+**🚨 MANDATORY: Review Gates**
 
-> 每次檔案異動後，必須依照 `.claude/LINUS_MODE.md` 進行審查。
-> **審查通過才算完成，不可跳過。**
+| Step | Tool/Reference | Purpose |
+|------|----------------|---------|
+| 1 | `code-simplifier:code-simplifier` | Simplify code, remove redundancy |
+| 2 | `pr-review-toolkit:code-reviewer` | Check bugs, security, quality |
+| 3 | `.claude/LINUS_MODE.md` | Linus taste review |
 
-| Rating | Action |
-|--------|--------|
-| 🟢 Good | Proceed to test |
-| 🟡 Mediocre | List suggestions, developer decides |
-| 🔴 Garbage | **Blocked** — refactor first |
+**Linus Review Gate (BLOCKING):**
+
+```
+【Taste Rating】🟢 Good / 🟡 Mediocre / 🔴 Garbage
+【Fatal Flaw】[Most critical issue]
+【Direction】[Improvement path]
+```
+
+> **Only 🟢 Good can proceed to test.**
+> 🟡 Mediocre or 🔴 Garbage → Fix issues and restart pipeline.
 
 ### Git Add Rules
 ```bash
