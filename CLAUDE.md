@@ -117,6 +117,11 @@ feature/add-xxx    fix/xxx-error    refactor/xxx    style/xxx
                   FAIL? ─────────> Fix first ←─────────┘
 ```
 
+**🚨 MANDATORY: Linus Review Gate**
+
+> 每次檔案異動後，必須依照 `.claude/LINUS_MODE.md` 進行審查。
+> **審查通過才算完成，不可跳過。**
+
 | Rating | Action |
 |--------|--------|
 | 🟢 Good | Proceed to test |
