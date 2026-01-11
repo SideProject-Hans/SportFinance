@@ -29,7 +29,8 @@
       "Bash(gh repo view:*)",
       "Bash(find:*)",
       "Bash(git -C /Users/hanshuang/Documents/Github/SportFinance log --oneline -1 -- FinanceCenter/FinanceCenter/appsettings.json)",
-      "Bash(/usr/bin/find:*)"
+      "Bash(/usr/bin/find:*)",
+      "Bash(git push)"
     ]
   },
   "enableAllProjectMcpServers": true,
