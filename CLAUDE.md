@@ -177,6 +177,37 @@ git add .
 Types: [功能] [修復] [重構] [文件] [樣式] [測試] [雜項]
 ```
 
+### Merge to Main (5 Steps)
+
+```
+Step 1: [feature] Merge main into feature
+        git fetch origin main
+        git merge main
+        # Resolve conflicts if any
+
+Step 2: [feature] Verify feature branch
+        dotnet build
+        dotnet test
+        # FAIL? → Fix and retry
+
+Step 3: [main] Merge feature with --no-ff
+        git checkout main
+        git pull origin main
+        git merge --no-ff feature/xxx -m "[功能] 合併 feature/xxx"
+
+Step 4: [main] Verify main branch ← CRITICAL
+        dotnet build
+        dotnet test
+        # FAIL? → git reset --hard HEAD~1, go back to feature and fix
+
+Step 5: [main] Push and cleanup
+        git push origin main
+        git worktree remove ../SportFinance-worktrees/<name>
+        git branch -d feature/xxx
+```
+
+> **Why `--no-ff`?** Preserves branch history, enables single-commit revert of entire feature.
+
 ---
 
 ## UI/UX Development
