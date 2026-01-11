@@ -107,6 +107,16 @@ Page.razor.cs → Service.MethodAsync() → UnitOfWork.Repo.Query()
 
 ---
 
+## Code Quality Rules
+
+1. **函數 ≤ 20 行** — 超過就拆
+2. **縮排 ≤ 3 層** — 超過就用 early return 或抽函數
+3. **No magic numbers** — 數字要有名字
+4. **Error 在邊界處理** — Service 層捕捉，不要讓 Exception 穿透到 UI
+5. **Null 契約明確** — 回傳可能 null 就標 `?`，不可能就別標
+
+---
+
 ## Git Workflow
 
 ### Branch Naming
