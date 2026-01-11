@@ -87,6 +87,11 @@ Page.razor.cs → Service.MethodAsync() → UnitOfWork.Repo.Query()
                                       → UnitOfWork.SaveChangesAsync()
 ```
 
+### Repository = 業務邊界（非 Table 邊界）
+
+> Repository 按業務領域劃分，非按 Table 劃分。
+> 一個 Repository 未來可管理多張表。
+
 ---
 
 ## Coding Conventions
