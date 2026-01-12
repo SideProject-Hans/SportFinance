@@ -246,6 +246,7 @@
         "duotify",
         "exercism",
         "Hsts",
+        "Inno",
         "microkernels",
         "nosnippet",
         "RATIFICATION",
@@ -254,7 +255,9 @@
         "snackbars",
         "speckit",
         "stylesheet",
-        "userspace"
+        "userspace",
+        "worktree",
+        "worktrees"
     ],
 
     // *********************************************************************
