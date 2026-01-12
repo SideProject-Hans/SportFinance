@@ -32,7 +32,10 @@
       "Bash(/usr/bin/find:*)",
       "Bash(git push)",
       "Bash(git push:*)",
-      "mcp__filesystem__read_text_file"
+      "mcp__filesystem__read_text_file",
+      "Bash(dotnet ef migrations:*)",
+      "Bash(dotnet ef database update:*)",
+      "Bash(dir:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
