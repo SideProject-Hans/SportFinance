@@ -1,4 +1,5 @@
 {
+<<<<<<< Updated upstream
   "hooks": {
     "PreToolUse": [
       {
@@ -18,6 +19,8 @@
       }
     ]
   },
+=======
+>>>>>>> Stashed changes
   "permissions": {
     "allow": [
       "Bash(dotnet build:*)",
@@ -58,9 +61,18 @@
       "Bash(git fetch:*)",
       "Bash(git pull:*)",
       "WebFetch(domain:news.ycombinator.com)",
+<<<<<<< Updated upstream
       "Bash(./scripts/tdd-start.sh)",
       "Bash(./scripts/tdd-red.sh)",
       "Bash(./scripts/tdd-green.sh)"
+=======
+      "mcp__filesystem__write_file",
+      "Bash(./scripts/tdd-start.sh:*)",
+      "Bash(ls:*)",
+      "Bash(./scripts/tdd-red.sh:*)",
+      "Bash(dotnet:*)",
+      "Bash(./scripts/tdd-green.sh:*)"
+>>>>>>> Stashed changes
     ]
   },
   "enableAllProjectMcpServers": true,
@@ -72,5 +84,19 @@
     "fetch",
     "git",
     "time"
-  ]
+  ],
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "branch=$(git branch --show-current 2>/dev/null); if [ \"$branch\" = \"main\" ] || [ \"$branch\" = \"master\" ]; then echo '{\"block\": true, \"message\": \"⛔ Cannot edit files on main branch. Run Phase 0 first:\\n\\n  git worktree add ../SportFinance-worktrees/<name> -b feature/xxx\\n  cd ../SportFinance-worktrees/<name>\"}' >&2; exit 2; fi",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
 }
