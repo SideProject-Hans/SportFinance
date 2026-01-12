@@ -8,6 +8,11 @@
             "type": "command",
             "command": "branch=$(git branch --show-current 2>/dev/null); if [ \"$branch\" = \"main\" ] || [ \"$branch\" = \"master\" ]; then echo '{\"block\": true, \"message\": \"⛔ Cannot edit files on main branch. Run Phase 0 first:\\n\\n  git worktree add ../SportFinance-worktrees/<name> -b feature/xxx\\n  cd ../SportFinance-worktrees/<name>\"}' >&2; exit 2; fi",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "if [ ! -f \".tdd-test-mode\" ] && [ ! -f \".tdd-red-verified\" ]; then echo '{\"block\": true, \"message\": \"⛔ TDD Mode not active. Run Phase 2b first:\\n\\n  ./scripts/tdd-start.sh    # Start TDD (write tests)\\n  ./scripts/tdd-red.sh      # Verify tests fail\"}' >&2; exit 2; fi",
+            "timeout": 5
           }
         ]
       }
@@ -52,7 +57,10 @@
       "Bash(dir:*)",
       "Bash(git fetch:*)",
       "Bash(git pull:*)",
-      "WebFetch(domain:news.ycombinator.com)"
+      "WebFetch(domain:news.ycombinator.com)",
+      "Bash(./scripts/tdd-start.sh)",
+      "Bash(./scripts/tdd-red.sh)",
+      "Bash(./scripts/tdd-green.sh)"
     ]
   },
   "enableAllProjectMcpServers": true,
