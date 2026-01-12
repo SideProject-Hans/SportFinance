@@ -2,6 +2,216 @@
 
 <PageTitle>年度預算</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-4">年度預算</MudText>
+<MudText Typo="Typo.h4" Class="mb-2">年度預算</MudText>
+<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6">管理各部門年度預算</MudText>
 
-<MudAlert Severity="Severity.Info">此頁面尚在開發中</MudAlert>
+<MudGrid Spacing="4">
+	@* 左側：部門預算清單 *@
+	<MudItem xs="12" md="4">
+		<MudCard Elevation="2">
+			<MudCardHeader>
+				<CardHeaderContent>
+					<MudStack Spacing="2">
+						<MudSelect T="int"
+								   Value="SelectedYear"
+								   ValueChanged="OnYearChangedAsync"
+								   Label="選擇年度"
+								   Variant="Variant.Outlined"
+								   Dense="true">
+							@foreach (var year in AvailableYears)
+							{
+								<MudSelectItem Value="year">@year 年</MudSelectItem>
+							}
+						</MudSelect>
+					</MudStack>
+				</CardHeaderContent>
+			</MudCardHeader>
+			<MudDivider />
+			<MudCardContent Class="pa-0">
+				@* 部門清單 *@
+				<MudList T="DepartmentBudget" Dense="true" Class="py-0">
+					@foreach (var budget in Budgets)
+					{
+						<MudListItem T="DepartmentBudget"
+									 Class="@GetBudgetItemClass(budget)"
+									 Style="cursor: pointer;"
+									 OnClick="@(() => SelectBudgetAsync(budget))">
+							<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="py-1">
+								<MudStack Spacing="0">
+									<MudText Typo="Typo.body2" Style="font-weight: 600;">
+										@GetDepartmentName(budget.DepartmentCode)
+									</MudText>
+									<MudText Typo="Typo.caption" Color="Color.Secondary">
+										@budget.DepartmentCode
+									</MudText>
+								</MudStack>
+								<MudText Typo="Typo.body2" Style="font-weight: 600;">
+									@budget.TotalAmount.ToString("N0")
+								</MudText>
+							</MudStack>
+						</MudListItem>
+						<MudDivider />
+					}
+				</MudList>
+
+				@if (!Budgets.Any())
+				{
+					<MudStack AlignItems="AlignItems.Center" Class="pa-6">
+						<MudIcon Icon="@Icons.Material.Filled.AccountBalanceWallet" Size="Size.Large" Color="Color.Secondary" />
+						<MudText Typo="Typo.body2" Color="Color.Secondary">@SelectedYear 年尚無預算資料</MudText>
+					</MudStack>
+				}
+			</MudCardContent>
+
+			@* 年度總預算 *@
+			@if (Budgets.Any())
+			{
+				<MudDivider />
+				<MudCardContent>
+					<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+						<MudText Typo="Typo.subtitle2" Color="Color.Secondary">年度總預算</MudText>
+						<MudText Typo="Typo.h6" Color="Color.Primary" Style="font-weight: 700;">
+							@YearlyTotalBudget.ToString("N0") 元
+						</MudText>
+					</MudStack>
+				</MudCardContent>
+			}
+
+			@* 新增部門預算 *@
+			<MudDivider />
+			<MudCardContent>
+				<MudSelect T="string"
+						   Value="@string.Empty"
+						   ValueChanged="OnAddDepartmentBudgetAsync"
+						   Label="新增部門預算"
+						   Placeholder="選擇部門..."
+						   Variant="Variant.Outlined"
+						   Dense="true"
+						   Disabled="@(!AvailableDepartments.Any())">
+					@foreach (var dept in AvailableDepartments)
+					{
+						<MudSelectItem Value="@dept.Code">@dept.Name (@dept.Code)</MudSelectItem>
+					}
+				</MudSelect>
+				@if (!AvailableDepartments.Any() && Departments.Any())
+				{
+					<MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2">
+						所有部門都已設定預算
+					</MudText>
+				}
+			</MudCardContent>
+		</MudCard>
+	</MudItem>
+
+	@* 右側：預算明細 *@
+	<MudItem xs="12" md="8">
+		@if (SelectedBudget is not null)
+		{
+			<MudCard Elevation="2">
+				<MudCardHeader>
+					<CardHeaderContent>
+						<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+							<MudStack Spacing="0">
+								<MudText Typo="Typo.h6">@GetDepartmentName(SelectedBudget.DepartmentCode)</MudText>
+								<MudText Typo="Typo.caption" Color="Color.Secondary">@SelectedYear 年度預算明細</MudText>
+							</MudStack>
+							<MudStack Row="true" Spacing="2">
+								<MudButton Variant="Variant.Outlined"
+										   Color="Color.Error"
+										   Size="Size.Small"
+										   StartIcon="@Icons.Material.Filled.Delete"
+										   OnClick="DeleteBudgetAsync">
+									刪除預算
+								</MudButton>
+							</MudStack>
+						</MudStack>
+					</CardHeaderContent>
+				</MudCardHeader>
+				<MudDivider />
+				<MudCardContent>
+					<MudStack Spacing="3">
+						@foreach (var (item, index) in EditingItems.Select((item, i) => (item, i)))
+						{
+							<MudPaper Elevation="0" Class="pa-3" Style="border: 1px solid var(--mud-palette-lines-default); border-radius: 8px;">
+								<MudGrid Spacing="2">
+									<MudItem xs="12" sm="5">
+										<MudTextField @bind-Value="item.ItemName"
+													  Label="項目名稱"
+													  Variant="Variant.Outlined"
+													  Margin="Margin.Dense" />
+									</MudItem>
+									<MudItem xs="12" sm="4">
+										<MudNumericField @bind-Value="item.Amount"
+														 Label="金額"
+														 Format="N0"
+														 Variant="Variant.Outlined"
+														 Adornment="Adornment.Start"
+														 AdornmentText="$"
+														 HideSpinButtons="true"
+														 Margin="Margin.Dense" />
+									</MudItem>
+									<MudItem xs="12" sm="3" Class="d-flex align-center justify-end">
+										<MudTooltip Text="刪除此項目">
+											<MudIconButton Icon="@Icons.Material.Filled.Delete"
+														   Color="Color.Error"
+														   Size="Size.Small"
+														   OnClick="@(() => RemoveItem(index))" />
+										</MudTooltip>
+									</MudItem>
+									<MudItem xs="12">
+										<MudTextField @bind-Value="item.Description"
+													  Label="說明（選填）"
+													  Variant="Variant.Outlined"
+													  Margin="Margin.Dense" />
+									</MudItem>
+								</MudGrid>
+							</MudPaper>
+						}
+
+						@if (!EditingItems.Any())
+						{
+							<MudAlert Severity="Severity.Info" Dense="true">
+								尚未新增任何預算項目，請點擊下方「新增項目」按鈕
+							</MudAlert>
+						}
+
+						<MudButton Variant="Variant.Outlined"
+								   Color="Color.Primary"
+								   StartIcon="@Icons.Material.Filled.Add"
+								   OnClick="AddItem"
+								   FullWidth="true">
+							新增項目
+						</MudButton>
+					</MudStack>
+				</MudCardContent>
+				<MudDivider />
+				<MudCardContent>
+					<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+						<MudText Typo="Typo.subtitle1">
+							總計：<strong>@EditingItems.Sum(x => x.Amount).ToString("N0")</strong> 元
+						</MudText>
+						<MudButton Variant="Variant.Filled"
+								   Color="Color.Primary"
+								   StartIcon="@Icons.Material.Filled.Save"
+								   OnClick="SaveBudgetAsync"
+								   Disabled="@(!HasChanges)">
+							儲存
+						</MudButton>
+					</MudStack>
+				</MudCardContent>
+			</MudCard>
+		}
+		else
+		{
+			<MudCard Elevation="2">
+				<MudCardContent>
+					<MudStack AlignItems="AlignItems.Center" Class="pa-8">
+						<MudIcon Icon="@Icons.Material.Filled.TouchApp" Size="Size.Large" Color="Color.Secondary" />
+						<MudText Typo="Typo.h6" Color="Color.Secondary">請從左側選擇部門</MudText>
+						<MudText Typo="Typo.body2" Color="Color.Secondary">或新增部門預算開始編輯</MudText>
+					</MudStack>
+				</MudCardContent>
+			</MudCard>
+		}
+	</MudItem>
+</MudGrid>

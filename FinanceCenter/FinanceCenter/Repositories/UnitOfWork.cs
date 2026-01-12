@@ -12,12 +12,14 @@ public class UnitOfWork(FinanceCenterDbContext context) : IUnitOfWork
 	private ITaiwanCooperativeBankRepository? _taiwanCooperativeBank;
 	private IDepartmentRepository? _department;
 	private IBankInitialBalanceRepository? _bankInitialBalance;
+	private IBudgetRepository? _budget;
 
 	public IFinanceRepository Finance => _finance ??= new FinanceRepository(context);
 	public IShanghaiBankRepository ShanghaiBank => _shanghaiBank ??= new ShanghaiBankRepository(context);
 	public ITaiwanCooperativeBankRepository TaiwanCooperativeBank => _taiwanCooperativeBank ??= new TaiwanCooperativeBankRepository(context);
 	public IDepartmentRepository Department => _department ??= new DepartmentRepository(context);
 	public IBankInitialBalanceRepository BankInitialBalance => _bankInitialBalance ??= new BankInitialBalanceRepository(context);
+	public IBudgetRepository Budget => _budget ??= new BudgetRepository(context);
 
 	public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
 	{
