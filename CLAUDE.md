@@ -4,30 +4,49 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 🚨 MANDATORY: Worktree-First Development
+## Quick Facts
 
-```bash
-git worktree list                                                    # Check status
-git worktree add ../SportFinance-worktrees/<name> -b <branch>        # Create worktree + branch
-cd ../SportFinance-worktrees/<name>                                  # Navigate
-```
-
-**Violation = Main branch pollution = Irreversible chaos.**
+| Item | Value |
+|------|-------|
+| **Stack** | .NET 8, Blazor Server, MySQL, MudBlazor |
+| **Working Dir** | `FinanceCenter/FinanceCenter` |
+| **Build** | `dotnet build` |
+| **Run** | `dotnet run` |
+| **Test** | `dotnet test` |
+| **Test Single** | `dotnet test --filter "FullyQualifiedName~TestName"` |
 
 ---
 
-## Development Commands
+## System Hooks (Auto-enforced)
 
-```bash
-# Working directory: FinanceCenter/FinanceCenter
-dotnet build
-dotnet run
-dotnet watch run
+The following rules are enforced at system level via `.claude/settings.local.json`:
 
-# Testing
-dotnet test
-dotnet test --filter "FullyQualifiedName~TestName"
+| Hook | Trigger | Action |
+|------|---------|--------|
+| **PreToolUse** | `Edit`, `Write`, `MultiEdit` | ⛔ Block if on `main` or `master` branch |
+
+When blocked, you will see:
 ```
+⛔ Cannot edit files on main branch. Run Phase 0 first:
+
+  git worktree add ../SportFinance-worktrees/<name> -b feature/xxx
+  cd ../SportFinance-worktrees/<name>
+```
+
+> **Note:** This is a system-level protection. Even if you forget Phase 0, the hook will block the operation.
+
+---
+
+## Skill Activation
+
+Before executing any task, check if the corresponding skill should be activated:
+
+| Trigger | Skill | When |
+|---------|-------|------|
+| UI/UX related tasks | `/ui-ux-pro-max` | Before implementation |
+| After code changes | `code-simplifier:code-simplifier` | Phase 3 |
+| After code changes | `pr-review-toolkit:code-reviewer` | Phase 3 |
+| Quality review | `.claude/LINUS_MODE.md` | Phase 3 |
 
 ---
 
@@ -37,7 +56,20 @@ dotnet test --filter "FullyQualifiedName~TestName"
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│  Phase 1: Preparation                                               │
+│  Phase 0: Environment Check (BLOCKING - Must run before any change) │
+├─────────────────────────────────────────────────────────────────────┤
+│  git worktree list                                                  │
+│  pwd                                                                │
+│                                                                     │
+│  Decision:                                                          │
+│  ├── In main worktree (SportFinance/) → Must create new worktree    │
+│  └── In feature worktree              → ✅ Proceed to Phase 1       │
+│                                                                     │
+│  ⛔ Skipping Phase 0 = Cannot proceed to Phase 1                    │
+└─────────────────────────────────────────────────────────────────────┘
+                                    ↓
+┌─────────────────────────────────────────────────────────────────────┐
+│  Phase 1: Preparation (If Phase 0 requires creating worktree)       │
 ├─────────────────────────────────────────────────────────────────────┤
 │  git worktree add ../SportFinance-worktrees/<name> -b feature/xxx   │
 │  cd ../SportFinance-worktrees/<name>                                │
@@ -109,14 +141,6 @@ CREATE TABLE IF NOT EXISTS `<TableName>` (
   COLLATE=utf8mb4_unicode_ci
   COMMENT='<Table Description>';
 ```
-
-### Quality Review Gates
-
-| Step | Tool/Reference | Purpose |
-|------|----------------|---------|
-| 1 | `code-simplifier:code-simplifier` | Simplify code, remove redundancy |
-| 2 | `pr-review-toolkit:code-reviewer` | Check bugs, security, quality |
-| 3 | `.claude/LINUS_MODE.md` | Linus taste review |
 
 ### Linus Review Gate (BLOCKING)
 
@@ -212,11 +236,19 @@ Page.razor.cs → Service.MethodAsync() → UnitOfWork.Repo.Query()
 
 ## Code Quality Rules
 
-1. **Function ≤ 20 lines** — Split if exceeded
-2. **Indentation ≤ 3 levels** — Use early return or extract function
-3. **No magic numbers** — Numbers must have names
-4. **Error handling at boundaries** — Service layer catches, don't let exceptions penetrate to UI
-5. **Explicit null contract** — Mark `?` if may return null, don't mark if not possible
+### Complexity
+- **Function ≤ 20 lines** — Split if exceeded
+- **Indentation ≤ 3 levels** — Use early return or extract function
+- **No magic numbers** — Numbers must have names
+
+### Error Handling
+- **Service layer catches** — Don't let exceptions penetrate to UI
+- **Explicit null contract** — Mark `?` if may return null, don't mark if not possible
+
+### Forbidden
+- `dotnet ef migrations` — Write SQL manually instead
+- `git add .` — Only add specific files
+- Modifying code on main branch — Must use worktree
 
 ---
 
@@ -241,6 +273,7 @@ git add .
 [Type] Short description
 
 Types: [功能] [修復] [重構] [文件] [樣式] [測試] [雜項]
+       [Feature] [Fix] [Refactor] [Docs] [Style] [Test] [Chore]
 ```
 
 > **Why `--no-ff`?** Preserves branch history, enables single-commit revert of entire feature.
