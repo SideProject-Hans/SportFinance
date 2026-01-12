@@ -35,7 +35,9 @@
       "mcp__filesystem__read_text_file",
       "Bash(dotnet ef migrations:*)",
       "Bash(dotnet ef database update:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
