@@ -38,6 +38,16 @@ public class FinanceCenterDbContext : DbContext
     /// </summary>
     public DbSet<BankInitialBalance> BankInitialBalances { get; set; } = null!;
 
+    /// <summary>
+    /// 部門年度預算資料表
+    /// </summary>
+    public DbSet<DepartmentBudget> DepartmentBudgets { get; set; } = null!;
+
+    /// <summary>
+    /// 預算項目明細資料表
+    /// </summary>
+    public DbSet<BudgetItem> BudgetItems { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -149,6 +159,34 @@ public class FinanceCenterDbContext : DbContext
             entity.Property(e => e.InitialBalance).HasPrecision(18, 2).HasDefaultValue(0.00m);
             entity.Property(e => e.EffectiveYear).IsRequired();
             entity.HasIndex(e => e.BankType).IsUnique().HasDatabaseName("idx_bank_type");
+        });
+
+        // DepartmentBudget 實體配置
+        modelBuilder.Entity<DepartmentBudget>(entity =>
+        {
+            entity.ToTable("DepartmentBudget");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Year).IsRequired();
+            entity.Property(e => e.DepartmentCode).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.HasIndex(e => new { e.Year, e.DepartmentCode })
+                .IsUnique()
+                .HasDatabaseName("idx_budget_year_dept");
+        });
+
+        // BudgetItem 實體配置
+        modelBuilder.Entity<BudgetItem>(entity =>
+        {
+            entity.ToTable("BudgetItem");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.DepartmentBudgetId).IsRequired();
+            entity.Property(e => e.ItemName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Amount).HasPrecision(18, 2).HasDefaultValue(0.00m);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.SortOrder).HasDefaultValue(0);
+            entity.HasIndex(e => e.DepartmentBudgetId).HasDatabaseName("idx_budgetitem_budget");
         });
     }
 }

@@ -37,6 +37,7 @@ namespace FinanceCenter
             builder.Services.AddScoped<IShanghaiBankService, ShanghaiBankService>();
             builder.Services.AddScoped<ITaiwanCooperativeBankService, TaiwanCooperativeBankService>();
             builder.Services.AddScoped<ISettingsService, SettingsService>();
+            builder.Services.AddScoped<IBudgetService, BudgetService>();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()

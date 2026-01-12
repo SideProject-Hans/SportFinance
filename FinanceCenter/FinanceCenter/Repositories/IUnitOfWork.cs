@@ -10,5 +10,6 @@ public interface IUnitOfWork : IDisposable
 	ITaiwanCooperativeBankRepository TaiwanCooperativeBank { get; }
 	IDepartmentRepository Department { get; }
 	IBankInitialBalanceRepository BankInitialBalance { get; }
+	IBudgetRepository Budget { get; }
 	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
