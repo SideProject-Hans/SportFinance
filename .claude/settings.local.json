@@ -25,7 +25,13 @@
       "mcp__filesystem__read_multiple_files",
       "Bash(git worktree:*)",
       "mcp__filesystem__directory_tree",
-      "mcp__filesystem__edit_file"
+      "mcp__filesystem__edit_file",
+      "Bash(gh repo view:*)",
+      "Bash(find:*)",
+      "Bash(git -C /Users/hanshuang/Documents/Github/SportFinance log --oneline -1 -- FinanceCenter/FinanceCenter/appsettings.json)",
+      "Bash(/usr/bin/find:*)",
+      "Bash(git push)",
+      "Bash(git push:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

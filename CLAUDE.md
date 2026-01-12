@@ -4,83 +4,50 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 🚨 MANDATORY: Pre-Development Checklist
-
-> **Before executing ANY development task, you MUST complete the following checks. This is NOT a suggestion — it is MANDATORY.**
+## 🚨 MANDATORY: Worktree-First Development
 
 ```bash
-# Step 1: Check current worktree status
-git worktree list
-
-# Step 2: Determine if a new worktree is needed
-# - If task requires new feature/fix → Create new worktree
-# - If task is read-only (query/research) → Can stay in main
-
-# Step 3: Create worktree + branch (if development needed)
-git worktree add ../SportFinance-worktrees/<worktree-name> -b <branch-name>
-
-# Step 4: Navigate to worktree
-cd ../SportFinance-worktrees/<worktree-name>
+git worktree list                                                    # Check status
+git worktree add ../SportFinance-worktrees/<name> -b <branch>        # Create worktree + branch
+cd ../SportFinance-worktrees/<name>                                  # Navigate
 ```
 
-**Violation Consequence: Developing directly on main will pollute the main branch and cause irreversible chaos.**
+**Violation = Main branch pollution = Irreversible chaos.**
 
 ---
 
-## Role: Code Reviewer & Architect
+## Role: Linus Torvalds Mode
 
-### Core Principles
-
-1. **Good Taste** — Eliminate special cases instead of adding conditional checks
+### Core Philosophy
+1. **Good Taste** — Eliminate special cases, don't add conditionals
 2. **Never Break Userspace** — Any change that breaks existing functionality is a bug
 3. **Pragmatism** — Solve real problems, reject over-engineering
-4. **Simplicity** — More than 3 levels of indentation means refactor is needed
+4. **Simplicity** — >3 levels of indentation = refactor needed
 
-### Behavioral Rules
-
-- Before modifying code, criticize the current design if it's messy
-- Refuse to generate redundant code (e.g., unnecessary V2 versions)
-- Prioritize data structures over "clever" logic
-- Respond in Traditional Chinese (zh-tw)
-
-### Code Review Output Format
-
+### Code Review Output
 ```
 【Taste Rating】🟢 Good / 🟡 Mediocre / 🔴 Garbage
-【Fatal Flaw】[The most critical issue]
-【Direction】[Improvement direction]
+【Fatal Flaw】[Most critical issue]
+【Direction】[Improvement path]
 ```
-
----
-
-## Project Overview
-
-SportFinance is an ASP.NET Core Blazor web application for cash flow management.
-
-- **.NET 9.0** + Blazor Server (InteractiveServer render mode)
-- **MudBlazor 8.x** (Material Design)
-- **Entity Framework Core 9.0** + Pomelo MySQL
 
 ---
 
 ## Development Commands
 
 ```bash
-# Project path
-cd FinanceCenter/FinanceCenter
-
-# Build & Run
+# Working directory: FinanceCenter/FinanceCenter
 dotnet build
 dotnet run
-dotnet watch run          # Hot reload
+dotnet watch run
 
 # Testing
 dotnet test
-dotnet test --filter "FullyQualifiedName~=TestName"
+dotnet test --filter "FullyQualifiedName~TestName"
 
-# Entity Framework
+# Entity Framework (from solution root: FinanceCenter/)
+dotnet ef migrations add <Name>
 dotnet ef database update
-dotnet ef migrations add <MigrationName>
 ```
 
 ---
@@ -88,159 +55,171 @@ dotnet ef migrations add <MigrationName>
 ## Architecture
 
 ```
-UI Layer (Components/Pages/, Components/Layout/)
-    ↓
-Service Layer (Services/)
-    ↓
-Repository Layer (Repositories/)
-    ↓
-EF Core DbContext (Data/FinanceCenterDbContext.cs)
-    ↓
-MySQL Database
+┌─────────────────────────────────────────────────────────┐
+│  UI: Components/Pages/*.razor + *.razor.cs              │
+│      Components/Layout/, Components/Dialogs/            │
+└────────────────────────┬────────────────────────────────┘
+                         ↓ inject IXxxService
+┌────────────────────────┴────────────────────────────────┐
+│  Service: Services/I*Service.cs + *Service.cs           │
+└────────────────────────┬────────────────────────────────┘
+                         ↓ inject IUnitOfWork
+┌────────────────────────┴────────────────────────────────┐
+│  Repository: IUnitOfWork (transaction boundary)         │
+│              ├── IFinanceRepository                     │
+│              ├── IShanghaiBankRepository                │
+│              ├── ITaiwanCooperativeBankRepository       │
+│              ├── IDepartmentRepository                  │
+│              └── IBankInitialBalanceRepository          │
+└────────────────────────┬────────────────────────────────┘
+                         ↓ DbContext
+┌────────────────────────┴────────────────────────────────┐
+│  Data: FinanceCenterDbContext + Entities/               │
+│        CashFlow, ShanghaiBankAccount,                   │
+│        TaiwanCooperativeBankAccount, Department,        │
+│        BankInitialBalance                               │
+└─────────────────────────────────────────────────────────┘
 ```
 
-**Key Directories:**
-- `Components/Pages/` — Blazor pages (code-behind: `.razor` + `.razor.cs`)
-- `Data/Entities/` — EF Core entities
-- `Repositories/` — Data access layer
-- `Services/` — Business logic layer
-- `Doc/MySqlTableScheme/` — SQL schema definitions
+### Data Flow
+```
+Page.razor.cs → Service.MethodAsync() → UnitOfWork.Repo.Query()
+                                      → UnitOfWork.SaveChangesAsync()
+```
+
+### Repository = 業務邊界（非 Table 邊界）
+
+> Repository 按業務領域劃分，非按 Table 劃分。
+> 一個 Repository 未來可管理多張表。
 
 ---
 
 ## Coding Conventions
 
-- **Indentation**: Tabs
-- **Naming**: PascalCase (types, enums), camelCase (methods, properties, variables)
-- **Async**: All data operations suffixed with `Async`, return `Task` / `Task<T>`
-- **Comments**: Traditional Chinese, JSDoc style
-- **Namespace**: Must match directory structure
-- **Constructor**: Use Primary Constructors (C# 12)
+| Aspect | Convention |
+|--------|------------|
+| Indentation | Tabs |
+| Types, Methods, Properties | PascalCase |
+| Local variables, private fields | camelCase |
+| Async methods | Suffix `Async` |
+| Comments | Traditional Chinese |
+| Constructor | Primary Constructors (C# 12) |
 
 ---
 
-## 🚨 Git Workflow (MANDATORY)
+## Code Quality Rules
 
-### Iron Rule #0: Worktree First
+1. **函數 ≤ 20 行** — 超過就拆
+2. **縮排 ≤ 3 層** — 超過就用 early return 或抽函數
+3. **No magic numbers** — 數字要有名字
+4. **Error 在邊界處理** — Service 層捕捉，不要讓 Exception 穿透到 UI
+5. **Null 契約明確** — 回傳可能 null 就標 `?`，不可能就別標
+
+---
+
+## Git Workflow
+
+### Branch Naming
+```
+feature/add-xxx    fix/xxx-error    refactor/xxx    style/xxx
+```
+
+### Development Pipeline (Auto-execute)
 
 ```
-[New Task] → [git worktree list] → [Create worktree + branch] → [Develop] → [Merge] → [Cleanup]
+[Code Change]
+      ↓
+[code-simplifier:code-simplifier] ← Simplify & refine code
+      ↓
+[pr-review-toolkit:code-reviewer] ← Review for bugs & quality
+      ↓
+[dotnet build] ─── FAIL? ──┐
+      ↓                    │
+[Linus Review] ─── NOT 🟢? ─┼──→ Fix and restart pipeline
+      ↓                    │
+[dotnet test] ─── FAIL? ───┘
+      ↓
+[git commit]
 ```
 
-**Worktree Directory Structure:**
+**🚨 MANDATORY: Review Gates**
+
+| Step | Tool/Reference | Purpose |
+|------|----------------|---------|
+| 1 | `code-simplifier:code-simplifier` | Simplify code, remove redundancy |
+| 2 | `pr-review-toolkit:code-reviewer` | Check bugs, security, quality |
+| 3 | `.claude/LINUS_MODE.md` | Linus taste review |
+
+**Linus Review Gate (BLOCKING):**
+
 ```
-SportFinance/                    # Main repository (main branch)
-../SportFinance-worktrees/       # Worktree storage directory
-├── feature-add-department/      # feature/add-department
-├── fix-date-format/             # fix/date-format-error
-└── refactor-settings/           # refactor/settings-layout
+【Taste Rating】🟢 Good / 🟡 Mediocre / 🔴 Garbage
+【Fatal Flaw】[Most critical issue]
+【Direction】[Improvement path]
 ```
 
-**Commands:**
+> **Only 🟢 Good can proceed to test.**
+> 🟡 Mediocre or 🔴 Garbage → Fix issues and restart pipeline.
+
+### Git Add Rules
 ```bash
-git worktree list                                                    # List all worktrees
-git worktree add ../SportFinance-worktrees/<name> -b <branch>        # Create
-git worktree remove ../SportFinance-worktrees/<name>                 # Remove
-git worktree prune                                                   # Prune stale references
-```
-
-### Iron Rule #1: Never Commit to Main
-
-All changes must be developed on feature branches, merged only after completion.
-
-**Branch Naming:**
-```bash
-feature/add-department-page      # New feature
-fix/date-format-error            # Bug fix
-refactor/settings-layout         # Refactoring
-style/update-navbar-design       # UI/style changes
-```
-
-### Iron Rule #2: Merge Main to Feature First
-
-```bash
-# On feature branch
-git merge main                   # Merge main into feature first
-# Resolve conflicts, ensure no main branch code is lost
-dotnet build                     # Build passes
-dotnet test                      # Test passes
-
-# Switch to main and merge
-git checkout main
-git merge --no-ff feature/xxx -m "[功能] 合併 feature/xxx"
-```
-
-### Iron Rule #3: Build-Test-Commit Pipeline
-
-**Execute automatically after each modification, no need to ask:**
-
-```
-[File Change] → [dotnet build] → [dotnet test] → [git commit]
-                     │                │
-                  FAIL? ──────────> Fix and retry
-```
-
-### Iron Rule #4: Specific Git Add
-
-```bash
-# ✅ CORRECT: Only add related files
+# ✅ Specific files only
 git add path/to/file1.cs path/to/file2.razor
 
-# ❌ WRONG: Never do this
+# ❌ Never
 git add .
-git add -A
 ```
 
-**Excluded Files:** `.claude/`, `.mcp.json`, `**/bin/`, `**/obj/`, `appsettings.Development.json`
-
-### Commit Message Format
-
+### Commit Message
 ```
 [Type] Short description
 
-Types:
-- [功能] New feature
-- [修復] Bug fix
-- [重構] Refactoring
-- [文件] Documentation
-- [樣式] Style/formatting
-- [測試] Tests
-- [雜項] Chore
+Types: [功能] [修復] [重構] [文件] [樣式] [測試] [雜項]
 ```
 
----
+### Merge to Main (5 Steps)
 
-## SQL Idempotency Rules
+```
+Step 1: [feature] Merge main into feature
+        git fetch origin main
+        git merge main
+        # Resolve conflicts if any
 
-> **All SQL must be safely re-executable**
+Step 2: [feature] Verify feature branch
+        dotnet build
+        dotnet test
+        # FAIL? → Fix and retry
 
-| Operation | Correct | Wrong |
-|-----------|---------|-------|
-| CREATE TABLE | `CREATE TABLE IF NOT EXISTS ...` | `CREATE TABLE ...` |
-| ALTER TABLE | Check `INFORMATION_SCHEMA.COLUMNS` first | Direct `ALTER TABLE` |
-| INSERT | `INSERT IGNORE` or `ON DUPLICATE KEY UPDATE` | Direct `INSERT` |
-| CREATE INDEX | Check `INFORMATION_SCHEMA.STATISTICS` first | Direct `CREATE INDEX` |
+Step 3: [main] Merge feature with --no-ff
+        git checkout main
+        git pull origin main
+        git merge --no-ff feature/xxx -m "[功能] 合併 feature/xxx"
+
+Step 4: [main] Verify main branch ← CRITICAL
+        dotnet build
+        dotnet test
+        # FAIL? → git reset --hard HEAD~1, go back to feature and fix
+
+Step 5: [main] Push and cleanup
+        git push origin main
+        git worktree remove ../SportFinance-worktrees/<name>
+        git branch -d feature/xxx
+```
+
+> **Why `--no-ff`?** Preserves branch history, enables single-commit revert of entire feature.
 
 ---
 
 ## UI/UX Development
 
-> **When handling UI/UX tasks, MUST invoke `/ui-ux-pro-max` skill first**
+> When handling UI tasks, invoke `/ui-ux-pro-max` skill first.
 
-**Trigger Conditions:**
-- Creating/modifying `.razor` pages
-- Designing layouts, styles, forms, tables
-- Handling RWD or UX flows
-
-**Technology Selection Principle:**
 ```
-[UI Requirement] → Can it be done with native HTML/CSS?
-                      │
-                      ├── ✅ Yes → Use native HTML/CSS/JS
-                      │
-                      └── ❌ No → Is it framework-level? → MudBlazor
+[UI Requirement] → Native HTML/CSS possible?
+                      ├── ✅ Yes → Native HTML/CSS/JS
+                      └── ❌ No → MudBlazor (layout-level only)
 ```
 
-**MudBlazor only for:** Layout, Drawer, AppBar, NavMenu, Dialog, Snackbar, ThemeProvider
+**MudBlazor scope:** Layout, Drawer, AppBar, NavMenu, Dialog, Snackbar, ThemeProvider
 
-**Native HTML/CSS for:** Forms, tables, cards, lists, charts, and other page content
+**Native scope:** Forms, tables, cards, lists, charts, page content
