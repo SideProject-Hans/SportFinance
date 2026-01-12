@@ -23,7 +23,10 @@ The following rules are enforced at system level via `.claude/settings.local.jso
 
 | Hook | Trigger | Action |
 |------|---------|--------|
-| **PreToolUse** | `Edit`, `Write`, `MultiEdit` | ⛔ Block if on `main` or `master` branch |
+| **Branch Protection** | `Edit`, `Write`, `MultiEdit` | ⛔ Block if on `main` or `master` branch |
+| **TDD Enforcement** | `Edit`, `Write`, `MultiEdit` | ⛔ Block if TDD mode not active |
+
+### Branch Protection
 
 When blocked, you will see:
 ```
@@ -33,7 +36,17 @@ When blocked, you will see:
   cd ../SportFinance-worktrees/<name>
 ```
 
-> **Note:** This is a system-level protection. Even if you forget Phase 0, the hook will block the operation.
+### TDD Enforcement
+
+When blocked, you will see:
+```
+⛔ TDD Mode not active. Run Phase 2b first:
+
+  ./scripts/tdd-start.sh    # Start TDD (write tests)
+  ./scripts/tdd-red.sh      # Verify tests fail
+```
+
+> **Note:** These are system-level protections. Even if you forget the flow, hooks will block the operation.
 
 ---
 
@@ -85,13 +98,15 @@ Before executing any task, check if the corresponding skill should be activated:
 │      ├── 標記不確定項目 [NEEDS CLARIFICATION: ...]                   │
 │      └── 通過簡化閘門檢查                                            │
 │                         ↓                                           │
-│  2b. Test First (Red Phase)                                         │
+│  2b. Test First (Red Phase) ⛔ HOOK ENFORCED                        │
+│      ├── ./scripts/tdd-start.sh  ← 啟動 TDD 模式                    │
 │      ├── 寫測試程式碼                                                │
-│      └── 執行測試 → 確認失敗 (Red)                                   │
+│      ├── ./scripts/tdd-red.sh    ← 驗證測試失敗                     │
+│      └── 測試必須失敗才能進入下一階段                                 │
 │                         ↓                                           │
 │  2c. Implementation (Green Phase)                                   │
 │      ├── 寫最少程式碼讓測試通過                                       │
-│      ├── 執行測試 → 確認通過 (Green)                                 │
+│      ├── ./scripts/tdd-green.sh  ← 驗證測試通過                     │
 │      └── If adding Entity → Execute Entity Dev Flow                 │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -191,11 +206,29 @@ Before executing any task, check if the corresponding skill should be activated:
 
 ## Test-Driven Development (TDD)
 
+### TDD Scripts (Hook Enforced)
+
+```bash
+./scripts/tdd-start.sh   # 啟動 TDD 模式，允許編輯測試文件
+./scripts/tdd-red.sh     # 驗證測試失敗，轉換到實作模式
+./scripts/tdd-green.sh   # 驗證測試通過，完成 TDD 循環
+```
+
 ### Red-Green 流程
 
 ```
-1. 寫測試 → 2. 執行確認失敗 (Red) → 3. 寫實作 → 4. 執行確認通過 (Green)
+1. tdd-start.sh → 2. 寫測試 → 3. tdd-red.sh (確認失敗)
+                                      ↓
+4. 寫實作 ← 5. tdd-green.sh (確認通過)
 ```
+
+### 狀態標記文件
+
+| 文件 | 意義 | 允許的操作 |
+|------|------|-----------|
+| `.tdd-test-mode` | 測試撰寫階段 | 可編輯任何文件 |
+| `.tdd-red-verified` | 測試已驗證失敗 | 可編輯實作文件 |
+| 無標記 | TDD 未啟動 | ⛔ 禁止編輯 |
 
 ### 測試策略
 
@@ -362,6 +395,7 @@ Page.razor.cs → Service.MethodAsync() → UnitOfWork.Repo.Query()
 - `git add .` — Only add specific files
 - Modifying code on main branch — Must use worktree
 - 猜測需求 — 使用 `[NEEDS CLARIFICATION]` 標記
+- 跳過 TDD 流程 — 必須先執行 `tdd-start.sh`
 
 ---
 
