@@ -245,10 +245,15 @@
         "createday",
         "duotify",
         "exercism",
+        "findstr",
+        "hanshuang",
         "Hsts",
         "Inno",
+        "Mcpjson",
         "microkernels",
+        "modelcontextprotocol",
         "nosnippet",
+        "oneline",
         "RATIFICATION",
         "rendermode",
         "scsb",
@@ -257,7 +262,8 @@
         "stylesheet",
         "userspace",
         "worktree",
-        "worktrees"
+        "worktrees",
+        "ycombinator"
     ],
 
     // *********************************************************************
