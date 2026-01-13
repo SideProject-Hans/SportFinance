@@ -24,7 +24,6 @@ The following rules are enforced at system level via `.claude/settings.local.jso
 | Hook | Trigger | Action |
 |------|---------|--------|
 | **Branch Protection** | `Edit`, `Write`, `MultiEdit` | ⛔ Block if on `main` or `master` branch |
-| **TDD Enforcement** | `Edit`, `Write`, `MultiEdit` | ⛔ Block if TDD mode not active |
 
 ### Branch Protection
 
@@ -36,17 +35,7 @@ When blocked, you will see:
   cd ../SportFinance-worktrees/<name>
 ```
 
-### TDD Enforcement
-
-When blocked, you will see:
-```
-⛔ TDD Mode not active. Run Phase 2b first:
-
-  ./scripts/tdd-start.sh    # Start TDD (write tests)
-  ./scripts/tdd-red.sh      # Verify tests fail
-```
-
-> **Note:** These are system-level protections. Even if you forget the flow, hooks will block the operation.
+> **Note:** This is a system-level protection. Even if you forget the flow, the hook will block the operation.
 
 ---
 
@@ -98,8 +87,8 @@ Before executing any task, check if the corresponding skill should be activated:
 │      ├── 標記不確定項目 [NEEDS CLARIFICATION: ...]                   │
 │      └── 通過簡化閘門檢查                                            │
 │                         ↓                                           │
-│  2b. Test First (Red Phase) ⛔ HOOK ENFORCED                        │
-│      ├── ./scripts/tdd-start.sh  ← 啟動 TDD 模式                    │
+│  2b. Test First (Red Phase)                                         │
+│      ├── ./scripts/tdd-start.sh  ← 啟動 TDD 模式 (可選)             │
 │      ├── 寫測試程式碼                                                │
 │      ├── ./scripts/tdd-red.sh    ← 驗證測試失敗                     │
 │      └── 測試必須失敗才能進入下一階段                                 │
@@ -222,13 +211,12 @@ Before executing any task, check if the corresponding skill should be activated:
 4. 寫實作 ← 5. tdd-green.sh (確認通過)
 ```
 
-### 狀態標記文件
+### 狀態標記文件 (可選使用)
 
-| 文件 | 意義 | 允許的操作 |
-|------|------|-----------|
-| `.tdd-test-mode` | 測試撰寫階段 | 可編輯任何文件 |
-| `.tdd-red-verified` | 測試已驗證失敗 | 可編輯實作文件 |
-| 無標記 | TDD 未啟動 | ⛔ 禁止編輯 |
+| 文件 | 意義 |
+|------|------|
+| `.tdd-test-mode` | 測試撰寫階段 |
+| `.tdd-red-verified` | 測試已驗證失敗 |
 
 ### 測試策略
 
@@ -395,7 +383,6 @@ Page.razor.cs → Service.MethodAsync() → UnitOfWork.Repo.Query()
 - `git add .` — Only add specific files
 - Modifying code on main branch — Must use worktree
 - 猜測需求 — 使用 `[NEEDS CLARIFICATION]` 標記
-- 跳過 TDD 流程 — 必須先執行 `tdd-start.sh`
 
 ---
 
