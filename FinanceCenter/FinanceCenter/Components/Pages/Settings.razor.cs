@@ -21,10 +21,10 @@ public partial class Settings
 	[Inject]
 	private ISnackbar Snackbar { get; set; } = null!;
 
-	private List<Department> Departments { get; set; } = new();
-	private List<BankInitialBalance> BankBalances { get; set; } = new();
-	private int SelectedTab { get; set; } = 0;
-	private IEnumerable<int> AvailableYears => Enumerable.Range(DateTime.Now.Year - 5, 11);
+	private List<Department> Departments { get; set; } = [];
+	private List<BankInitialBalance> BankBalances { get; set; } = [];
+	private int SelectedTab { get; set; }
+	private List<int> AvailableYears { get; } = Enumerable.Range(DateTime.Now.Year - 5, 11).ToList();
 	private CancellationTokenSource? _saveCts;
 
 	private void SelectTab(int tab)
@@ -58,21 +58,20 @@ public partial class Settings
 	{
 		var balances = await SettingsService.GetAllBankInitialBalancesAsync();
 
-		// 確保兩個銀行都有資料
-		BankBalances = new List<BankInitialBalance>
+		BankBalances =
+		[
+			GetOrCreateBankBalance(balances, "ShanghaiBank"),
+			GetOrCreateBankBalance(balances, "TaiwanCooperativeBank")
+		];
+	}
+
+	private static BankInitialBalance GetOrCreateBankBalance(List<BankInitialBalance> balances, string bankType)
+	{
+		return balances.FirstOrDefault(b => b.BankType == bankType) ?? new BankInitialBalance
 		{
-			balances.FirstOrDefault(b => b.BankType == "ShanghaiBank") ?? new BankInitialBalance
-			{
-				BankType = "ShanghaiBank",
-				InitialBalance = 0,
-				EffectiveYear = DateTime.Now.Year
-			},
-			balances.FirstOrDefault(b => b.BankType == "TaiwanCooperativeBank") ?? new BankInitialBalance
-			{
-				BankType = "TaiwanCooperativeBank",
-				InitialBalance = 0,
-				EffectiveYear = DateTime.Now.Year
-			}
+			BankType = bankType,
+			InitialBalance = 0,
+			EffectiveYear = DateTime.Now.Year
 		};
 	}
 
@@ -158,13 +157,19 @@ public partial class Settings
 		_saveCts = new CancellationTokenSource();
 		var token = _saveCts.Token;
 
-		_ = Task.Run(async () =>
+		_ = DelayedSaveAsync(token);
+	}
+
+	private async Task DelayedSaveAsync(CancellationToken token)
+	{
+		try
 		{
 			await Task.Delay(400, token);
-			if (!token.IsCancellationRequested)
-			{
-				await InvokeAsync(SaveBankBalancesAsync);
-			}
-		}, token);
+			await InvokeAsync(SaveBankBalancesAsync);
+		}
+		catch (TaskCanceledException)
+		{
+			// 延遲被取消，不需處理
+		}
 	}
 }
