@@ -48,6 +48,29 @@ public partial class AnnualBudget
 		await LoadBudgetsAsync();
 	}
 
+	/// <summary>
+	/// 處理年度選擇變更 (原生 HTML select)
+	/// </summary>
+	private async Task OnYearSelectChanged(ChangeEventArgs e)
+	{
+		if (int.TryParse(e.Value?.ToString(), out var year))
+		{
+			await OnYearChangedAsync(year);
+		}
+	}
+
+	/// <summary>
+	/// 處理新增部門預算選擇 (原生 HTML select)
+	/// </summary>
+	private async Task OnAddDepartmentSelect(ChangeEventArgs e)
+	{
+		var departmentCode = e.Value?.ToString();
+		if (!string.IsNullOrEmpty(departmentCode))
+		{
+			await OnAddDepartmentBudgetAsync(departmentCode);
+		}
+	}
+
 	private async Task OnYearChangedAsync(int year)
 	{
 		SelectedYear = year;
