@@ -8,60 +8,61 @@ using MudBlazor.Services;
 
 namespace FinanceCenter
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+	public class Program
+	{
+		public static void Main(string[] args)
+		{
+			var builder = WebApplication.CreateBuilder(args);
 
-            // 強制啟用 Static Web Assets（解決非 Development 環境的問題）
-            if (!builder.Environment.IsDevelopment())
-            {
-                builder.WebHost.UseStaticWebAssets();
-            }
+			// 強制啟用 Static Web Assets（解決非 Development 環境的問題）
+			if (!builder.Environment.IsDevelopment())
+			{
+				builder.WebHost.UseStaticWebAssets();
+			}
 
-            builder.Services.AddMudServices();
+			builder.Services.AddMudServices();
 
-            // 設定 Entity Framework Core with MySQL
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-            var serverVersion = ServerVersion.AutoDetect(connectionString);
+			// 設定 Entity Framework Core with MySQL
+			var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+			var serverVersion = ServerVersion.AutoDetect(connectionString);
 
-            builder.Services.AddDbContext<FinanceCenterDbContext>(options =>
-                options.UseMySql(connectionString, serverVersion)
-                    .EnableSensitiveDataLogging(builder.Environment.IsDevelopment())
-                    .EnableDetailedErrors(builder.Environment.IsDevelopment()));
+			builder.Services.AddDbContext<FinanceCenterDbContext>(options =>
+				options.UseMySql(connectionString, serverVersion)
+					.EnableSensitiveDataLogging(builder.Environment.IsDevelopment())
+					.EnableDetailedErrors(builder.Environment.IsDevelopment()));
 
-            // 註冊 Unit of Work 和 Service
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IFinanceService, FinanceService>();
-            builder.Services.AddScoped<IShanghaiBankService, ShanghaiBankService>();
-            builder.Services.AddScoped<ITaiwanCooperativeBankService, TaiwanCooperativeBankService>();
-            builder.Services.AddScoped<ISettingsService, SettingsService>();
-            builder.Services.AddScoped<IBudgetService, BudgetService>();
+			// 註冊 Unit of Work 和 Service
+			builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+			builder.Services.AddScoped<IFinanceService, FinanceService>();
+			builder.Services.AddScoped<IShanghaiBankService, ShanghaiBankService>();
+			builder.Services.AddScoped<ITaiwanCooperativeBankService, TaiwanCooperativeBankService>();
+			builder.Services.AddScoped<ISettingsService, SettingsService>();
+			builder.Services.AddScoped<IBudgetService, BudgetService>();
+			builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
 
-            // Add services to the container.
-            builder.Services.AddRazorComponents()
-                .AddInteractiveServerComponents();
+			// Add services to the container.
+			builder.Services.AddRazorComponents()
+				.AddInteractiveServerComponents();
 
-            var app = builder.Build();
+			var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
-            {
-                app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+			// Configure the HTTP request pipeline.
+			if (!app.Environment.IsDevelopment())
+			{
+				app.UseExceptionHandler("/Error");
+				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+				app.UseHsts();
+			}
 
-            app.UseHttpsRedirection();
+			app.UseHttpsRedirection();
 
-            app.UseAntiforgery();
+			app.UseAntiforgery();
 
-            app.MapStaticAssets();
-            app.MapRazorComponents<App>()
-                .AddInteractiveServerRenderMode();
+			app.MapStaticAssets();
+			app.MapRazorComponents<App>()
+				.AddInteractiveServerRenderMode();
 
-            app.Run();
-        }
-    }
+			app.Run();
+		}
+	}
 }
