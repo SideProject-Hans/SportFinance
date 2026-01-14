@@ -53,10 +53,6 @@ public partial class TaiwanCooperativeBank
 	private int _pageSize = 15;
 	private int TotalPages => Math.Max(1, (int)Math.Ceiling((double)Accounts.Count / _pageSize));
 
-	// 訊息
-	private string? _successMessage;
-	private string? _errorMessage;
-
 	protected override async Task OnInitializedAsync()
 	{
 		Departments = await SettingsService.GetAllDepartmentsAsync();
@@ -87,11 +83,6 @@ public partial class TaiwanCooperativeBank
 	{
 		Accounts = await TaiwanCooperativeBankService.GetByYearAsync(SelectedYear);
 		OpeningBalance = await TaiwanCooperativeBankService.GetOpeningBalanceAsync(SelectedYear);
-	}
-
-	private async Task RefreshDataAsync()
-	{
-		await LoadDataAsync();
 	}
 
 	// 分頁方法
@@ -136,7 +127,7 @@ public partial class TaiwanCooperativeBank
 	}
 
 	// 新增 Dialog 相關
-	private void OpenAddDialogAsync()
+	private void OpenAddDialog()
 	{
 		IsAddDialogOpen = true;
 	}
@@ -154,7 +145,7 @@ public partial class TaiwanCooperativeBank
 	}
 
 	// 確認 Dialog 相關
-	private void OpenInitializeDialogAsync()
+	private void OpenInitializeDialog()
 	{
 		IsConfirmDialogOpen = true;
 	}
@@ -174,18 +165,8 @@ public partial class TaiwanCooperativeBank
 		{
 			var contentRoot = WebHostEnvironment.ContentRootPath;
 			var excelFilePath = Path.Combine(contentRoot, "Doc", "Temp", "合作-收支表.xlsx");
-			var importedCount = await TaiwanCooperativeBankService.ImportFromExcelAsync(excelFilePath);
-			
-			_successMessage = $"成功匯入 {importedCount} 筆資料";
+			await TaiwanCooperativeBankService.ImportFromExcelAsync(excelFilePath);
 			await LoadDataAsync();
-		}
-		catch (FileNotFoundException ex)
-		{
-			_errorMessage = $"找不到 Excel 檔案: {ex.Message}";
-		}
-		catch (Exception ex)
-		{
-			_errorMessage = $"匯入失敗: {ex.Message}";
 		}
 		finally
 		{
