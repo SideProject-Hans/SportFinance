@@ -454,3 +454,87 @@ Types: [功能] [修復] [重構] [文件] [樣式] [測試] [雜項]
 ```
 
 > **Why `--no-ff`?** Preserves branch history, enables single-commit revert of entire feature.
+
+---
+
+## Session Start Protocol (每次對話必執行)
+
+每次新對話開始時，**必須先執行以下檢查**：
+
+### Step 1: 檢查開發狀態檔案
+
+```bash
+# 檢查是否有進行中的任務
+ls .dev-state.md 2>/dev/null && cat .dev-state.md
+```
+
+### Step 2: 根據結果決定行動
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  .dev-state.md 存在?                                                │
+├─────────────────────────────────────────────────────────────────────┤
+│  ├── ✅ 存在 → 載入狀態，報告進度，繼續上次任務                       │
+│  │           → 同步到 TodoWrite                                     │
+│  │           → 詢問是否繼續                                         │
+│  │                                                                  │
+│  └── ❌ 不存在 → 正常開始新對話                                      │
+│               → 收到新任務時，建立 .dev-state.md                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 載入狀態後的報告格式
+
+```
+📍 發現進行中的任務
+
+**Task**: [任務名稱]
+**Branch**: [branch-name]
+**Current Phase**: Phase X - [階段名稱]
+**Progress**: X/Y 完成
+
+待完成項目：
+- [ ] 項目 1
+- [ ] 項目 2
+
+要繼續處理這個任務嗎？
+```
+
+---
+
+## Development State Tracking (狀態追蹤)
+
+### 狀態檔案位置
+
+- **檔案**: `.dev-state.md` (worktree 根目錄)
+- **模板**: `.claude/templates/dev-state-template.md`
+- **Git**: ✅ 會被 commit（保留開發記錄）
+
+### 何時建立 `.dev-state.md`
+
+| 情況 | 建立? |
+|------|-------|
+| 收到新開發任務 | ✅ 是 |
+| 簡單問答 | ❌ 否 |
+| 程式碼查詢 | ❌ 否 |
+
+### 狀態更新時機
+
+| 時機 | 動作 |
+|------|------|
+| 完成一個 Phase 步驟 | 更新 .dev-state.md + TodoWrite |
+| 進入下一 Phase | 更新 .dev-state.md + TodoWrite |
+| 使用者確認假設 | 記錄到 .dev-state.md |
+| 對話結束前 | 確保狀態已保存 |
+
+### Blocking Gates (阻塞閘門)
+
+以下閘門必須通過才能繼續：
+
+| Gate | 位置 | 條件 |
+|------|------|------|
+| **Phase 2 → 3** | 需求確認後 | 所有假設、待釐清、矛盾點都已解決 |
+| **Phase 4 Linus** | 品質檢查中 | Linus Review 達到 🟢 Good |
+| **Phase 4 → 5** | 品質檢查後 | build & test 必須通過 |
+
+> ⛔ 未通過閘門時，禁止進入下一階段，必須在 .dev-state.md 中標記為 BLOCKED
