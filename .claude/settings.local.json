@@ -1,19 +1,4 @@
 {
-
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Edit|MultiEdit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "branch=$(git branch --show-current 2>/dev/null); if [ \"$branch\" = \"main\" ] || [ \"$branch\" = \"master\" ]; then echo '{\"block\": true, \"message\": \"⛔ Cannot edit files on main branch. Run Phase 0 first:\\n\\n  git worktree add ../SportFinance-worktrees/<name> -b feature/xxx\\n  cd ../SportFinance-worktrees/<name>\"}' >&2; exit 2; fi",
-            "timeout": 5
-          }
-        ]
-      }
-    ]
-  },
   "permissions": {
     "allow": [
       "Bash(dotnet build:*)",
@@ -62,7 +47,20 @@
       "Bash(ls:*)",
       "Bash(./scripts/tdd-red.sh:*)",
       "Bash(dotnet:*)",
-      "Bash(./scripts/tdd-green.sh:*)"
+      "Bash(./scripts/tdd-green.sh:*)",
+      "Bash(git rm:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(rm:*)",
+      "Bash(touch:*)",
+      "Bash(cat:*)",
+      "Bash(chmod:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Edit",
+      "Write",
+      "MultiEdit"
     ]
   },
   "enableAllProjectMcpServers": true,
@@ -74,5 +72,31 @@
     "fetch",
     "git",
     "time"
-  ]
+  ],
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "branch=$(git branch --show-current 2>/dev/null); if [ \"$branch\" = \"main\" ] || [ \"$branch\" = \"master\" ]; then echo '{\"block\": true, \"message\": \"⛔ Cannot edit files on main branch. Run Phase 0 first:\\n\\n  git worktree add ../SportFinance-worktrees/<name> -b feature/xxx\\n  cd ../SportFinance-worktrees/<name>\"}' >&2; exit 2; fi",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '📋 Phase 4: □ simplifier □ reviewer □ build □ Linus □ test'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
 }
