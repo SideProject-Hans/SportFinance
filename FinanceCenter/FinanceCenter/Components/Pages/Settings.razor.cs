@@ -2,6 +2,7 @@ using FinanceCenter.Components.Dialogs;
 using FinanceCenter.Data.Entities;
 using FinanceCenter.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 
 namespace FinanceCenter.Components.Pages;
@@ -31,11 +32,15 @@ public partial class Settings
 		SelectedTab = tab;
 	}
 
-	private string GetNavCardClass(int tab)
+	/// <summary>
+	/// 處理導航卡片的鍵盤事件
+	/// </summary>
+	private void HandleNavKeyDown(KeyboardEventArgs e, int tab)
 	{
-		return SelectedTab == tab
-			? "mud-border-primary"
-			: "";
+		if (e.Key is "Enter" or " ")
+		{
+			SelectTab(tab);
+		}
 	}
 
 	protected override async Task OnInitializedAsync()
