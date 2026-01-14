@@ -1,0 +1,102 @@
+@page "/health-check"
+
+<PageTitle>系統健康檢查</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-2">系統健康檢查</MudText>
+<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6">
+	檢查資料庫資料表狀態並建立缺失的資料表
+</MudText>
+
+<MudCard Elevation="2">
+	<MudCardHeader>
+		<CardHeaderContent>
+			<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+				<MudStack Spacing="0">
+					<MudText Typo="Typo.h6">資料表狀態</MudText>
+					<MudText Typo="Typo.caption" Color="Color.Secondary">
+						@ExistsCount / @TotalCount 個資料表已建立
+					</MudText>
+				</MudStack>
+				<MudStack Row="true" Spacing="2">
+					<MudButton Variant="Variant.Outlined"
+							   Color="Color.Primary"
+							   StartIcon="@Icons.Material.Filled.Refresh"
+							   OnClick="RefreshAsync"
+							   Disabled="IsLoading">
+						重新檢查
+					</MudButton>
+					@if (MissingCount > 0)
+					{
+						<MudButton Variant="Variant.Filled"
+								   Color="Color.Primary"
+								   StartIcon="@Icons.Material.Filled.PlaylistAdd"
+								   OnClick="CreateAllMissingAsync"
+								   Disabled="IsLoading">
+							建立所有缺失表 (@MissingCount)
+						</MudButton>
+					}
+				</MudStack>
+			</MudStack>
+		</CardHeaderContent>
+	</MudCardHeader>
+	<MudDivider />
+	<MudCardContent Class="pa-0">
+		@if (IsLoading)
+		{
+			<MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+		}
+
+		<MudTable Items="@TableStatuses" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+			<HeaderContent>
+				<MudTh>
+					<MudText Typo="Typo.subtitle2" Style="font-weight: 600;">資料表名稱</MudText>
+				</MudTh>
+				<MudTh>
+					<MudText Typo="Typo.subtitle2" Style="font-weight: 600;">狀態</MudText>
+				</MudTh>
+				<MudTh Style="width: 120px;">
+					<MudText Typo="Typo.subtitle2" Style="font-weight: 600;">操作</MudText>
+				</MudTh>
+			</HeaderContent>
+			<RowTemplate>
+				<MudTd DataLabel="資料表名稱">
+					<MudText Typo="Typo.body2" Style="font-family: monospace; font-weight: 500;">
+						@context.TableName
+					</MudText>
+				</MudTd>
+				<MudTd DataLabel="狀態">
+					@if (context.Exists)
+					{
+						<MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Filled">
+							已建立
+						</MudChip>
+					}
+					else
+					{
+						<MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Filled">
+							缺失
+						</MudChip>
+					}
+				</MudTd>
+				<MudTd DataLabel="操作">
+					@if (!context.Exists)
+					{
+						<MudButton Variant="Variant.Text"
+								   Color="Color.Primary"
+								   Size="Size.Small"
+								   OnClick="@(() => CreateTableAsync(context.TableName))"
+								   Disabled="IsLoading">
+							建立
+						</MudButton>
+					}
+				</MudTd>
+			</RowTemplate>
+			<NoRecordsContent>
+				<MudStack AlignItems="AlignItems.Center" Class="pa-8">
+					<MudIcon Icon="@Icons.Material.Filled.FolderOff" Size="Size.Large" Color="Color.Secondary" />
+					<MudText Typo="Typo.body1" Color="Color.Secondary">找不到任何 SQL 定義檔</MudText>
+				</MudStack>
+			</NoRecordsContent>
+		</MudTable>
+	</MudCardContent>
+</MudCard>
