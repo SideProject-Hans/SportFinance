@@ -1,4 +1,5 @@
 @page "/settings"
+@using FinanceCenter.Components.Dialogs
 
 <PageTitle>設定</PageTitle>
 
@@ -74,7 +75,7 @@
                                     <h2>部門管理</h2>
                                     <p class="glass-header-meta">共 @Departments.Count 個部門</p>
                                 </div>
-                                <button type="button" class="btn-primary-teal" @onclick="OpenAddDepartmentDialogAsync">
+                                <button type="button" class="btn-primary-teal" @onclick="OpenAddDepartmentDialog">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                         <line x1="12" y1="5" x2="12" y2="19"/>
                                         <line x1="5" y1="12" x2="19" y2="12"/>
@@ -114,7 +115,7 @@
                                                             class="action-btn"
                                                             title="編輯部門"
                                                             aria-label="編輯 @dept.Name 部門"
-                                                            @onclick="@(() => OpenEditDepartmentDialogAsync(dept))">
+                                                            @onclick="@(() => OpenEditDepartmentDialog(dept))">
                                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                             <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
                                                             <path d="m15 5 4 4"/>
@@ -138,7 +139,7 @@
                                     </div>
                                     <h3>尚無部門資料</h3>
                                     <p>建立您的第一個部門以開始管理</p>
-                                    <button type="button" class="btn-primary-teal" @onclick="OpenAddDepartmentDialogAsync">
+                                    <button type="button" class="btn-primary-teal" @onclick="OpenAddDepartmentDialog">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                             <line x1="12" y1="5" x2="12" y2="19"/>
                                             <line x1="5" y1="12" x2="19" y2="12"/>
@@ -206,3 +207,10 @@
         </main>
     </div>
 </div>
+
+@* 部門對話窗 *@
+<DepartmentDialog Department="DialogDepartment"
+                  IsEdit="IsEditMode"
+                  IsVisible="IsDialogVisible"
+                  OnCancel="CloseDialog"
+                  OnSubmit="HandleDepartmentSubmit" />
