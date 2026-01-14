@@ -1,194 +1,267 @@
 @page "/bank/scsb"
+@using FinanceCenter.Components.Dialogs
 
 <PageTitle>上海銀行帳戶明細</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
-	@* 頁面標題區 *@
-	<MudStack Row AlignItems="AlignItems.Center" Class="mb-6">
-		<MudAvatar Color="Color.Secondary" Size="Size.Large" Variant="Variant.Filled">
-			<MudIcon Icon="@Icons.Material.Filled.AccountBalance" />
-		</MudAvatar>
-		<MudStack Spacing="0">
-			<MudText Typo="Typo.h5" Class="font-semibold">上海銀行帳戶明細</MudText>
-			<MudText Typo="Typo.body2" Color="Color.Secondary">Shanghai Commercial & Savings Bank Account Details</MudText>
-		</MudStack>
-		<MudSpacer />
-		<MudChipSet T="string">
-			<MudChip T="string" Color="Color.Secondary" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.CalendarMonth">
-				@SelectedYear 年度
-			</MudChip>
-		</MudChipSet>
-	</MudStack>
+<div class="bank-page">
+	@* 頁面標題 *@
+	<header class="bank-header">
+		<div class="bank-header__icon bank-header__icon--shanghai">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+				<path d="M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z"/>
+			</svg>
+		</div>
+		<div class="bank-header__content">
+			<h1 class="bank-header__title">上海銀行帳戶明細</h1>
+			<p class="bank-header__subtitle">Shanghai Commercial & Savings Bank Account Details</p>
+		</div>
+	</header>
 
 	@* 統計卡片區 *@
-	<MudGrid Spacing="4" Class="mb-6">
+	<section class="bank-stats">
 		@* 年份選擇卡片 *@
-		<MudItem xs="12" sm="6" md="3">
-			<MudPaper Class="pa-4 rounded-lg" Style="border-left: 4px solid var(--mud-palette-info);" Elevation="2">
-				<MudStack Spacing="2">
-					<MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-						<MudText Typo="Typo.caption" Color="Color.Secondary" Class="text-uppercase font-semibold">選擇年份</MudText>
-						<MudIcon Icon="@Icons.Material.Filled.DateRange" Color="Color.Info" Size="Size.Small" />
-					</MudStack>
-					<MudSelect T="int" Value="@SelectedYear" ValueChanged="OnYearChangedAsync"
-							   Variant="Variant.Filled" Dense="true" Margin="Margin.Dense"
-							   Class="mt-1" Style="background-color: var(--mud-palette-background-grey);">
-						@foreach (var year in AvailableYears)
-						{
-							<MudSelectItem Value="@year">@year 年</MudSelectItem>
-						}
-					</MudSelect>
-				</MudStack>
-			</MudPaper>
-		</MudItem>
+		<div class="stat-card stat-card--info">
+			<div class="stat-card__header">
+				<span class="stat-card__label">選擇年份</span>
+				<svg class="stat-card__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM5 8V6h14v2H5z"/>
+				</svg>
+			</div>
+			<div class="year-select">
+				<select class="year-select__input" @onchange="OnYearChangedAsync">
+					@for (int year = 2019; year <= 2030; year++)
+					{
+						<option value="@year" selected="@(year == SelectedYear)">@year 年</option>
+					}
+				</select>
+				<svg class="year-select__arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M7 10l5 5 5-5H7z"/>
+				</svg>
+			</div>
+		</div>
 
 		@* 年初餘額卡片 *@
-		<MudItem xs="12" sm="6" md="3">
-			<MudPaper Class="pa-4 rounded-lg" Style="border-left: 4px solid var(--mud-palette-tertiary);" Elevation="2">
-				<MudStack Spacing="2">
-					<MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-						<MudText Typo="Typo.caption" Color="Color.Secondary" Class="text-uppercase font-semibold">年初餘額</MudText>
-						<MudIcon Icon="@Icons.Material.Filled.AccountBalance" Color="Color.Tertiary" Size="Size.Small" />
-					</MudStack>
-					<MudText Typo="Typo.h5" Class="font-bold" Color="@(OpeningBalance >= 0 ? Color.Dark : Color.Error)">
-						@OpeningBalance.ToString("N0")
-					</MudText>
-					<MudText Typo="Typo.caption" Color="Color.Secondary">上年度結餘</MudText>
-				</MudStack>
-			</MudPaper>
-		</MudItem>
+		<div class="stat-card stat-card--trust">
+			<div class="stat-card__header">
+				<span class="stat-card__label">年初餘額</span>
+				<svg class="stat-card__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z"/>
+				</svg>
+			</div>
+			<div class="stat-card__value @(OpeningBalance < 0 ? "stat-card__value--loss" : "")">
+				@OpeningBalance.ToString("N0")
+			</div>
+			<span class="stat-card__subtitle">上年度結餘</span>
+		</div>
 
 		@* 本年度淨額卡片 *@
-		<MudItem xs="12" sm="6" md="3">
-			<MudPaper Class="pa-4 rounded-lg" Style="@GetNetAmountCardStyle()" Elevation="2">
-				<MudStack Spacing="2">
-					<MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-						<MudText Typo="Typo.caption" Color="Color.Secondary" Class="text-uppercase font-semibold">本年度淨額</MudText>
-						<MudIcon Icon="@(CurrentYearNetAmount >= 0 ? Icons.Material.Filled.TrendingUp : Icons.Material.Filled.TrendingDown)"
-								 Color="@(CurrentYearNetAmount >= 0 ? Color.Success : Color.Error)" Size="Size.Small" />
-					</MudStack>
-					<MudText Typo="Typo.h5" Class="font-bold" Color="@(CurrentYearNetAmount >= 0 ? Color.Success : Color.Error)">
-						@(CurrentYearNetAmount >= 0 ? "+" : "")@CurrentYearNetAmount.ToString("N0")
-					</MudText>
-					<MudText Typo="Typo.caption" Color="Color.Secondary">收入 - 支出 - 手續費</MudText>
-				</MudStack>
-			</MudPaper>
-		</MudItem>
+		<div class="stat-card @(CurrentYearNetAmount >= 0 ? "stat-card--profit" : "stat-card--loss")">
+			<div class="stat-card__header">
+				<span class="stat-card__label">本年度淨額</span>
+				@if (CurrentYearNetAmount >= 0)
+				{
+					<svg class="stat-card__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z"/>
+					</svg>
+				}
+				else
+				{
+					<svg class="stat-card__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M16 18l2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6h-6z"/>
+					</svg>
+				}
+			</div>
+			<div class="stat-card__value @(CurrentYearNetAmount >= 0 ? "stat-card__value--profit" : "stat-card__value--loss")">
+				@(CurrentYearNetAmount >= 0 ? "+" : "")@CurrentYearNetAmount.ToString("N0")
+			</div>
+			<span class="stat-card__subtitle">收入 - 支出 - 手續費</span>
+		</div>
 
 		@* 目前餘額卡片 *@
-		<MudItem xs="12" sm="6" md="3">
-			<MudPaper Class="pa-4 rounded-lg" Style="border-left: 4px solid var(--mud-palette-secondary);" Elevation="2">
-				<MudStack Spacing="2">
-					<MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-						<MudText Typo="Typo.caption" Color="Color.Secondary" Class="text-uppercase font-semibold">目前餘額</MudText>
-						<MudIcon Icon="@Icons.Material.Filled.AccountBalanceWallet" Color="Color.Secondary" Size="Size.Small" />
-					</MudStack>
-					<MudText Typo="Typo.h5" Class="font-bold" Color="@(CurrentBalance >= 0 ? Color.Secondary : Color.Error)">
-						@CurrentBalance.ToString("N0")
-					</MudText>
-					<MudText Typo="Typo.caption" Color="Color.Secondary">年初 + 本年度淨額</MudText>
-				</MudStack>
-			</MudPaper>
-		</MudItem>
-	</MudGrid>
+		<div class="stat-card stat-card--shanghai">
+			<div class="stat-card__header">
+				<span class="stat-card__label">目前餘額</span>
+				<svg class="stat-card__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+				</svg>
+			</div>
+			<div class="stat-card__value @(CurrentBalance < 0 ? "stat-card__value--loss" : "")">
+				@CurrentBalance.ToString("N0")
+			</div>
+			<span class="stat-card__subtitle">年初 + 本年度淨額</span>
+		</div>
+	</section>
 
 	@* 資料表格區 *@
-	<MudPaper Class="rounded-lg" Elevation="2">
-		<MudDataGrid T="ShanghaiBankAccount" Items="@Accounts" Filterable="true" SortMode="SortMode.Multiple"
-					 Hover="true" Dense="true" Class="rounded-lg" RowsPerPage="15">
-			<ToolBarContent>
-				<MudStack Row AlignItems="AlignItems.Center" Class="flex-grow-1">
-					<MudIcon Icon="@Icons.Material.Filled.ListAlt" Color="Color.Secondary" />
-					<MudText Typo="Typo.h6">@SelectedYear 年帳戶明細紀錄</MudText>
-					<MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Text">
-						共 @Accounts.Count 筆
-					</MudChip>
-				</MudStack>
-				<MudSpacer />
-				<MudButtonGroup Variant="Variant.Outlined" Size="Size.Small">
-					<MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.RestartAlt" OnClick="OpenInitializeDialogAsync">
+	<div class="table-card">
+		<header class="table-card__header">
+			<div class="table-card__title">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+				</svg>
+				<h2>@SelectedYear 年帳戶明細紀錄</h2>
+				<span class="table-card__count">共 @Accounts.Count 筆</span>
+			</div>
+			<div class="table-card__actions">
+				<div class="btn-group">
+					<button class="btn btn--danger @(IsInitializing ? "btn--loading" : "")"
+							@onclick="OpenInitializeDialogAsync"
+							disabled="@IsInitializing">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+						</svg>
 						初始化
-					</MudButton>
-					<MudButton Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddDialogAsync">
+					</button>
+					<button class="btn btn--shanghai" @onclick="OpenAddDialogAsync">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+						</svg>
 						新增
-					</MudButton>
-					<MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="RefreshDataAsync" Color="Color.Default" />
-				</MudButtonGroup>
-			</ToolBarContent>
-			<Columns>
-				<PropertyColumn Property="x => x.RemittanceDate" Title="匯款日期" Format="MM-dd" Sortable="true">
-					<CellTemplate>
-						<MudChip T="string" Size="Size.Small" Variant="Variant.Text" Color="Color.Default">
-							@(context.Item.RemittanceDate?.ToString("MM/dd") ?? "-")
-						</MudChip>
-					</CellTemplate>
-				</PropertyColumn>
-				<TemplateColumn Title="申請部門" Sortable="true">
-					<CellTemplate>
-						<MudText Typo="Typo.body2">@GetDepartmentDisplay(context.Item.Department)</MudText>
-					</CellTemplate>
-				</TemplateColumn>
-				<PropertyColumn Property="x => x.Applicant" Title="申請人" Sortable="true" />
-				<PropertyColumn Property="x => x.Reason" Title="申請原因">
-					<CellTemplate>
-						<MudTooltip Text="@context.Item.Reason" Placement="Placement.Top">
-							<MudText Typo="Typo.body2" Class="text-truncate" Style="max-width: 200px;">
-								@context.Item.Reason
-							</MudText>
-						</MudTooltip>
-					</CellTemplate>
-				</PropertyColumn>
-				<PropertyColumn Property="x => x.Expense" Title="支出金額" Format="N0" Sortable="true">
-					<CellTemplate>
-						<MudText Typo="Typo.body2" Color="@(context.Item.Expense > 0 ? Color.Error : Color.Default)" Class="text-right">
-							@(context.Item.Expense > 0 ? context.Item.Expense.ToString("N0") : "-")
-						</MudText>
-					</CellTemplate>
-				</PropertyColumn>
-				<PropertyColumn Property="x => x.Income" Title="收入金額" Format="N0" Sortable="true">
-					<CellTemplate>
-						<MudText Typo="Typo.body2" Color="@(context.Item.Income > 0 ? Color.Success : Color.Default)" Class="text-right">
-							@(context.Item.Income > 0 ? context.Item.Income.ToString("N0") : "-")
-						</MudText>
-					</CellTemplate>
-				</PropertyColumn>
-				<PropertyColumn Property="x => x.Fee" Title="手續費" Format="N0" Sortable="true">
-					<CellTemplate>
-						<MudText Typo="Typo.body2" Color="Color.Warning" Class="text-right">
-							@(context.Item.Fee > 0 ? context.Item.Fee.ToString("N0") : "-")
-						</MudText>
-					</CellTemplate>
-				</PropertyColumn>
-				<PropertyColumn Property="x => x.NetAmount" Title="淨金額" Format="N0" Sortable="false" Filterable="false">
-					<CellTemplate>
-						<MudChip T="string" Size="Size.Small" Color="@(context.Item.NetAmount >= 0 ? Color.Success : Color.Error)"
-								 Variant="Variant.Filled" Class="font-semibold">
-							@(context.Item.NetAmount >= 0 ? "+" : "")@context.Item.NetAmount.ToString("N0")
-						</MudChip>
-					</CellTemplate>
-				</PropertyColumn>
-			</Columns>
-			<PagerContent>
-				<MudDataGridPager T="ShanghaiBankAccount" PageSizeOptions="new int[] { 10, 15, 25, 50 }" />
-			</PagerContent>
-			<NoRecordsContent>
-				<MudStack AlignItems="AlignItems.Center" Class="py-8">
-					<MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Secondary" />
-					<MudText Typo="Typo.body1" Color="Color.Secondary">@SelectedYear 年尚無帳戶明細紀錄</MudText>
-					<MudButton Variant="Variant.Outlined" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Add"
-							   OnClick="OpenAddDialogAsync" Class="mt-2">
-						新增第一筆紀錄
-					</MudButton>
-				</MudStack>
-			</NoRecordsContent>
-		</MudDataGrid>
-	</MudPaper>
-</MudContainer>
+					</button>
+					<button class="btn btn--icon btn--outline" @onclick="RefreshDataAsync" title="重新整理">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+						</svg>
+					</button>
+				</div>
+			</div>
+		</header>
 
-@code {
-	private string GetNetAmountCardStyle()
-	{
-		var color = CurrentYearNetAmount >= 0 ? "var(--mud-palette-success)" : "var(--mud-palette-error)";
-		return $"border-left: 4px solid {color};";
-	}
+		@if (Accounts.Count == 0)
+		{
+			<div class="empty-state">
+				<svg class="empty-state__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zM7 9h5v1H7z"/>
+				</svg>
+				<p class="empty-state__text">@SelectedYear 年尚無帳戶明細紀錄</p>
+				<button class="btn btn--outline" @onclick="OpenAddDialogAsync">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+					</svg>
+					新增第一筆紀錄
+				</button>
+			</div>
+		}
+		else
+		{
+			<div class="table-wrapper">
+				<table class="data-table">
+					<thead>
+						<tr>
+							<th>匯款日期</th>
+							<th>申請部門</th>
+							<th>申請人</th>
+							<th>申請原因</th>
+							<th>支出金額</th>
+							<th>收入金額</th>
+							<th>手續費</th>
+							<th>淨金額</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var account in GetPagedAccounts())
+						{
+							<tr>
+								<td>
+									<span class="cell-date">
+										@(account.RemittanceDate?.ToString("MM/dd") ?? "-")
+									</span>
+								</td>
+								<td>@GetDepartmentDisplay(account.Department)</td>
+								<td>@account.Applicant</td>
+								<td>
+									<span class="cell-truncate" data-tooltip="@account.Reason">
+										@account.Reason
+									</span>
+								</td>
+								<td class="cell-amount @(account.Expense > 0 ? "cell-amount--expense" : "cell-amount--muted")">
+									@(account.Expense > 0 ? account.Expense.ToString("N0") : "-")
+								</td>
+								<td class="cell-amount @(account.Income > 0 ? "cell-amount--income" : "cell-amount--muted")">
+									@(account.Income > 0 ? account.Income.ToString("N0") : "-")
+								</td>
+								<td class="cell-amount @(account.Fee > 0 ? "cell-amount--fee" : "cell-amount--muted")">
+									@(account.Fee > 0 ? account.Fee.ToString("N0") : "-")
+								</td>
+								<td>
+									<span class="cell-badge @(account.NetAmount >= 0 ? "cell-badge--profit" : "cell-badge--loss")">
+										@(account.NetAmount >= 0 ? "+" : "")@account.NetAmount.ToString("N0")
+									</span>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+
+			<div class="pagination">
+				<span class="pagination__info">
+					顯示 @((_currentPage - 1) * _pageSize + 1) - @Math.Min(_currentPage * _pageSize, Accounts.Count) 筆，共 @Accounts.Count 筆
+				</span>
+				<div class="pagination__controls">
+					<button class="pagination__btn" @onclick="PreviousPage" disabled="@(_currentPage == 1)">上一頁</button>
+					@for (int i = 1; i <= TotalPages; i++)
+					{
+						var pageNum = i;
+						<button class="pagination__btn @(pageNum == _currentPage ? "pagination__btn--active" : "")"
+								@onclick="() => GoToPage(pageNum)">
+							@pageNum
+						</button>
+					}
+					<button class="pagination__btn" @onclick="NextPage" disabled="@(_currentPage >= TotalPages)">下一頁</button>
+					<select class="pagination__select" @onchange="OnPageSizeChanged" value="@_pageSize">
+						<option value="10">10 筆/頁</option>
+						<option value="15" selected="@(_pageSize == 15)">15 筆/頁</option>
+						<option value="25">25 筆/頁</option>
+						<option value="50">50 筆/頁</option>
+					</select>
+				</div>
+			</div>
+		}
+	</div>
+</div>
+
+@* 新增明細 Dialog *@
+@if (IsAddDialogOpen)
+{
+	<AddShanghaiBankAccountDialog IsOpen="true"
+								  OnCancel="CloseAddDialog"
+								  OnSubmit="OnAddDialogSubmitAsync" />
+}
+
+@* 確認 Dialog *@
+@if (IsConfirmDialogOpen)
+{
+	<div class="modal-overlay modal-overlay--active" @onclick="CloseConfirmDialog">
+		<div class="modal modal--small" @onclick:stopPropagation="true">
+			<header class="modal__header">
+				<div class="modal__header-icon modal__header-icon--danger">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+					</svg>
+				</div>
+				<h2 class="modal__title">初始化資料確認</h2>
+			</header>
+			<div class="modal__body">
+				<p style="margin-bottom: var(--bank-space-md);">此操作會清空所有現有資料，並從 Excel 檔案重新匯入。</p>
+				<div class="alert alert--warning">
+					<svg class="alert__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+					</svg>
+					<span>此操作無法復原，請確認已備份重要資料。</span>
+				</div>
+			</div>
+			<footer class="modal__footer">
+				<button class="btn btn--outline" @onclick="CloseConfirmDialog">取消</button>
+				<button class="btn btn--danger @(IsInitializing ? "btn--loading" : "")"
+						@onclick="OnConfirmInitializeAsync"
+						disabled="@IsInitializing">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+					</svg>
+					確認初始化
+				</button>
+			</footer>
+		</div>
+	</div>
 }

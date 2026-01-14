@@ -1,8 +1,6 @@
-using FinanceCenter.Components.Dialogs;
 using FinanceCenter.Data.Entities;
 using FinanceCenter.Services;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 
 namespace FinanceCenter.Components.Pages;
 
@@ -18,21 +16,10 @@ public partial class TaiwanCooperativeBank
 	private ISettingsService SettingsService { get; set; } = null!;
 
 	[Inject]
-	private IDialogService DialogService { get; set; } = null!;
-
-	[Inject]
-	private ISnackbar Snackbar { get; set; } = null!;
-
-	[Inject]
 	private IWebHostEnvironment WebHostEnvironment { get; set; } = null!;
 
 	private List<TaiwanCooperativeBankAccount> Accounts { get; set; } = new();
 	private List<Department> Departments { get; set; } = new();
-
-	/// <summary>
-	/// 可選擇的年份清單
-	/// </summary>
-	private List<int> AvailableYears { get; set; } = new();
 
 	/// <summary>
 	/// 目前選擇的年份
@@ -40,7 +27,7 @@ public partial class TaiwanCooperativeBank
 	private int SelectedYear { get; set; } = DateTime.Now.Year;
 
 	/// <summary>
-	/// 年初餘額（上一年度累計淨金額）
+	/// 年初餘額
 	/// </summary>
 	private decimal OpeningBalance { get; set; }
 
@@ -54,10 +41,25 @@ public partial class TaiwanCooperativeBank
 	/// </summary>
 	private decimal CurrentBalance => OpeningBalance + CurrentYearNetAmount;
 
+	// Loading 狀態
+	private bool IsInitializing { get; set; }
+
+	// Dialog 狀態
+	private bool IsAddDialogOpen { get; set; }
+	private bool IsConfirmDialogOpen { get; set; }
+
+	// 分頁相關
+	private int _currentPage = 1;
+	private int _pageSize = 15;
+	private int TotalPages => Math.Max(1, (int)Math.Ceiling((double)Accounts.Count / _pageSize));
+
+	// 訊息
+	private string? _successMessage;
+	private string? _errorMessage;
+
 	protected override async Task OnInitializedAsync()
 	{
 		Departments = await SettingsService.GetAllDepartmentsAsync();
-		await LoadAvailableYearsAsync();
 		await LoadDataAsync();
 	}
 
@@ -69,32 +71,16 @@ public partial class TaiwanCooperativeBank
 	}
 
 	/// <summary>
-	/// 載入可選擇的年份清單
-	/// </summary>
-	private async Task LoadAvailableYearsAsync()
-	{
-		AvailableYears = await TaiwanCooperativeBankService.GetAvailableYearsAsync();
-		
-		// 如果有資料，預設選擇最新年份
-		if (AvailableYears.Count > 0 && !AvailableYears.Contains(SelectedYear))
-		{
-			SelectedYear = AvailableYears.First();
-		}
-		
-		// 如果沒有資料，加入當前年份作為預設選項
-		if (AvailableYears.Count == 0)
-		{
-			AvailableYears.Add(DateTime.Now.Year);
-		}
-	}
-
-	/// <summary>
 	/// 年份變更事件處理
 	/// </summary>
-	private async Task OnYearChangedAsync(int year)
+	private async Task OnYearChangedAsync(ChangeEventArgs e)
 	{
-		SelectedYear = year;
-		await LoadDataAsync();
+		if (int.TryParse(e.Value?.ToString(), out var year))
+		{
+			SelectedYear = year;
+			_currentPage = 1;
+			await LoadDataAsync();
+		}
 	}
 
 	private async Task LoadDataAsync()
@@ -105,63 +91,105 @@ public partial class TaiwanCooperativeBank
 
 	private async Task RefreshDataAsync()
 	{
-		await LoadAvailableYearsAsync();
 		await LoadDataAsync();
 	}
 
-	private async Task OpenAddDialogAsync()
+	// 分頁方法
+	private IEnumerable<TaiwanCooperativeBankAccount> GetPagedAccounts()
 	{
-		var dialog = await DialogService.ShowAsync<AddTaiwanCooperativeBankAccountDialog>("新增合作金庫帳戶明細");
-		var result = await dialog.Result;
+		return Accounts
+			.Skip((_currentPage - 1) * _pageSize)
+			.Take(_pageSize);
+	}
 
-		if (result is { Canceled: false, Data: TaiwanCooperativeBankAccount account })
+	private void GoToPage(int page)
+	{
+		if (page >= 1 && page <= TotalPages)
 		{
-			await TaiwanCooperativeBankService.AddAsync(account);
-			await LoadDataAsync();
+			_currentPage = page;
 		}
 	}
 
-	private async Task OpenInitializeDialogAsync()
+	private void NextPage()
 	{
-		var parameters = new DialogParameters<ConfirmDialog>
+		if (_currentPage < TotalPages)
 		{
-			{ x => x.Title, "初始化資料確認" },
-			{ x => x.ContentText, "此操作會清空所有現有資料，並從 Excel 檔案重新匯入。" },
-			{ x => x.WarningText, "此操作無法復原，請確認已備份重要資料。" },
-			{ x => x.ButtonText, "確認初始化" },
-			{ x => x.Color, Color.Error }
-		};
-
-		var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small };
-		var dialog = await DialogService.ShowAsync<ConfirmDialog>(string.Empty, parameters, options);
-		var result = await dialog.Result;
-
-		if (result is { Canceled: false })
-		{
-			await InitializeDataAsync();
+			_currentPage++;
 		}
 	}
 
-	private async Task InitializeDataAsync()
+	private void PreviousPage()
 	{
+		if (_currentPage > 1)
+		{
+			_currentPage--;
+		}
+	}
+
+	private void OnPageSizeChanged(ChangeEventArgs e)
+	{
+		if (int.TryParse(e.Value?.ToString(), out var size))
+		{
+			_pageSize = size;
+			_currentPage = 1;
+		}
+	}
+
+	// 新增 Dialog 相關
+	private void OpenAddDialogAsync()
+	{
+		IsAddDialogOpen = true;
+	}
+
+	private void CloseAddDialog()
+	{
+		IsAddDialogOpen = false;
+	}
+
+	private async Task OnAddDialogSubmitAsync(TaiwanCooperativeBankAccount account)
+	{
+		await TaiwanCooperativeBankService.AddAsync(account);
+		await LoadDataAsync();
+		IsAddDialogOpen = false;
+	}
+
+	// 確認 Dialog 相關
+	private void OpenInitializeDialogAsync()
+	{
+		IsConfirmDialogOpen = true;
+	}
+
+	private void CloseConfirmDialog()
+	{
+		IsConfirmDialogOpen = false;
+	}
+
+	private async Task OnConfirmInitializeAsync()
+	{
+		IsInitializing = true;
+		IsConfirmDialogOpen = false;
+		StateHasChanged();
+
 		try
 		{
-			// Excel 檔案路徑
 			var contentRoot = WebHostEnvironment.ContentRootPath;
 			var excelFilePath = Path.Combine(contentRoot, "Doc", "Temp", "合作-收支表.xlsx");
-
 			var importedCount = await TaiwanCooperativeBankService.ImportFromExcelAsync(excelFilePath);
 			
-			Snackbar.Add($"成功匯入 {importedCount} 筆資料", Severity.Success);
+			_successMessage = $"成功匯入 {importedCount} 筆資料";
 			await LoadDataAsync();
 		}
 		catch (FileNotFoundException ex)
 		{
-			Snackbar.Add($"找不到 Excel 檔案: {ex.Message}", Severity.Error);
+			_errorMessage = $"找不到 Excel 檔案: {ex.Message}";
 		}
 		catch (Exception ex)
 		{
-			Snackbar.Add($"匯入失敗: {ex.Message}", Severity.Error);
+			_errorMessage = $"匯入失敗: {ex.Message}";
+		}
+		finally
+		{
+			IsInitializing = false;
 		}
 	}
 }

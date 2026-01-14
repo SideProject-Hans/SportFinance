@@ -1,33 +1,82 @@
 using FinanceCenter.Data.Entities;
 using FinanceCenter.Services;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 
 namespace FinanceCenter.Components.Dialogs;
 
 /// <summary>
-/// 新增合作金庫帳戶明細對話框元件
+/// 新增合作金庫帳戶明細 Dialog
 /// </summary>
 public partial class AddTaiwanCooperativeBankAccountDialog
 {
-	[CascadingParameter]
-	private IMudDialogInstance MudDialog { get; set; } = null!;
-
 	[Inject]
 	private ISettingsService SettingsService { get; set; } = null!;
+
+	[Parameter]
+	public bool IsOpen { get; set; }
+
+	[Parameter]
+	public EventCallback OnCancel { get; set; }
+
+	[Parameter]
+	public EventCallback<TaiwanCooperativeBankAccount> OnSubmit { get; set; }
 
 	private TaiwanCooperativeBankAccount Account { get; set; } = new();
 	private List<Department> Departments { get; set; } = new();
 
-	private MudForm _form = null!;
-	private bool _isValid;
+	/// <summary>
+	/// 日期綁定用（預設今天）
+	/// </summary>
+	private DateTime RemittanceDateValue
+	{
+		get => Account.RemittanceDate?.ToDateTime(TimeOnly.MinValue) ?? DateTime.Today;
+		set => Account.RemittanceDate = DateOnly.FromDateTime(value);
+	}
+
+	/// <summary>
+	/// 表單是否有效
+	/// </summary>
+	private bool IsFormValid =>
+		!string.IsNullOrWhiteSpace(Account.Department) &&
+		!string.IsNullOrWhiteSpace(Account.Applicant) &&
+		!string.IsNullOrWhiteSpace(Account.Reason);
 
 	protected override async Task OnInitializedAsync()
 	{
 		Departments = await SettingsService.GetActiveDepartmentsAsync();
 	}
 
-	private void Cancel() => MudDialog.Cancel();
+	protected override void OnParametersSet()
+	{
+		if (IsOpen)
+		{
+			ResetForm();
+		}
+	}
 
-	private void Submit() => MudDialog.Close(DialogResult.Ok(Account));
+	private void ResetForm()
+	{
+		Account = new TaiwanCooperativeBankAccount
+		{
+			RemittanceDate = DateOnly.FromDateTime(DateTime.Today)
+		};
+	}
+
+	private async Task Submit()
+	{
+		if (IsFormValid)
+		{
+			await OnSubmit.InvokeAsync(Account);
+		}
+	}
+
+	private async Task Cancel()
+	{
+		await OnCancel.InvokeAsync();
+	}
+
+	private void OnOverlayClick()
+	{
+		_ = Cancel();
+	}
 }
