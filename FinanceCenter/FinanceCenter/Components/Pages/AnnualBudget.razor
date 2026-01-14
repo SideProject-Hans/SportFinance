@@ -2,216 +2,373 @@
 
 <PageTitle>年度預算</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-2">年度預算</MudText>
-<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6">管理各部門年度預算</MudText>
+<div class="glass-page">
+	@* 頁面標題 *@
+	<header class="glass-page-header">
+		<h1 class="glass-page-title">年度預算</h1>
+		<p class="glass-page-subtitle">管理各部門年度預算</p>
+	</header>
 
-<MudGrid Spacing="4">
-	@* 左側：部門預算清單 *@
-	<MudItem xs="12" md="4">
-		<MudCard Elevation="2">
-			<MudCardHeader>
-				<CardHeaderContent>
-					<MudStack Spacing="2">
-						<MudSelect T="int"
-								   Value="SelectedYear"
-								   ValueChanged="OnYearChangedAsync"
-								   Label="選擇年度"
-								   Variant="Variant.Outlined"
-								   Dense="true">
+	<div class="budget-container">
+		@* 左側：部門預算清單 *@
+		<aside class="budget-sidebar">
+			<div class="glass-panel">
+				<div class="glass-panel__header">
+					<h2>部門預算清單</h2>
+				</div>
+				<div class="glass-panel__content--padded">
+					<div class="glass-year-select">
+						<select class="glass-year-select__input" @onchange="OnYearSelectChanged">
 							@foreach (var year in AvailableYears)
 							{
-								<MudSelectItem Value="year">@year 年</MudSelectItem>
+								<option value="@year" selected="@(year == SelectedYear)">@year 年</option>
 							}
-						</MudSelect>
-					</MudStack>
-				</CardHeaderContent>
-			</MudCardHeader>
-			<MudDivider />
-			<MudCardContent Class="pa-0">
-				@* 部門清單 *@
-				<MudList T="DepartmentBudget" Dense="true" Class="py-0">
+						</select>
+						<svg class="glass-year-select__arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M7 10l5 5 5-5H7z"/>
+						</svg>
+					</div>
+				</div>
+
+				<div class="budget-list">
 					@foreach (var budget in Budgets)
 					{
-						<MudListItem T="DepartmentBudget"
-									 Class="@GetBudgetItemClass(budget)"
-									 Style="cursor: pointer;"
-									 OnClick="@(() => SelectBudgetAsync(budget))">
-							<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="py-1">
-								<MudStack Spacing="0">
-									<MudText Typo="Typo.body2" Style="font-weight: 600;">
-										@GetDepartmentName(budget.DepartmentCode)
-									</MudText>
-									<MudText Typo="Typo.caption" Color="Color.Secondary">
-										@budget.DepartmentCode
-									</MudText>
-								</MudStack>
-								<MudText Typo="Typo.body2" Style="font-weight: 600;">
-									@budget.TotalAmount.ToString("N0")
-								</MudText>
-							</MudStack>
-						</MudListItem>
-						<MudDivider />
+						<div class="budget-list__item @(SelectedBudget?.Id == budget.Id ? "budget-list__item--active" : "")"
+							 @onclick="@(() => SelectBudgetAsync(budget))">
+							<div class="budget-list__item-info">
+								<span class="budget-list__item-name">@GetDepartmentName(budget.DepartmentCode)</span>
+								<span class="budget-list__item-code">@budget.DepartmentCode</span>
+							</div>
+							<span class="budget-list__item-amount">@budget.TotalAmount.ToString("N0")</span>
+						</div>
 					}
-				</MudList>
 
-				@if (!Budgets.Any())
-				{
-					<MudStack AlignItems="AlignItems.Center" Class="pa-6">
-						<MudIcon Icon="@Icons.Material.Filled.AccountBalanceWallet" Size="Size.Large" Color="Color.Secondary" />
-						<MudText Typo="Typo.body2" Color="Color.Secondary">@SelectedYear 年尚無預算資料</MudText>
-					</MudStack>
-				}
-			</MudCardContent>
-
-			@* 年度總預算 *@
-			@if (Budgets.Any())
-			{
-				<MudDivider />
-				<MudCardContent>
-					<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-						<MudText Typo="Typo.subtitle2" Color="Color.Secondary">年度總預算</MudText>
-						<MudText Typo="Typo.h6" Color="Color.Primary" Style="font-weight: 700;">
-							@YearlyTotalBudget.ToString("N0") 元
-						</MudText>
-					</MudStack>
-				</MudCardContent>
-			}
-
-			@* 新增部門預算 *@
-			<MudDivider />
-			<MudCardContent>
-				<MudSelect T="string"
-						   Value="@string.Empty"
-						   ValueChanged="OnAddDepartmentBudgetAsync"
-						   Label="新增部門預算"
-						   Placeholder="選擇部門..."
-						   Variant="Variant.Outlined"
-						   Dense="true"
-						   Disabled="@(!AvailableDepartments.Any())">
-					@foreach (var dept in AvailableDepartments)
+					@if (!Budgets.Any())
 					{
-						<MudSelectItem Value="@dept.Code">@dept.Name (@dept.Code)</MudSelectItem>
+						<div class="glass-empty-state" style="padding: 2rem;">
+							<div class="glass-empty-state__icon">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<rect x="2" y="5" width="20" height="14" rx="2"/>
+									<path d="M2 10h20"/>
+								</svg>
+							</div>
+							<h3>@SelectedYear 年尚無預算資料</h3>
+							<p>請從下方新增部門預算</p>
+						</div>
 					}
-				</MudSelect>
-				@if (!AvailableDepartments.Any() && Departments.Any())
+				</div>
+
+				@* 年度總預算 *@
+				@if (Budgets.Any())
 				{
-					<MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2">
-						所有部門都已設定預算
-					</MudText>
+					<div class="budget-total">
+						<span class="budget-total__label">年度總預算</span>
+						<span class="budget-total__value">@YearlyTotalBudget.ToString("N0") 元</span>
+					</div>
 				}
-			</MudCardContent>
-		</MudCard>
-	</MudItem>
 
-	@* 右側：預算明細 *@
-	<MudItem xs="12" md="8">
-		@if (SelectedBudget is not null)
-		{
-			<MudCard Elevation="2">
-				<MudCardHeader>
-					<CardHeaderContent>
-						<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-							<MudStack Spacing="0">
-								<MudText Typo="Typo.h6">@GetDepartmentName(SelectedBudget.DepartmentCode)</MudText>
-								<MudText Typo="Typo.caption" Color="Color.Secondary">@SelectedYear 年度預算明細</MudText>
-							</MudStack>
-							<MudStack Row="true" Spacing="2">
-								<MudButton Variant="Variant.Outlined"
-										   Color="Color.Error"
-										   Size="Size.Small"
-										   StartIcon="@Icons.Material.Filled.Delete"
-										   OnClick="DeleteBudgetAsync">
-									刪除預算
-								</MudButton>
-							</MudStack>
-						</MudStack>
-					</CardHeaderContent>
-				</MudCardHeader>
-				<MudDivider />
-				<MudCardContent>
-					<MudStack Spacing="3">
-						@foreach (var (item, index) in EditingItems.Select((item, i) => (item, i)))
+				@* 新增部門預算 *@
+				<div class="budget-add">
+					<label class="glass-form-label">新增部門預算</label>
+					<select class="glass-form-input glass-form-select"
+							@onchange="OnAddDepartmentSelect"
+							disabled="@(!AvailableDepartments.Any())">
+						<option value="">選擇部門...</option>
+						@foreach (var dept in AvailableDepartments)
 						{
-							<MudPaper Elevation="0" Class="pa-3" Style="border: 1px solid var(--mud-palette-lines-default); border-radius: 8px;">
-								<MudGrid Spacing="2">
-									<MudItem xs="12" sm="5">
-										<MudTextField @bind-Value="item.ItemName"
-													  Label="項目名稱"
-													  Variant="Variant.Outlined"
-													  Margin="Margin.Dense" />
-									</MudItem>
-									<MudItem xs="12" sm="4">
-										<MudNumericField @bind-Value="item.Amount"
-														 Label="金額"
-														 Format="N0"
-														 Variant="Variant.Outlined"
-														 Adornment="Adornment.Start"
-														 AdornmentText="$"
-														 HideSpinButtons="true"
-														 Margin="Margin.Dense" />
-									</MudItem>
-									<MudItem xs="12" sm="3" Class="d-flex align-center justify-end">
-										<MudTooltip Text="刪除此項目">
-											<MudIconButton Icon="@Icons.Material.Filled.Delete"
-														   Color="Color.Error"
-														   Size="Size.Small"
-														   OnClick="@(() => RemoveItem(index))" />
-										</MudTooltip>
-									</MudItem>
-									<MudItem xs="12">
-										<MudTextField @bind-Value="item.Description"
-													  Label="說明（選填）"
-													  Variant="Variant.Outlined"
-													  Margin="Margin.Dense" />
-									</MudItem>
-								</MudGrid>
-							</MudPaper>
+							<option value="@dept.Code">@dept.Name (@dept.Code)</option>
 						}
+					</select>
+					@if (!AvailableDepartments.Any() && Departments.Any())
+					{
+						<p class="budget-add__hint">所有部門都已設定預算</p>
+					}
+				</div>
+			</div>
+		</aside>
 
-						@if (!EditingItems.Any())
-						{
-							<MudAlert Severity="Severity.Info" Dense="true">
-								尚未新增任何預算項目，請點擊下方「新增項目」按鈕
-							</MudAlert>
-						}
+		@* 右側：預算明細 *@
+		<main class="budget-main">
+			@if (SelectedBudget is not null)
+			{
+				<div class="glass-panel">
+					<div class="glass-panel__header">
+						<div class="glass-panel__header-content">
+							<div>
+								<h2>@GetDepartmentName(SelectedBudget.DepartmentCode)</h2>
+								<p class="glass-panel__header-meta">@SelectedYear 年度預算明細</p>
+							</div>
+							<button class="glass-btn glass-btn--danger" @onclick="DeleteBudgetAsync">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+									<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+								</svg>
+								刪除預算
+							</button>
+						</div>
+					</div>
 
-						<MudButton Variant="Variant.Outlined"
-								   Color="Color.Primary"
-								   StartIcon="@Icons.Material.Filled.Add"
-								   OnClick="AddItem"
-								   FullWidth="true">
-							新增項目
-						</MudButton>
-					</MudStack>
-				</MudCardContent>
-				<MudDivider />
-				<MudCardContent>
-					<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-						<MudText Typo="Typo.subtitle1">
+					<div class="glass-panel__content--padded">
+						<div class="budget-items">
+							@foreach (var (item, index) in EditingItems.Select((item, i) => (item, i)))
+							{
+								<div class="budget-item-card">
+									<div class="budget-item-card__row">
+										<div class="glass-form-group" style="flex: 2;">
+											<label class="glass-form-label">項目名稱</label>
+											<input type="text"
+												   class="glass-form-input"
+												   @bind="item.ItemName"
+												   placeholder="輸入項目名稱" />
+										</div>
+										<div class="glass-form-group" style="flex: 1;">
+											<label class="glass-form-label">金額</label>
+											<MudNumericField T="decimal"
+															 @bind-Value="item.Amount"
+															 Format="N0"
+															 Variant="Variant.Outlined"
+															 Adornment="Adornment.Start"
+															 AdornmentText="$"
+															 HideSpinButtons="true"
+															 Margin="Margin.Dense" />
+										</div>
+										<button class="glass-action-btn budget-item-card__delete"
+												title="刪除此項目"
+												@onclick="@(() => RemoveItem(index))">
+											<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+												<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+											</svg>
+										</button>
+									</div>
+									<div class="glass-form-group">
+										<label class="glass-form-label">說明（選填）</label>
+										<input type="text"
+											   class="glass-form-input"
+											   @bind="item.Description"
+											   placeholder="輸入說明" />
+									</div>
+								</div>
+							}
+
+							@if (!EditingItems.Any())
+							{
+								<div class="glass-alert glass-alert--info">
+									<svg class="glass-alert__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+										<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+									</svg>
+									<span>尚未新增任何預算項目，請點擊下方「新增項目」按鈕</span>
+								</div>
+							}
+
+							<button class="glass-btn glass-btn--outline" style="width: 100%;" @onclick="AddItem">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+									<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+								</svg>
+								新增項目
+							</button>
+						</div>
+					</div>
+
+					<div class="budget-footer">
+						<span class="budget-footer__total">
 							總計：<strong>@EditingItems.Sum(x => x.Amount).ToString("N0")</strong> 元
-						</MudText>
-						<MudButton Variant="Variant.Filled"
-								   Color="Color.Primary"
-								   StartIcon="@Icons.Material.Filled.Save"
-								   OnClick="SaveBudgetAsync"
-								   Disabled="@(!HasChanges)">
+						</span>
+						<button class="glass-btn glass-btn--primary"
+								@onclick="SaveBudgetAsync"
+								disabled="@(!HasChanges)">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+								<path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+							</svg>
 							儲存
-						</MudButton>
-					</MudStack>
-				</MudCardContent>
-			</MudCard>
+						</button>
+					</div>
+				</div>
+			}
+			else
+			{
+				<div class="glass-panel">
+					<div class="glass-empty-state" style="padding: 4rem;">
+						<div class="glass-empty-state__icon">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+								<path d="M14 2v6h6"/>
+								<path d="M12 18v-6"/>
+								<path d="M9 15h6"/>
+							</svg>
+						</div>
+						<h3>請從左側選擇部門</h3>
+						<p>或新增部門預算開始編輯</p>
+					</div>
+				</div>
+			}
+		</main>
+	</div>
+</div>
+
+<style>
+	.budget-container {
+		display: grid;
+		grid-template-columns: 320px 1fr;
+		gap: var(--glass-space-xl);
+		position: relative;
+		z-index: 1;
+	}
+
+	@@media (max-width: 900px) {
+		.budget-container {
+			grid-template-columns: 1fr;
 		}
-		else
-		{
-			<MudCard Elevation="2">
-				<MudCardContent>
-					<MudStack AlignItems="AlignItems.Center" Class="pa-8">
-						<MudIcon Icon="@Icons.Material.Filled.TouchApp" Size="Size.Large" Color="Color.Secondary" />
-						<MudText Typo="Typo.h6" Color="Color.Secondary">請從左側選擇部門</MudText>
-						<MudText Typo="Typo.body2" Color="Color.Secondary">或新增部門預算開始編輯</MudText>
-					</MudStack>
-				</MudCardContent>
-			</MudCard>
+	}
+
+	.budget-sidebar {
+		position: sticky;
+		top: 2rem;
+		height: fit-content;
+	}
+
+	.budget-list {
+		border-top: 1px solid var(--glass-border-subtle);
+	}
+
+	.budget-list__item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--glass-space-md) var(--glass-space-lg);
+		border-bottom: 1px solid var(--glass-border-subtle);
+		cursor: pointer;
+		transition: all var(--glass-transition);
+	}
+
+	.budget-list__item:hover {
+		background: rgba(15, 118, 110, 0.03);
+	}
+
+	.budget-list__item--active {
+		background: rgba(15, 118, 110, 0.08);
+		border-left: 3px solid var(--glass-primary);
+	}
+
+	.budget-list__item-info {
+		display: flex;
+		flex-direction: column;
+		gap: var(--glass-space-xs);
+	}
+
+	.budget-list__item-name {
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: var(--glass-text);
+	}
+
+	.budget-list__item-code {
+		font-size: 0.75rem;
+		color: var(--glass-text-secondary);
+	}
+
+	.budget-list__item-amount {
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: var(--glass-text);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.budget-total {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--glass-space-md) var(--glass-space-lg);
+		background: rgba(15, 118, 110, 0.05);
+		border-top: 1px solid var(--glass-border-subtle);
+	}
+
+	.budget-total__label {
+		font-size: 0.85rem;
+		color: var(--glass-text-secondary);
+	}
+
+	.budget-total__value {
+		font-size: 1.1rem;
+		font-weight: 700;
+		color: var(--glass-primary);
+	}
+
+	.budget-add {
+		padding: var(--glass-space-lg);
+		border-top: 1px solid var(--glass-border-subtle);
+	}
+
+	.budget-add__hint {
+		font-size: 0.75rem;
+		color: var(--glass-text-secondary);
+		margin-top: var(--glass-space-sm);
+	}
+
+	.budget-items {
+		display: flex;
+		flex-direction: column;
+		gap: var(--glass-space-md);
+	}
+
+	.budget-item-card {
+		background: rgba(255, 255, 255, 0.6);
+		border: 1px solid var(--glass-border-subtle);
+		border-radius: var(--glass-radius-md);
+		padding: var(--glass-space-lg);
+		display: flex;
+		flex-direction: column;
+		gap: var(--glass-space-md);
+	}
+
+	.budget-item-card__row {
+		display: flex;
+		gap: var(--glass-space-md);
+		align-items: flex-end;
+	}
+
+	.budget-item-card__delete {
+		flex-shrink: 0;
+		margin-bottom: 4px;
+	}
+
+	@@media (max-width: 640px) {
+		.budget-item-card__row {
+			flex-direction: column;
+			align-items: stretch;
 		}
-	</MudItem>
-</MudGrid>
+
+		.budget-item-card__delete {
+			align-self: flex-end;
+		}
+	}
+
+	.budget-footer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--glass-space-md) var(--glass-space-lg);
+		border-top: 1px solid var(--glass-border-subtle);
+		background: rgba(15, 118, 110, 0.02);
+	}
+
+	.budget-footer__total {
+		font-size: 1rem;
+		color: var(--glass-text);
+	}
+
+	.budget-footer__total strong {
+		color: var(--glass-primary);
+	}
+
+	/* MudBlazor 元件樣式覆蓋 */
+	::deep .mud-input-outlined .mud-input-outlined-border {
+		border-color: var(--glass-border-hover);
+	}
+
+	::deep .mud-input-outlined:hover .mud-input-outlined-border {
+		border-color: var(--glass-primary);
+	}
+
+	::deep .mud-input-outlined.mud-input-focused .mud-input-outlined-border {
+		border-color: var(--glass-primary);
+	}
+</style>
