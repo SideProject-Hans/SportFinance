@@ -1,27 +1,43 @@
 using FinanceCenter.Data.Entities;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 
 namespace FinanceCenter.Components.Dialogs;
 
 /// <summary>
-/// 部門新增/編輯對話框元件
+/// 部門新增/編輯對話框元件（原生 Glassmorphism 風格）
 /// </summary>
 public partial class DepartmentDialog
 {
-	[CascadingParameter]
-	private IMudDialogInstance MudDialog { get; set; } = null!;
-
 	[Parameter]
 	public Department Department { get; set; } = new();
 
 	[Parameter]
 	public bool IsEdit { get; set; }
 
-	private MudForm _form = null!;
-	private bool _isValid;
+	[Parameter]
+	public bool IsVisible { get; set; }
 
-	private void Cancel() => MudDialog.Cancel();
+	[Parameter]
+	public EventCallback OnCancel { get; set; }
 
-	private void Submit() => MudDialog.Close(DialogResult.Ok(Department));
+	[Parameter]
+	public EventCallback<Department> OnSubmit { get; set; }
+
+	private bool IsFormValid => !string.IsNullOrWhiteSpace(Department.Code) &&
+								!string.IsNullOrWhiteSpace(Department.Name);
+
+	private async Task CancelAsync() => await OnCancel.InvokeAsync();
+
+	private async Task SubmitAsync()
+	{
+		if (IsFormValid)
+		{
+			await OnSubmit.InvokeAsync(Department);
+		}
+	}
+
+	private async Task HandleOverlayClickAsync()
+	{
+		await CancelAsync();
+	}
 }
