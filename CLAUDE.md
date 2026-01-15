@@ -9,6 +9,7 @@
 | **Build** | `dotnet build` |
 | **Run** | `dotnet run` |
 | **Test** | `dotnet test` |
+| **Test Single** | `dotnet test --filter "FullyQualifiedName~TestName"` |
 
 ---
 
@@ -116,6 +117,9 @@ feature/add-xxx    fix/xxx-error    refactor/xxx
 # Commit
 [功能] / [修復] / [重構] / [文件] / [樣式] / [測試] / [雜項]
 
+# Merge
+--no-ff    # 保留分支歷史，方便整個 feature 一次 revert
+
 # 禁止
 git add .
 ```
@@ -124,7 +128,11 @@ git add .
 
 ## Quality Gate
 
-變更後執行：`code-simplifier` → `code-reviewer` → `build` → `test` → `commit`
+變更後執行：
+
+```
+code-simplifier → code-reviewer → dotnet build → dotnet test → git commit
+```
 
 Linus Review 必須 🟢 Good 才能繼續。
 
