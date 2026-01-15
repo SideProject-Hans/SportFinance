@@ -201,11 +201,9 @@ public partial class AnnualBudget
 		}
 	}
 
-	private async Task DeleteBudgetAsync()
+	private async Task DeleteBudgetAsync(DepartmentBudget budget)
 	{
-		if (SelectedBudget is null) return;
-
-		var deptName = GetDepartmentName(SelectedBudget.DepartmentCode);
+		var deptName = GetDepartmentName(budget.DepartmentCode);
 		var confirmed = await DialogService.ShowMessageBox(
 			"確認刪除",
 			$"確定要刪除「{deptName}」的 {SelectedYear} 年度預算嗎？此操作無法復原。",
@@ -215,18 +213,39 @@ public partial class AnnualBudget
 
 		try
 		{
-			await BudgetService.DeleteBudgetAsync(SelectedBudget.Id);
-			SelectedBudget = null;
-			EditingItems.Clear();
-			OriginalItems.Clear();
+			await BudgetService.DeleteBudgetAsync(budget.Id);
+			
+			// 如果刪除的是目前選取的預算，清除選取狀態
+			if (SelectedBudget?.Id == budget.Id)
+			{
+				SelectedBudget = null;
+				EditingItems.Clear();
+				OriginalItems.Clear();
+			}
+			
 			await LoadBudgetsAsync();
-
 			Snackbar.Add("已刪除預算", Severity.Success);
 		}
 		catch (Exception ex)
 		{
 			Snackbar.Add($"刪除失敗：{ex.Message}", Severity.Error);
 		}
+	}
+
+	private async Task ClearBudgetItemsAsync()
+	{
+		if (SelectedBudget is null) return;
+
+		var deptName = GetDepartmentName(SelectedBudget.DepartmentCode);
+		var confirmed = await DialogService.ShowMessageBox(
+			"確認清除",
+			$"確定要清除「{deptName}」的所有預算項目嗎？",
+			"清除", cancelText: "取消");
+
+		if (confirmed != true) return;
+
+		EditingItems.Clear();
+		Snackbar.Add("已清除所有項目，請點擊儲存以套用變更", Severity.Info);
 	}
 
 	private static bool ItemsEqual(List<BudgetItem> a, List<BudgetItem> b)

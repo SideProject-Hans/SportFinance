@@ -33,13 +33,22 @@
 				<div class="budget-list">
 					@foreach (var budget in Budgets)
 					{
-						<div class="budget-list__item @(SelectedBudget?.Id == budget.Id ? "budget-list__item--active" : "")"
-							 @onclick="@(() => SelectBudgetAsync(budget))">
-							<div class="budget-list__item-info">
-								<span class="budget-list__item-name">@GetDepartmentName(budget.DepartmentCode)</span>
-								<span class="budget-list__item-code">@budget.DepartmentCode</span>
+						<div class="budget-list__item @(SelectedBudget?.Id == budget.Id ? "budget-list__item--active" : "")">
+							<div class="budget-list__item-content" @onclick="@(() => SelectBudgetAsync(budget))">
+								<div class="budget-list__item-info">
+									<span class="budget-list__item-name">@GetDepartmentName(budget.DepartmentCode)</span>
+									<span class="budget-list__item-code">@budget.DepartmentCode</span>
+								</div>
+								<span class="budget-list__item-amount">@budget.TotalAmount.ToString("N0")</span>
 							</div>
-							<span class="budget-list__item-amount">@budget.TotalAmount.ToString("N0")</span>
+							<button class="budget-list__item-delete"
+									title="刪除此部門預算"
+									@onclick="@(() => DeleteBudgetAsync(budget))"
+									@onclick:stopPropagation="true">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+									<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+								</svg>
+							</button>
 						</div>
 					}
 
@@ -98,7 +107,7 @@
 								<h2>@GetDepartmentName(SelectedBudget.DepartmentCode)</h2>
 								<p class="glass-panel__header-meta">@SelectedYear 年度預算明細</p>
 							</div>
-							<button class="glass-btn glass-btn--danger" @onclick="DeleteBudgetAsync">
+							<button class="glass-btn glass-btn--danger" @onclick="ClearBudgetItemsAsync">
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
 									<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
 								</svg>
@@ -234,11 +243,8 @@
 
 	.budget-list__item {
 		display: flex;
-		justify-content: space-between;
 		align-items: center;
-		padding: var(--glass-space-md) var(--glass-space-lg);
 		border-bottom: 1px solid var(--glass-border-subtle);
-		cursor: pointer;
 		transition: all var(--glass-transition);
 	}
 
@@ -249,6 +255,40 @@
 	.budget-list__item--active {
 		background: rgba(15, 118, 110, 0.08);
 		border-left: 3px solid var(--glass-primary);
+	}
+
+	.budget-list__item-content {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		flex: 1;
+		padding: var(--glass-space-md) var(--glass-space-md) var(--glass-space-md) var(--glass-space-lg);
+		cursor: pointer;
+	}
+
+	.budget-list__item-delete {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+		margin-right: var(--glass-space-sm);
+		background: transparent;
+		border: none;
+		border-radius: var(--glass-radius-sm);
+		color: var(--glass-text-secondary);
+		cursor: pointer;
+		opacity: 0;
+		transition: all var(--glass-transition);
+	}
+
+	.budget-list__item:hover .budget-list__item-delete {
+		opacity: 1;
+	}
+
+	.budget-list__item-delete:hover {
+		background: rgba(220, 38, 38, 0.1);
+		color: var(--glass-danger);
 	}
 
 	.budget-list__item-info {
