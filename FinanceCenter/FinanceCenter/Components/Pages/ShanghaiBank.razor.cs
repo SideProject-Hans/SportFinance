@@ -33,10 +33,17 @@ public partial class ShanghaiBank
 
 	// Loading 狀態
 	private bool IsInitializing { get; set; }
+	private bool IsDeleting { get; set; }
 
 	// Dialog 狀態
 	private bool IsAddDialogOpen { get; set; }
+	private bool IsEditDialogOpen { get; set; }
 	private bool IsConfirmDialogOpen { get; set; }
+	private bool IsDeleteDialogOpen { get; set; }
+
+	// 編輯/刪除中的紀錄
+	private ShanghaiBankAccount? EditingAccount { get; set; }
+	private ShanghaiBankAccount? DeletingAccount { get; set; }
 
 	// 分頁相關
 	private int _currentPage = 1;
@@ -158,7 +165,61 @@ public partial class ShanghaiBank
 		IsAddDialogOpen = false;
 	}
 
-	// 確認 Dialog 相關
+	// 編輯 Dialog 相關
+	private void OpenEditDialog(ShanghaiBankAccount account)
+	{
+		EditingAccount = account;
+		IsEditDialogOpen = true;
+	}
+
+	private void CloseEditDialog()
+	{
+		IsEditDialogOpen = false;
+		EditingAccount = null;
+	}
+
+	private async Task OnEditDialogSubmitAsync(ShanghaiBankAccount account)
+	{
+		await ShanghaiBankService.UpdateAsync(account);
+		await LoadDataAsync();
+		IsEditDialogOpen = false;
+		EditingAccount = null;
+	}
+
+	// 刪除 Dialog 相關
+	private void OpenDeleteDialog(ShanghaiBankAccount account)
+	{
+		DeletingAccount = account;
+		IsDeleteDialogOpen = true;
+	}
+
+	private void CloseDeleteDialog()
+	{
+		IsDeleteDialogOpen = false;
+		DeletingAccount = null;
+	}
+
+	private async Task OnConfirmDeleteAsync()
+	{
+		if (DeletingAccount == null) return;
+
+		IsDeleting = true;
+		StateHasChanged();
+
+		try
+		{
+			await ShanghaiBankService.DeleteAsync(DeletingAccount.Id);
+			await LoadDataAsync();
+		}
+		finally
+		{
+			IsDeleting = false;
+			IsDeleteDialogOpen = false;
+			DeletingAccount = null;
+		}
+	}
+
+	// 初始化確認 Dialog 相關
 	private void OpenInitializeDialog()
 	{
 		IsConfirmDialogOpen = true;
