@@ -1309,3 +1309,9 @@
 		height: 16px;
 	}
 }
+
+/* =============== Modal Header Icon - Primary =============== */
+.glass-modal__header-icon--primary {
+	background: var(--glass-gradient-primary);
+	color: var(--glass-text-inverse);
+}
