@@ -1,9 +1,5 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
----
-
 ## Quick Facts
 
 | Item | Value |
@@ -13,528 +9,130 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | **Build** | `dotnet build` |
 | **Run** | `dotnet run` |
 | **Test** | `dotnet test` |
-| **Test Single** | `dotnet test --filter "FullyQualifiedName~TestName"` |
 
 ---
 
-## System Hooks (Auto-enforced)
+## Branch Protection (System-enforced)
 
-The following rules are enforced at system level via `.claude/settings.local.json`:
+編輯操作在 `main`/`master` 分支會被 hook 自動阻擋。
 
-| Hook | Trigger | Action |
-|------|---------|--------|
-| **Branch Protection** | `Edit`, `Write`, `MultiEdit` | ⛔ Block if on `main` or `master` branch |
-
-### Branch Protection
-
-When blocked, you will see:
-```
-⛔ Cannot edit files on main branch. Run Phase 0 first:
-
-  git worktree add ../SportFinance-worktrees/<name> -b feature/xxx
-  cd ../SportFinance-worktrees/<name>
-```
-
-> **Note:** This is a system-level protection. Even if you forget the flow, the hook will block the operation.
-
----
-
-## Skill Activation
-
-Before executing any task, check if the corresponding skill should be activated:
-
-| Trigger | Skill | When |
-|---------|-------|------|
-| UI/UX related tasks | `/ui-ux-pro-max` | Before implementation |
-| After code changes | `code-simplifier:code-simplifier` | Phase 4 |
-| After code changes | `pr-review-toolkit:code-reviewer` | Phase 4 |
-| Quality review | `.claude/LINUS_MODE.md` | Phase 4 |
-
----
-
-## Development Pipeline
-
-### Complete Development Flow
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  Phase 0: Environment Check (BLOCKING - Must run before any change) │
-├─────────────────────────────────────────────────────────────────────┤
-│  git worktree list                                                  │
-│  pwd                                                                │
-│                                                                     │
-│  Decision:                                                          │
-│  ├── In main worktree (SportFinance/) → Must create new worktree    │
-│  └── In feature worktree              → ✅ Proceed to Phase 1       │
-│                                                                     │
-│  ⛔ Skipping Phase 0 = Cannot proceed to Phase 1                    │
-└─────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────┐
-│  Phase 1: Preparation (If Phase 0 requires creating worktree)       │
-├─────────────────────────────────────────────────────────────────────┤
-│  git worktree add ../SportFinance-worktrees/<name> -b feature/xxx   │
-│  cd ../SportFinance-worktrees/<name>                                │
-└─────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────┐
-│  Phase 2: Requirement Clarification (BLOCKING)                      │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  2a. 需求理解                                                        │
-│      ├── 閱讀並理解使用者需求                                         │
-│      ├── 列出所有假設 (Assumptions)                                  │
-│      └── 標記不確定項目 [NEEDS CLARIFICATION: ...]                   │
-│                         ↓                                           │
-│  2b. 矛盾點審查 (使用 think harder 深度思考) 🧠                       │
-│      ├── 執行指令: think harder                                      │
-│      ├── 檢查假設之間是否存在矛盾                                     │
-│      ├── 檢查需求之間是否存在衝突                                     │
-│      ├── 檢查需求與現有系統是否相容                                   │
-│      └── 輸出矛盾點清單 [CONTRADICTION: ...]                         │
-│                         ↓                                           │
-│  2c. 需求確認 (必須與使用者互動)                                       │
-│      ├── 向使用者確認所有假設                                         │
-│      ├── 詢問所有 [NEEDS CLARIFICATION] 項目                         │
-│      ├── 討論所有 [CONTRADICTION] 矛盾點                             │
-│      └── 記錄使用者的回覆                                             │
-│                         ↓                                           │
-│  2d. 需求確認閘門 ⛔                                                 │
-│      ├── 所有 [NEEDS CLARIFICATION] 項目都已解決?                    │
-│      ├── 所有 [CONTRADICTION] 矛盾點都已解決?                        │
-│      ├── 所有假設都已與使用者確認?                                    │
-│      └── ❌ 任一未完成 → 不得進入 Phase 3                            │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────┐
-│  Phase 3: Specification & Implementation                            │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  3a. Specification (複雜功能必須，簡單修復可跳過)                      │
-│      ├── 建立 specs/<feature-name>.md                               │
-│      ├── 定義驗收標準 (Acceptance Criteria)                          │
-│      └── 通過簡化閘門檢查                                            │
-│                         ↓                                           │
-│  3b. Implementation                                                 │
-│      ├── 實作功能程式碼                                              │
-│      └── If adding Entity → Execute Entity Dev Flow                 │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────┐
-│  Phase 4: Quality Review Pipeline (Auto-execute after each change)  │
-├─────────────────────────────────────────────────────────────────────┤
-│  [code-simplifier:code-simplifier] ← Simplify code                  │
-│           ↓                                                         │
-│  [pr-review-toolkit:code-reviewer] ← Review bugs & quality          │
-│           ↓                                                         │
-│  [dotnet build] ─── FAIL? ──┐                                       │
-│           ↓                 │                                       │
-│  [Linus Review] ─ NOT 🟢? ──┼──→ Fix and restart pipeline           │
-│           ↓                 │                                       │
-│  [dotnet test] ─── FAIL? ───┘                                       │
-│           ↓                                                         │
-│  [git commit]                                                       │
-└─────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────┐
-│  Phase 5: Merge to Main (5 Steps)                                   │
-├─────────────────────────────────────────────────────────────────────┤
-│  Step 1: [feature] git fetch origin main && git merge main          │
-│  Step 2: [feature] dotnet build && dotnet test                      │
-│  Step 3: [main] git merge --no-ff feature/xxx                       │
-│  Step 4: [main] dotnet build && dotnet test ← CRITICAL              │
-│  Step 5: [main] git push && cleanup worktree                        │
-└─────────────────────────────────────────────────────────────────────┘
+```bash
+git worktree add ../SportFinance-worktrees/<name> -b feature/xxx
 ```
 
 ---
 
-## Requirement Clarification (Phase 2 詳細指引)
-
-### 需求理解流程
-
-每次接收到新任務時，必須執行以下步驟：
-
-**Step 1: 列出假設**
-
-將你對需求的所有理解列為假設清單：
-```markdown
-## 我的假設
-1. [假設 1：例如「這個功能只需要支援單一使用者」]
-2. [假設 2：例如「資料不需要即時同步」]
-3. [假設 3：例如「使用現有的資料庫結構」]
-```
-
-**Step 2: 標記不確定項目**
-
-對於任何不清楚的部分，使用 `[NEEDS CLARIFICATION]` 標記：
-```markdown
-## 待釐清項目
-- [NEEDS CLARIFICATION: 金額是否需要支援小數點？]
-- [NEEDS CLARIFICATION: 刪除操作是否需要軟刪除？]
-```
-
-**Step 3: 矛盾點審查 (think harder)** 🧠
-
-執行深度思考，檢查需求中的矛盾與衝突：
+## Development Flow
 
 ```
-指令: think harder
+1. 環境    git worktree list → 在 main? → 建立 worktree
+2. 需求    列假設 → 標記不確定項 → 與使用者確認 → ⛔ 未確認不得實作
+3. 實作    code → build → test → commit
+4. 合併    fetch main → merge main → [main] merge --no-ff → push
 ```
 
-審查重點：
-| 審查項目 | 檢查內容 |
-|----------|----------|
-| 假設間矛盾 | 假設 A 和假設 B 是否相互衝突？ |
-| 需求間衝突 | 需求 X 和需求 Y 能否同時滿足？ |
-| 系統相容性 | 新需求是否與現有系統架構衝突？ |
-| 邏輯一致性 | 整體需求是否存在邏輯漏洞？ |
-| 邊界條件 | 極端情況下需求是否仍然合理？ |
-
-輸出格式：
-```markdown
-## 矛盾點審查結果
-- [CONTRADICTION: 需求 A 要求即時更新，但假設 2 說資料不需即時同步]
-- [CONTRADICTION: 刪除功能與資料保留政策可能衝突]
-- ✅ 無矛盾點發現 (如果沒有發現矛盾)
-```
-
-**Step 4: 與使用者確認**
-
-主動向使用者詢問：
-1. 所有假設是否正確
-2. 所有待釐清項目的答案
-3. 所有矛盾點如何解決
-4. 是否有遺漏的需求
-
-### 需求確認閘門
-
-在進入 Phase 3 之前，必須滿足：
-
-| 檢查項目 | 狀態 |
-|----------|------|
-| 所有假設都已確認 | ☐ |
-| 所有 [NEEDS CLARIFICATION] 都已解答 | ☐ |
-| 所有 [CONTRADICTION] 都已解決 | ☐ |
-| 使用者已確認需求完整 | ☐ |
-
-> ❌ 任一項未完成，不得開始實作
-
----
-
-## Specification-Driven Development (SDD)
-
-### 何時需要規格
-
-| 情況 | 需要 spec.md? |
-|------|---------------|
-| 新功能開發 | ✅ 必須 |
-| 重大重構 | ✅ 必須 |
-| Bug 修復 | ❌ 不需要 |
-| 小型調整 | ❌ 不需要 |
-
-### Spec 檔案結構
-
-**位置**: `specs/<feature-name>.md`
+### 需求確認 (實作前必須完成)
 
 ```markdown
-# <功能名稱>
+## 假設
+1. [你的理解]
 
-## 問題描述
-[這個功能要解決什麼問題？]
+## 待釐清
+- [NEEDS CLARIFICATION: 不確定的點]
 
-## 已確認需求
-[Phase 2 中與使用者確認過的需求列表]
-
-## 已解決矛盾點
-[Phase 2 中發現並解決的矛盾點]
-
-## 驗收標準
-- [ ] 標準 1：[具體、可測試]
-- [ ] 標準 2：[具體、可測試]
-- [ ] 標準 3：[具體、可測試]
-
-## 技術決策
-- 選用方案：[方案名稱]
-- 原因：[為什麼選這個]
-
-## 任務清單
-- [ ] Task 1: [具體任務]
-- [ ] Task 2: [具體任務]
+## 矛盾點
+- [CONTRADICTION: 發現的衝突] 或 ✅ 無
 ```
 
-### 簡化閘門檢查
-
-開始實作前，必須通過以下檢查：
-
-| 問題 | 預期答案 |
-|------|----------|
-| 是否用現有框架功能？ | ✅ 是 |
-| 是否避免過早優化？ | ✅ 是 |
-| 是否有不必要的抽象層？ | ❌ 沒有 |
-| 是否為假想需求設計？ | ❌ 沒有 |
-
-> 任何一項不通過 → 重新設計，直到通過。
-
----
-
-## Entity Development Flow
-
-```
-[Add New Entity]
-      ↓
-1. Create Data/Entities/<Name>.cs
-      ↓
-2. Create Doc/MySqlTableScheme/<Name>.sql  ← Manual table creation SQL
-      ↓
-3. Register in FinanceCenterDbContext
-      ↓
-❌ DO NOT use dotnet ef migrations
-```
-
-**SQL File Location**: `FinanceCenter/FinanceCenter/Doc/MySqlTableScheme/`
-
-**SQL File Format**:
-```sql
--- ============================================
--- <Table Description>
--- Created: YYYY-MM-DD
--- ============================================
-
-CREATE TABLE IF NOT EXISTS `<TableName>` (
-    `Id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
-    -- columns...
-    PRIMARY KEY (`Id`),
-    INDEX `idx_<column>` (`<column>`)
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci
-  COMMENT='<Table Description>';
-```
-
----
-
-## Linus Review Gate (BLOCKING)
-
-```
-【Taste Rating】🟢 Good / 🟡 Mediocre / 🔴 Garbage
-【Fatal Flaw】[Most critical issue]
-【Direction】[Improvement path]
-```
-
-> **Only 🟢 Good can proceed to test.**
-> 🟡 Mediocre or 🔴 Garbage → Fix issues and restart pipeline.
-
----
-
-## UI/UX Development Flow
-
-> When handling UI tasks, invoke `/ui-ux-pro-max` skill first.
-
-```
-[UI Requirement] → Native HTML/CSS possible?
-                      ├── ✅ Yes → Native HTML/CSS/JS
-                      └── ❌ No → MudBlazor (layout-level only)
-```
-
-**MudBlazor scope:** Layout, Drawer, AppBar, NavMenu, Dialog, Snackbar, ThemeProvider
-
-**Native scope:** Forms, tables, cards, lists, charts, page content
+> ⛔ 假設未確認、待釐清未解答、矛盾點未解決 → 不得開始實作
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│  UI: Components/Pages/*.razor + *.razor.cs              │
-│      Components/Layout/, Components/Dialogs/            │
-└────────────────────────┬────────────────────────────────┘
-                         ↓ inject IXxxService
-┌────────────────────────┴────────────────────────────────┐
-│  Service: Services/I*Service.cs + *Service.cs           │
-└────────────────────────┬────────────────────────────────┘
-                         ↓ inject IUnitOfWork
-┌────────────────────────┴────────────────────────────────┐
-│  Repository: IUnitOfWork (transaction boundary)         │
-│              ├── IFinanceRepository                     │
-│              ├── IShanghaiBankRepository                │
-│              ├── ITaiwanCooperativeBankRepository       │
-│              ├── IDepartmentRepository                  │
-│              └── IBankInitialBalanceRepository          │
-└────────────────────────┬────────────────────────────────┘
-                         ↓ DbContext
-┌────────────────────────┴────────────────────────────────┐
-│  Data: FinanceCenterDbContext + Entities/               │
-│        CashFlow, ShanghaiBankAccount,                   │
-│        TaiwanCooperativeBankAccount, Department,        │
-│        BankInitialBalance                               │
-└─────────────────────────────────────────────────────────┘
+Page.razor.cs → IXxxService → IUnitOfWork → DbContext
 ```
 
-### Data Flow
-```
-Page.razor.cs → Service.MethodAsync() → UnitOfWork.Repo.Query()
-                                      → UnitOfWork.SaveChangesAsync()
-```
+| Layer | Location |
+|-------|----------|
+| UI | `Components/Pages/`, `Components/Layout/`, `Components/Dialogs/` |
+| Service | `Services/I*Service.cs`, `Services/*Service.cs` |
+| Repository | `IUnitOfWork` + `I*Repository` |
+| Data | `Data/Entities/`, `FinanceCenterDbContext` |
 
-### Repository = Business Boundary (Not Table Boundary)
-
-> Repository is organized by business domain, not by table.
-> One repository may manage multiple tables in the future.
+> Repository 按業務領域組織，不是按資料表。
 
 ---
 
-## Role: Linus Torvalds Mode
+## Entity Development
 
-### Core Philosophy
-1. **Good Taste** — Eliminate special cases, don't add conditionals
-2. **Never Break Userspace** — Any change that breaks existing functionality is a bug
-3. **Pragmatism** — Solve real problems, reject over-engineering
-4. **Simplicity** — >3 levels of indentation = refactor needed
+```
+1. Data/Entities/<Name>.cs
+2. Doc/MySqlTableScheme/<Name>.sql   ← 手寫，禁用 ef migrations
+3. 註冊到 FinanceCenterDbContext
+```
+
+---
+
+## UI/UX
+
+UI 任務先啟用 `/ui-ux-pro-max`。
+
+| 用途 | 技術 |
+|------|------|
+| Layout, Drawer, AppBar, Dialog | MudBlazor |
+| Forms, tables, cards, charts | Native HTML/CSS |
 
 ---
 
 ## Coding Conventions
 
-| Aspect | Convention |
-|--------|------------|
-| Indentation | Tabs |
-| Types, Methods, Properties | PascalCase |
-| Local variables, private fields | camelCase |
-| Async methods | Suffix `Async` |
-| Comments | Traditional Chinese |
+| Item | Rule |
+|------|------|
+| 縮排 | Tabs |
+| 命名 | PascalCase (public), camelCase (private/local) |
+| Async | `Async` 後綴 |
+| 註解 | 繁體中文 |
 | Constructor | Primary Constructors (C# 12) |
 
 ---
 
-## Code Quality Rules
+## Code Quality
 
-### Complexity
-- **Function ≤ 20 lines** — Split if exceeded
-- **Indentation ≤ 3 levels** — Use early return or extract function
-- **No magic numbers** — Numbers must have names
-
-### Error Handling
-- **Service layer catches** — Don't let exceptions penetrate to UI
-- **Explicit null contract** — Mark `?` if may return null, don't mark if not possible
-
-### Forbidden
-- `dotnet ef migrations` — Write SQL manually instead
-- `git add .` — Only add specific files
-- Modifying code on main branch — Must use worktree
-- 猜測需求 — 必須使用 Phase 2 與使用者確認
+- 函數 ≤ 20 行
+- 縮排 ≤ 3 層
+- 禁止 magic numbers
+- Service 層捕獲例外
 
 ---
 
-## Git Rules
+## Git
 
-### Branch Naming
-```
-feature/add-xxx    fix/xxx-error    refactor/xxx    style/xxx
-```
-
-### Git Add Rules
 ```bash
-# ✅ Specific files only
-git add path/to/file1.cs path/to/file2.razor
+# 分支
+feature/add-xxx    fix/xxx-error    refactor/xxx
 
-# ❌ Never
+# Commit
+[功能] / [修復] / [重構] / [文件] / [樣式] / [測試] / [雜項]
+
+# 禁止
 git add .
 ```
 
-### Commit Message
-```
-[Type] Short description
+---
 
-Types: [功能] [修復] [重構] [文件] [樣式] [測試] [雜項]
-       [Feature] [Fix] [Refactor] [Docs] [Style] [Test] [Chore]
-```
+## Quality Gate
 
-> **Why `--no-ff`?** Preserves branch history, enables single-commit revert of entire feature.
+變更後執行：`code-simplifier` → `code-reviewer` → `build` → `test` → `commit`
+
+Linus Review 必須 🟢 Good 才能繼續。
 
 ---
 
-## Session Start Protocol (每次對話必執行)
+## Forbidden
 
-每次新對話開始時，**必須先執行以下檢查**：
-
-### Step 1: 檢查開發狀態檔案
-
-```bash
-# 檢查是否有進行中的任務
-ls .dev-state.md 2>/dev/null && cat .dev-state.md
-```
-
-### Step 2: 根據結果決定行動
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  .dev-state.md 存在?                                                │
-├─────────────────────────────────────────────────────────────────────┤
-│  ├── ✅ 存在 → 載入狀態，報告進度，繼續上次任務                       │
-│  │           → 同步到 TodoWrite                                     │
-│  │           → 詢問是否繼續                                         │
-│  │                                                                  │
-│  └── ❌ 不存在 → 正常開始新對話                                      │
-│               → 收到新任務時，建立 .dev-state.md                     │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### 載入狀態後的報告格式
-
-```
-📍 發現進行中的任務
-
-**Task**: [任務名稱]
-**Branch**: [branch-name]
-**Current Phase**: Phase X - [階段名稱]
-**Progress**: X/Y 完成
-
-待完成項目：
-- [ ] 項目 1
-- [ ] 項目 2
-
-要繼續處理這個任務嗎？
-```
-
----
-
-## Development State Tracking (狀態追蹤)
-
-### 狀態檔案位置
-
-- **檔案**: `.dev-state.md` (worktree 根目錄)
-- **模板**: `.claude/templates/dev-state-template.md`
-- **Git**: ✅ 會被 commit（保留開發記錄）
-
-### 何時建立 `.dev-state.md`
-
-| 情況 | 建立? |
-|------|-------|
-| 收到新開發任務 | ✅ 是 |
-| 簡單問答 | ❌ 否 |
-| 程式碼查詢 | ❌ 否 |
-
-### 狀態更新時機
-
-| 時機 | 動作 |
-|------|------|
-| 完成一個 Phase 步驟 | 更新 .dev-state.md + TodoWrite |
-| 進入下一 Phase | 更新 .dev-state.md + TodoWrite |
-| 使用者確認假設 | 記錄到 .dev-state.md |
-| 對話結束前 | 確保狀態已保存 |
-
-### Blocking Gates (阻塞閘門)
-
-以下閘門必須通過才能繼續：
-
-| Gate | 位置 | 條件 |
-|------|------|------|
-| **Phase 2 → 3** | 需求確認後 | 所有假設、待釐清、矛盾點都已解決 |
-| **Phase 4 Linus** | 品質檢查中 | Linus Review 達到 🟢 Good |
-| **Phase 4 → 5** | 品質檢查後 | build & test 必須通過 |
-
-> ⛔ 未通過閘門時，禁止進入下一階段，必須在 .dev-state.md 中標記為 BLOCKED
+- `git add .`
+- `dotnet ef migrations`
+- 在 main 直接編輯
+- 未確認需求就實作
