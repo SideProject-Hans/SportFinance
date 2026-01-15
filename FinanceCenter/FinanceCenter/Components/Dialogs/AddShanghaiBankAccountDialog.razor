@@ -2,99 +2,99 @@
 
 @if (IsOpen)
 {
-	<div class="modal-overlay modal-overlay--active" @onclick="OnOverlayClick">
-		<div class="modal" @onclick:stopPropagation="true">
-			<header class="modal__header">
-				<div class="modal__header-icon modal__header-icon--shanghai">
+	<div class="glass-modal-overlay glass-modal-overlay--active" @onclick="OnOverlayClick">
+		<div class="glass-modal" @onclick:stopPropagation="true">
+			<header class="glass-modal__header">
+				<div class="glass-modal__header-icon glass-modal__header-icon--primary">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 						<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
 					</svg>
 				</div>
-				<h2 class="modal__title">新增上海銀行帳戶明細</h2>
-				<button class="modal__close" @onclick="Cancel">
+				<h2 class="glass-modal__title">新增上海銀行帳戶明細</h2>
+				<button class="glass-modal__close" @onclick="Cancel">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 						<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
 					</svg>
 				</button>
 			</header>
 
-			<div class="modal__body">
+			<div class="glass-modal__body">
 				<EditForm Model="@Account" OnValidSubmit="Submit">
 					<DataAnnotationsValidator />
 
 					@* 日期資訊 *@
-					<div class="form-section">
-						<h3 class="form-section__title">
+					<div class="glass-form-section">
+						<h3 class="glass-form-section__title">
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 								<path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM5 8V6h14v2H5z"/>
 							</svg>
 							日期資訊
 						</h3>
-						<div class="form-group">
-							<label class="form-label">匯款日期</label>
-							<input type="date" class="form-input"
+						<div class="glass-form-group">
+							<label class="glass-form-label">匯款日期</label>
+							<input type="date" class="glass-form-input"
 								   @bind="RemittanceDateValue"
 								   @bind:format="yyyy-MM-dd" />
 						</div>
 					</div>
 
 					@* 申請資訊 *@
-					<div class="form-section">
-						<h3 class="form-section__title">
+					<div class="glass-form-section">
+						<h3 class="glass-form-section__title">
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 								<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
 							</svg>
 							申請資訊
 						</h3>
-						<div class="form-row">
-							<div class="form-group">
-								<label class="form-label form-label--required">申請部門</label>
-								<select class="form-input form-select" @bind="Account.Department">
+						<div class="glass-form-row">
+							<div class="glass-form-group">
+								<label class="glass-form-label glass-form-label--required">申請部門</label>
+								<select class="glass-form-input glass-form-select" @bind="Account.Department">
 									<option value="">請選擇部門</option>
 									@foreach (var dept in Departments)
 									{
 										<option value="@dept.Code">@dept.Code - @dept.Name</option>
 									}
 								</select>
-								<ValidationMessage For="@(() => Account.Department)" class="form-error" />
+								<ValidationMessage For="@(() => Account.Department)" class="glass-form-error" />
 							</div>
-							<div class="form-group">
-								<label class="form-label form-label--required">申請人</label>
-								<input type="text" class="form-input" @bind="Account.Applicant"
+							<div class="glass-form-group">
+								<label class="glass-form-label glass-form-label--required">申請人</label>
+								<input type="text" class="glass-form-input" @bind="Account.Applicant"
 									   placeholder="請輸入申請人姓名" />
-								<ValidationMessage For="@(() => Account.Applicant)" class="form-error" />
+								<ValidationMessage For="@(() => Account.Applicant)" class="glass-form-error" />
 							</div>
 						</div>
-						<div class="form-group form-group--full">
-							<label class="form-label form-label--required">申請原因</label>
-							<textarea class="form-input form-textarea" @bind="Account.Reason"
+						<div class="glass-form-group glass-form-group--full">
+							<label class="glass-form-label glass-form-label--required">申請原因</label>
+							<textarea class="glass-form-input glass-form-textarea" @bind="Account.Reason"
 									  placeholder="請描述此筆交易的用途或原因"></textarea>
-							<ValidationMessage For="@(() => Account.Reason)" class="form-error" />
+							<ValidationMessage For="@(() => Account.Reason)" class="glass-form-error" />
 						</div>
 					</div>
 
 					@* 金額資訊 *@
-					<div class="form-section">
-						<h3 class="form-section__title">
+					<div class="glass-form-section">
+						<h3 class="glass-form-section__title">
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 								<path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
 							</svg>
 							金額資訊
 						</h3>
-						<div class="form-row form-row--thirds">
-							<div class="form-group">
-								<label class="form-label">收入金額</label>
-								<input type="number" class="form-input" @bind="Account.Income"
+						<div class="glass-form-row glass-form-row--thirds">
+							<div class="glass-form-group">
+								<label class="glass-form-label">收入金額</label>
+								<input type="number" class="glass-form-input" @bind="Account.Income"
 									   min="0" step="1" placeholder="0" />
 							</div>
-							<div class="form-group">
-								<label class="form-label">支出金額</label>
-								<input type="number" class="form-input" @bind="Account.Expense"
+							<div class="glass-form-group">
+								<label class="glass-form-label">支出金額</label>
+								<input type="number" class="glass-form-input" @bind="Account.Expense"
 									   min="0" step="1" placeholder="0" />
 							</div>
-							<div class="form-group">
-								<label class="form-label">手續費</label>
-								<input type="number" class="form-input" @bind="Account.Fee"
+							<div class="glass-form-group">
+								<label class="glass-form-label">手續費</label>
+								<input type="number" class="glass-form-input" @bind="Account.Fee"
 									   min="0" step="1" placeholder="0" />
 							</div>
 						</div>
@@ -102,9 +102,9 @@
 				</EditForm>
 			</div>
 
-			<footer class="modal__footer">
-				<button class="btn btn--outline" @onclick="Cancel">取消</button>
-				<button class="btn btn--shanghai" @onclick="Submit" disabled="@(!IsFormValid)">
+			<footer class="glass-modal__footer">
+				<button class="glass-btn glass-btn--outline" @onclick="Cancel">取消</button>
+				<button class="glass-btn glass-btn--primary" @onclick="Submit" disabled="@(!IsFormValid)">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 						<path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
 					</svg>
