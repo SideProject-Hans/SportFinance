@@ -17,36 +17,23 @@
 		</div>
 	</header>
 
-	@* 年份選擇區 *@
-	<section class="glass-stats">
-		<div class="glass-stat-card glass-stat-card--info">
-			<div class="glass-stat-card__header">
-				<span class="glass-stat-card__label">選擇年份</span>
-				<svg class="glass-stat-card__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-					<path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM5 8V6h14v2H5z"/>
-				</svg>
-			</div>
-			<div class="glass-year-select">
-				<select class="glass-year-select__input" @onchange="OnYearChangedAsync">
-					@for (int year = 2019; year <= 2030; year++)
-					{
-						<option value="@year" selected="@(year == SelectedYear)">@year 年</option>
-					}
-				</select>
-				<svg class="glass-year-select__arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-					<path d="M7 10l5 5 5-5H7z"/>
-				</svg>
-			</div>
-		</div>
-	</section>
-
 	@* 資料表格區 *@
 	<div class="glass-panel">
 		<header class="glass-panel__header">
 			<div class="glass-panel__header-content">
-				<div>
-					<h2>@SelectedYear 年帳戶明細紀錄</h2>
-					<p class="glass-panel__header-meta">共 @Accounts.Count 筆</p>
+				<div class="glass-panel__header-left">
+					<div class="glass-panel__year-select">
+						<select class="glass-select glass-select--compact" @onchange="OnYearChangedAsync">
+							@for (int year = 2019; year <= 2030; year++)
+							{
+								<option value="@year" selected="@(year == SelectedYear)">@year 年</option>
+							}
+						</select>
+					</div>
+					<div class="glass-panel__header-info">
+						<h2>帳戶明細紀錄</h2>
+						<p class="glass-panel__header-meta">共 @Accounts.Count 筆</p>
+					</div>
 				</div>
 				<div class="glass-btn-group">
 					<button class="glass-btn glass-btn--danger @(IsInitializing ? "glass-btn--loading" : "")"
@@ -107,6 +94,7 @@
 								<th>收入金額</th>
 								<th>手續費</th>
 								<th>餘額</th>
+								<th class="glass-table__actions-header">操作</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -139,6 +127,22 @@
 										<span class="glass-cell-badge @(balance >= 0 ? "glass-cell-badge--profit" : "glass-cell-badge--loss")">
 											@balance.ToString("N0")
 										</span>
+									</td>
+									<td class="glass-table__actions">
+										<button class="glass-action-btn glass-action-btn--edit"
+												@onclick="() => OpenEditDialog(account)"
+												title="異動">
+											<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+												<path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+											</svg>
+										</button>
+										<button class="glass-action-btn glass-action-btn--delete"
+												@onclick="() => OpenDeleteDialog(account)"
+												title="刪除">
+											<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+												<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+											</svg>
+										</button>
 									</td>
 								</tr>
 							}
@@ -182,7 +186,16 @@
 								  OnSubmit="OnAddDialogSubmitAsync" />
 }
 
-@* 確認 Dialog *@
+@* 編輯明細 Dialog *@
+@if (IsEditDialogOpen && EditingAccount != null)
+{
+	<EditShanghaiBankAccountDialog IsOpen="true"
+								   Account="EditingAccount"
+								   OnCancel="CloseEditDialog"
+								   OnSubmit="OnEditDialogSubmitAsync" />
+}
+
+@* 初始化確認 Dialog *@
 @if (IsConfirmDialogOpen)
 {
 	<div class="glass-modal-overlay glass-modal-overlay--active" @onclick="CloseConfirmDialog">
@@ -213,6 +226,70 @@
 						<path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
 					</svg>
 					確認初始化
+				</button>
+			</footer>
+		</div>
+	</div>
+}
+
+@* 刪除確認 Dialog *@
+@if (IsDeleteDialogOpen && DeletingAccount != null)
+{
+	<div class="glass-modal-overlay glass-modal-overlay--active" @onclick="CloseDeleteDialog">
+		<div class="glass-modal glass-modal--small" @onclick:stopPropagation="true">
+			<header class="glass-modal__header">
+				<div class="glass-modal__header-icon glass-modal__header-icon--danger">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+					</svg>
+				</div>
+				<h2 class="glass-modal__title">刪除確認</h2>
+			</header>
+			<div class="glass-modal__body">
+				<p style="margin-bottom: var(--glass-space-md);">確定要刪除這筆紀錄嗎？</p>
+				<div class="glass-delete-preview">
+					<div class="glass-delete-preview__item">
+						<span class="glass-delete-preview__label">日期</span>
+						<span class="glass-delete-preview__value">@(DeletingAccount.RemittanceDate?.ToString("yyyy/MM/dd") ?? "-")</span>
+					</div>
+					<div class="glass-delete-preview__item">
+						<span class="glass-delete-preview__label">申請人</span>
+						<span class="glass-delete-preview__value">@DeletingAccount.Applicant</span>
+					</div>
+					<div class="glass-delete-preview__item">
+						<span class="glass-delete-preview__label">原因</span>
+						<span class="glass-delete-preview__value">@DeletingAccount.Reason</span>
+					</div>
+					<div class="glass-delete-preview__item">
+						<span class="glass-delete-preview__label">金額</span>
+						<span class="glass-delete-preview__value">
+							@if (DeletingAccount.Income > 0)
+							{
+								<span class="glass-cell-amount--income">+@DeletingAccount.Income.ToString("N0")</span>
+							}
+							@if (DeletingAccount.Expense > 0)
+							{
+								<span class="glass-cell-amount--expense">-@DeletingAccount.Expense.ToString("N0")</span>
+							}
+						</span>
+					</div>
+				</div>
+				<div class="glass-alert glass-alert--warning">
+					<svg class="glass-alert__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+					</svg>
+					<span>此操作無法復原。</span>
+				</div>
+			</div>
+			<footer class="glass-modal__footer">
+				<button class="glass-btn glass-btn--outline" @onclick="CloseDeleteDialog">取消</button>
+				<button class="glass-btn glass-btn--danger @(IsDeleting ? "glass-btn--loading" : "")"
+						@onclick="OnConfirmDeleteAsync"
+						disabled="@IsDeleting">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+					</svg>
+					確認刪除
 				</button>
 			</footer>
 		</div>
