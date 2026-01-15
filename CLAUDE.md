@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 ## Quick Facts
 
 | Item | Value |
@@ -32,20 +34,9 @@ git worktree add ../SportFinance-worktrees/<name> -b feature/xxx
 4. 合併    fetch main → merge main → [main] merge --no-ff → push
 ```
 
-### 需求確認 (實作前必須完成)
+### 需求確認
 
-```markdown
-## 假設
-1. [你的理解]
-
-## 待釐清
-- [NEEDS CLARIFICATION: 不確定的點]
-
-## 矛盾點
-- [CONTRADICTION: 發現的衝突] 或 ✅ 無
-```
-
-> ⛔ 假設未確認、待釐清未解答、矛盾點未解決 → 不得開始實作
+實作前必須列出：**假設** / **待釐清** / **矛盾點**，經使用者確認後才能開始。
 
 ---
 
@@ -78,7 +69,7 @@ Page.razor.cs → IXxxService → IUnitOfWork → DbContext
 
 ## UI/UX
 
-UI 任務先啟用 `/ui-ux-pro-max`。
+UI 任務使用 `/ui-ux-pro-max`。
 
 | 用途 | 技術 |
 |------|------|
@@ -87,24 +78,18 @@ UI 任務先啟用 `/ui-ux-pro-max`。
 
 ---
 
-## Coding Conventions
+## Coding Rules
 
 | Item | Rule |
 |------|------|
-| 縮排 | Tabs |
+| 縮排 | Tabs，≤ 3 層 |
 | 命名 | PascalCase (public), camelCase (private/local) |
 | Async | `Async` 後綴 |
 | 註解 | 繁體中文 |
 | Constructor | Primary Constructors (C# 12) |
-
----
-
-## Code Quality
-
-- 函數 ≤ 20 行
-- 縮排 ≤ 3 層
-- 禁止 magic numbers
-- Service 層捕獲例外
+| 函數 | ≤ 20 行 |
+| 常數 | 禁止 magic numbers |
+| 例外 | Service 層捕獲 |
 
 ---
 
@@ -114,11 +99,11 @@ UI 任務先啟用 `/ui-ux-pro-max`。
 # 分支
 feature/add-xxx    fix/xxx-error    refactor/xxx
 
-# Commit
-[功能] / [修復] / [重構] / [文件] / [樣式] / [測試] / [雜項]
+# Commit (Conventional Commits)
+feat: / fix: / refactor: / docs: / style: / test: / chore:
 
 # Merge
---no-ff    # 保留分支歷史，方便整個 feature 一次 revert
+--no-ff
 
 # 禁止
 git add .
@@ -128,13 +113,11 @@ git add .
 
 ## Quality Gate
 
-變更後執行：
+變更後執行：code-simplifier → code-review → Linus-review（須 🟢 Good）→ build → test → commit
 
-```
-code-simplifier → code-reviewer → dotnet build → dotnet test → git commit
-```
-
-Linus Review 必須 🟢 Good 才能繼續。
+> - code-simplifier：Task tool `code-simplifier:code-simplifier`
+> - code-review：Task tool `pr-review-toolkit:code-reviewer`
+> - Linus-review：讀取 `.claude/LINUS_MODE.md` 進行審查
 
 ---
 
