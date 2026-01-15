@@ -22,24 +22,14 @@ public partial class ShanghaiBank
 	private List<Department> Departments { get; set; } = new();
 
 	/// <summary>
+	/// 每筆紀錄的累計餘額（Key: 紀錄 Id, Value: 累計餘額）
+	/// </summary>
+	private Dictionary<int, decimal> AccountBalances { get; set; } = new();
+
+	/// <summary>
 	/// 目前選擇的年份
 	/// </summary>
 	private int SelectedYear { get; set; } = DateTime.Now.Year;
-
-	/// <summary>
-	/// 年初餘額
-	/// </summary>
-	private decimal OpeningBalance { get; set; }
-
-	/// <summary>
-	/// 本年度淨金額總和
-	/// </summary>
-	private decimal CurrentYearNetAmount => Accounts.Sum(a => a.NetAmount);
-
-	/// <summary>
-	/// 目前餘額（年初餘額 + 本年度淨金額）
-	/// </summary>
-	private decimal CurrentBalance => OpeningBalance + CurrentYearNetAmount;
 
 	// Loading 狀態
 	private bool IsInitializing { get; set; }
@@ -82,7 +72,31 @@ public partial class ShanghaiBank
 	private async Task LoadDataAsync()
 	{
 		Accounts = await ShanghaiBankService.GetByYearAsync(SelectedYear);
-		OpeningBalance = await ShanghaiBankService.GetOpeningBalanceAsync(SelectedYear);
+		var openingBalance = await ShanghaiBankService.GetOpeningBalanceAsync(SelectedYear);
+		CalculateAccountBalances(openingBalance);
+	}
+
+	/// <summary>
+	/// 計算每筆紀錄的累計餘額
+	/// </summary>
+	private void CalculateAccountBalances(decimal openingBalance)
+	{
+		AccountBalances.Clear();
+		var runningBalance = openingBalance;
+
+		foreach (var account in Accounts)
+		{
+			runningBalance += account.NetAmount;
+			AccountBalances[account.Id] = runningBalance;
+		}
+	}
+
+	/// <summary>
+	/// 取得指定紀錄的累計餘額
+	/// </summary>
+	private decimal GetBalance(int accountId)
+	{
+		return AccountBalances.TryGetValue(accountId, out var balance) ? balance : 0;
 	}
 
 	// 分頁方法
