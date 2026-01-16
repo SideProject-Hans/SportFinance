@@ -1,4 +1,4 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
 @* Required *@
 <MudThemeProvider />
@@ -10,19 +10,51 @@
 @* Needed for snackbars *@
 <MudSnackbarProvider />
 
-<MudLayout>
-    <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudLink Href="/" Typo="Typo.h5" Color="Color.Inherit" Underline="Underline.None" Class="ml-3">Application</MudLink>
-        <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
-    </MudAppBar>
+<div class="app-layout">
+	@* 背景裝飾 *@
+	<div class="bg-decoration bg-decoration-1"></div>
+	<div class="bg-decoration bg-decoration-2"></div>
+	<div class="bg-decoration bg-decoration-3"></div>
 
-    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-        <MyNavMenu/>
-    </MudDrawer>
+	@* 頂部導航列 - Glassmorphism *@
+	<header class="glass-navbar">
+		<div class="navbar-content">
+			<button type="button" class="nav-toggle-btn" @onclick="DrawerToggle" aria-label="切換側邊選單">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<line x1="3" y1="6" x2="21" y2="6" />
+					<line x1="3" y1="12" x2="21" y2="12" />
+					<line x1="3" y1="18" x2="21" y2="18" />
+				</svg>
+			</button>
+			<a href="/" class="brand-link">
+				<div class="brand-icon">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+					</svg>
+				</div>
+				<span class="brand-text">財務中心</span>
+			</a>
+			<div class="navbar-spacer"></div>
+		</div>
+	</header>
 
-    <MudMainContent>
-        @Body
-    </MudMainContent>
-</MudLayout>
+	@* 側邊導航 - Glassmorphism *@
+	<aside class="glass-drawer @(_drawerOpen ? "open" : "")">
+		<nav class="drawer-nav">
+			<MyNavMenu />
+		</nav>
+	</aside>
+
+	@* 側邊欄遮罩（手機版） *@
+	@if (_drawerOpen)
+	{
+		<div class="drawer-overlay" @onclick="DrawerToggle"></div>
+	}
+
+	@* 主要內容區 *@
+	<main class="main-content @(_drawerOpen ? "drawer-open" : "")">
+		<div class="content-wrapper">
+			@Body
+		</div>
+	</main>
+</div>

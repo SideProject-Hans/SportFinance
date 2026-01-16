@@ -1,20 +1,304 @@
-#blazor-error-ui {
-    color-scheme: light only;
-    background: lightyellow;
-    bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
-    box-sizing: border-box;
-    display: none;
-    left: 0;
-    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
+/* ===========================================
+   MainLayout - Glassmorphism Design
+   與 Settings 頁面風格一致
+   =========================================== */
+
+/* CSS 變數定義 */
+.app-layout {
+	--navbar-height: 64px;
+	--navbar-height-mobile: 56px;
+	--drawer-width: 280px;
+	--drawer-width-mobile: 260px;
 }
 
-    #blazor-error-ui .dismiss {
-        cursor: pointer;
-        position: absolute;
-        right: 0.75rem;
-        top: 0.5rem;
-    }
+/* 全域佈局 */
+.app-layout {
+	min-height: 100vh;
+	background: linear-gradient(135deg, #F0FDFA 0%, #E0F2F1 50%, #F0FDFA 100%);
+	position: relative;
+	overflow-x: hidden;
+}
+
+/* 背景裝飾球 */
+.bg-decoration {
+	position: fixed;
+	border-radius: 50%;
+	pointer-events: none;
+	z-index: 0;
+}
+
+.bg-decoration-1 {
+	top: 5%;
+	left: 5%;
+	width: 350px;
+	height: 350px;
+	background: radial-gradient(circle, rgba(15, 118, 110, 0.12) 0%, transparent 70%);
+}
+
+.bg-decoration-2 {
+	bottom: 10%;
+	right: 5%;
+	width: 450px;
+	height: 450px;
+	background: radial-gradient(circle, rgba(20, 184, 166, 0.1) 0%, transparent 70%);
+}
+
+.bg-decoration-3 {
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 600px;
+	height: 600px;
+	background: radial-gradient(circle, rgba(13, 148, 136, 0.06) 0%, transparent 70%);
+}
+
+/* 頂部導航列 - Glassmorphism */
+.glass-navbar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: var(--navbar-height);
+	background: rgba(255, 255, 255, 0.75);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+	box-shadow:
+		0 4px 6px -1px rgba(0, 0, 0, 0.05),
+		0 2px 4px -2px rgba(0, 0, 0, 0.05);
+	z-index: 1100;
+}
+
+.navbar-content {
+	display: flex;
+	align-items: center;
+	height: 100%;
+	padding: 0 1.5rem;
+	gap: 0.75rem;
+}
+
+/* 漢堡選單按鈕 */
+.nav-toggle-btn {
+	width: 40px;
+	height: 40px;
+	border: none;
+	background: transparent;
+	border-radius: 10px;
+	cursor: pointer;
+	color: #134E4A;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+}
+
+.nav-toggle-btn:hover {
+	background: rgba(15, 118, 110, 0.08);
+	color: #0F766E;
+}
+
+.nav-toggle-btn svg {
+	width: 22px;
+	height: 22px;
+}
+
+/* 品牌連結 */
+.brand-link {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	text-decoration: none;
+	padding: 0.5rem 0.75rem;
+	border-radius: 10px;
+	transition: all 0.2s ease;
+}
+
+.brand-link:hover {
+	background: rgba(15, 118, 110, 0.05);
+}
+
+.brand-icon {
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+	background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.brand-icon svg {
+	width: 20px;
+	height: 20px;
+}
+
+.brand-text {
+	font-size: 1.15rem;
+	font-weight: 600;
+	color: #134E4A;
+	letter-spacing: -0.025em;
+}
+
+.navbar-spacer {
+	flex: 1;
+}
+
+/* 側邊導航抽屜 - Glassmorphism */
+.glass-drawer {
+	position: fixed;
+	top: var(--navbar-height);
+	left: 0;
+	bottom: 0;
+	width: var(--drawer-width);
+	background: rgba(255, 255, 255, 0.7);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	border-right: 1px solid rgba(255, 255, 255, 0.8);
+	box-shadow:
+		4px 0 6px -1px rgba(0, 0, 0, 0.05),
+		2px 0 4px -2px rgba(0, 0, 0, 0.05);
+	z-index: 1000;
+	transform: translateX(-100%);
+	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	overflow-y: auto;
+}
+
+.glass-drawer.open {
+	transform: translateX(0);
+}
+
+.drawer-nav {
+	padding: 1rem;
+}
+
+/* 抽屜遮罩（手機版） */
+.drawer-overlay {
+	display: none;
+	position: fixed;
+	top: var(--navbar-height);
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(15, 23, 42, 0.3);
+	backdrop-filter: blur(2px);
+	z-index: 999;
+}
+
+/* 主要內容區 */
+.main-content {
+	padding-top: var(--navbar-height);
+	min-height: 100vh;
+	transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	position: relative;
+	z-index: 1;
+}
+
+.main-content.drawer-open {
+	margin-left: var(--drawer-width);
+}
+
+.content-wrapper {
+	/* 預留供未來擴展 */
+}
+
+/* RWD 響應式調整 */
+@media (max-width: 1024px) {
+	.glass-drawer {
+		box-shadow:
+			8px 0 15px -3px rgba(0, 0, 0, 0.1),
+			4px 0 6px -4px rgba(0, 0, 0, 0.08);
+	}
+
+	.main-content.drawer-open {
+		margin-left: 0;
+	}
+
+	.drawer-overlay {
+		display: block;
+	}
+}
+
+@media (max-width: 600px) {
+	.app-layout {
+		--navbar-height: var(--navbar-height-mobile);
+		--drawer-width: var(--drawer-width-mobile);
+	}
+
+	.navbar-content {
+		padding: 0 1rem;
+	}
+
+	.brand-text {
+		font-size: 1rem;
+	}
+}
+
+/* MudBlazor 元件覆蓋 - 確保導航選單符合玻璃風格 */
+::deep .mud-nav-group-text {
+	font-weight: 600;
+	color: #134E4A !important;
+}
+
+::deep .mud-navmenu {
+	padding: 0;
+}
+
+::deep .mud-nav-link {
+	border-radius: 10px;
+	margin: 2px 0;
+	color: #5F7A76;
+	transition: all 0.2s ease;
+}
+
+::deep .mud-nav-link:hover {
+	background: rgba(15, 118, 110, 0.08) !important;
+	color: #0F766E;
+}
+
+::deep .mud-nav-link.active {
+	background: rgba(15, 118, 110, 0.12) !important;
+	color: #0F766E !important;
+	font-weight: 500;
+}
+
+::deep .mud-nav-group {
+	margin-bottom: 0.5rem;
+}
+
+::deep .mud-expand-panel {
+	background: transparent !important;
+	box-shadow: none !important;
+}
+
+::deep .mud-expand-panel-header {
+	padding: 0.5rem 0.75rem;
+	border-radius: 10px;
+	transition: all 0.2s ease;
+}
+
+::deep .mud-expand-panel-header:hover {
+	background: rgba(15, 118, 110, 0.05);
+}
+
+/* Blazor 錯誤 UI */
+#blazor-error-ui {
+	color-scheme: light only;
+	background: lightyellow;
+	bottom: 0;
+	box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+	box-sizing: border-box;
+	display: none;
+	left: 0;
+	padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+	position: fixed;
+	width: 100%;
+	z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+	cursor: pointer;
+	position: absolute;
+	right: 0.75rem;
+	top: 0.5rem;
+}

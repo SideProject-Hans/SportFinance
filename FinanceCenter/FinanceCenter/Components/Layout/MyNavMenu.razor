@@ -1,12 +1,84 @@
 @using Microsoft.AspNetCore.Components.Routing
 
-<MudNavMenu>
-    <MudNavGroup Title="銀行帳戶明細" Expanded="true">
-        <MudNavLink Href="/bank/scsb" Match="NavLinkMatch.Prefix">上海銀行</MudNavLink>
-        <MudNavLink Href="/bank/tcb" Match="NavLinkMatch.Prefix">合作金庫</MudNavLink>
-    </MudNavGroup>
-    <MudNavLink Href="/annual-budget" Match="NavLinkMatch.Prefix">年度預算</MudNavLink>
-    <MudNavLink Href="/activity-expenses" Match="NavLinkMatch.Prefix">活動開銷紀錄</MudNavLink>
-    <MudNavLink Href="/settings" Match="NavLinkMatch.Prefix">設定</MudNavLink>
-    <MudNavLink Href="/health-check" Match="NavLinkMatch.Prefix">系統健康檢查</MudNavLink>
-</MudNavMenu>
+<div class="nav-menu">
+	@* 銀行帳戶群組 *@
+	<div class="nav-group">
+		<button type="button" 
+				class="nav-group-header @(_bankExpanded ? "expanded" : "")"
+				@onclick="ToggleBankGroup"
+				aria-expanded="@_bankExpanded">
+			<div class="nav-group-icon">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+					<path d="M9 22V12h6v10"/>
+				</svg>
+			</div>
+			<span class="nav-group-text">銀行帳戶明細</span>
+			<div class="nav-group-arrow">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<polyline points="6 9 12 15 18 9"/>
+				</svg>
+			</div>
+		</button>
+		@if (_bankExpanded)
+		{
+			<div class="nav-group-items">
+				<NavLink href="/bank/scsb" class="nav-item" Match="NavLinkMatch.Prefix">
+					<span class="nav-item-dot"></span>
+					上海銀行
+				</NavLink>
+				<NavLink href="/bank/tcb" class="nav-item" Match="NavLinkMatch.Prefix">
+					<span class="nav-item-dot"></span>
+					合作金庫
+				</NavLink>
+			</div>
+		}
+	</div>
+
+	@* 獨立導航項目 *@
+	<NavLink href="/annual-budget" class="nav-link" Match="NavLinkMatch.Prefix">
+		<div class="nav-link-icon">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+				<line x1="16" y1="2" x2="16" y2="6"/>
+				<line x1="8" y1="2" x2="8" y2="6"/>
+				<line x1="3" y1="10" x2="21" y2="10"/>
+			</svg>
+		</div>
+		<span>年度預算</span>
+	</NavLink>
+
+	<NavLink href="/activity-expenses" class="nav-link" Match="NavLinkMatch.Prefix">
+		<div class="nav-link-icon">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+				<polyline points="14 2 14 8 20 8"/>
+				<line x1="16" y1="13" x2="8" y2="13"/>
+				<line x1="16" y1="17" x2="8" y2="17"/>
+				<polyline points="10 9 9 9 8 9"/>
+			</svg>
+		</div>
+		<span>活動開銷紀錄</span>
+	</NavLink>
+
+	<div class="nav-divider"></div>
+
+	<NavLink href="/settings" class="nav-link" Match="NavLinkMatch.Prefix">
+		<div class="nav-link-icon">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<circle cx="12" cy="12" r="3"/>
+				<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+			</svg>
+		</div>
+		<span>設定</span>
+	</NavLink>
+
+	<NavLink href="/health-check" class="nav-link" Match="NavLinkMatch.Prefix">
+		<div class="nav-link-icon">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+			</svg>
+		</div>
+		<span>系統健康檢查</span>
+	</NavLink>
+</div>

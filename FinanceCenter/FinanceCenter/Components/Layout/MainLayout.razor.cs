@@ -1,37 +1,37 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 
-namespace FinanceCenter.Components.Layout
+namespace FinanceCenter.Components.Layout;
+
+/// <summary>
+/// MainLayout 組件的 code-behind 類別
+/// </summary>
+public partial class MainLayout : LayoutComponentBase, IDisposable
 {
-    /// <summary>
-    /// MainLayout 組件的 code-behind 類別
-    /// </summary>
-    public partial class MainLayout : LayoutComponentBase, IDisposable
-    {
-        [Inject]
-        private NavigationManager NavigationManager { get; set; } = null!;
+	[Inject]
+	private NavigationManager NavigationManager { get; set; } = null!;
 
-        private bool _drawerOpen = false;
+	private bool _drawerOpen;
 
-        protected override void OnInitialized()
-        {
-            NavigationManager.LocationChanged += OnLocationChanged;
-        }
+	protected override void OnInitialized()
+	{
+		NavigationManager.LocationChanged += OnLocationChanged;
+	}
 
-        private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
-        {
-            _drawerOpen = false;
-            StateHasChanged();
-        }
+	private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+	{
+		_drawerOpen = false;
+		StateHasChanged();
+	}
 
-        private void DrawerToggle()
-        {
-            _drawerOpen = !_drawerOpen;
-        }
+	private void DrawerToggle()
+	{
+		_drawerOpen = !_drawerOpen;
+	}
 
-        public void Dispose()
-        {
-            NavigationManager.LocationChanged -= OnLocationChanged;
-        }
-    }
+	public void Dispose()
+	{
+		NavigationManager.LocationChanged -= OnLocationChanged;
+		GC.SuppressFinalize(this);
+	}
 }
