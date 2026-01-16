@@ -1,3 +1,4 @@
+using FinanceCenter.Components.Dialogs;
 using FinanceCenter.Data.Entities;
 using FinanceCenter.Services;
 using Microsoft.AspNetCore.Components;
@@ -204,12 +205,27 @@ public partial class AnnualBudget
 	private async Task DeleteBudgetAsync(DepartmentBudget budget)
 	{
 		var deptName = GetDepartmentName(budget.DepartmentCode);
-		var confirmed = await DialogService.ShowMessageBox(
-			"確認刪除",
-			$"確定要刪除「{deptName}」的 {SelectedYear} 年度預算嗎？此操作無法復原。",
-			"刪除", cancelText: "取消");
+		
+		var parameters = new DialogParameters<GlassConfirmDialog>
+		{
+			{ x => x.Title, "確認刪除" },
+			{ x => x.ContentText, $"確定要刪除「{deptName}」的 {SelectedYear} 年度預算嗎？" },
+			{ x => x.WarningText, "此操作無法復原" },
+			{ x => x.ButtonText, "刪除" },
+			{ x => x.Type, GlassConfirmDialog.DialogType.Danger }
+		};
 
-		if (confirmed != true) return;
+		var options = new DialogOptions
+		{
+			MaxWidth = MaxWidth.Small,
+			FullWidth = true,
+			BackdropClick = false
+		};
+
+		var dialog = await DialogService.ShowAsync<GlassConfirmDialog>("確認刪除", parameters, options);
+		var result = await dialog.Result;
+
+		if (result is null || result.Canceled) return;
 
 		try
 		{
@@ -237,12 +253,26 @@ public partial class AnnualBudget
 		if (SelectedBudget is null) return;
 
 		var deptName = GetDepartmentName(SelectedBudget.DepartmentCode);
-		var confirmed = await DialogService.ShowMessageBox(
-			"確認清除",
-			$"確定要清除「{deptName}」的所有預算項目嗎？",
-			"清除", cancelText: "取消");
+		
+		var parameters = new DialogParameters<GlassConfirmDialog>
+		{
+			{ x => x.Title, "確認清除" },
+			{ x => x.ContentText, $"確定要清除「{deptName}」的所有預算項目嗎？" },
+			{ x => x.ButtonText, "清除" },
+			{ x => x.Type, GlassConfirmDialog.DialogType.Warning }
+		};
 
-		if (confirmed != true) return;
+		var options = new DialogOptions
+		{
+			MaxWidth = MaxWidth.Small,
+			FullWidth = true,
+			BackdropClick = false
+		};
+
+		var dialog = await DialogService.ShowAsync<GlassConfirmDialog>("確認清除", parameters, options);
+		var result = await dialog.Result;
+
+		if (result is null || result.Canceled) return;
 
 		EditingItems.Clear();
 		Snackbar.Add("已清除所有項目，請點擊儲存以套用變更", Severity.Info);
