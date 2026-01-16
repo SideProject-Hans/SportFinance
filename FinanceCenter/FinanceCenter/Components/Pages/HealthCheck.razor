@@ -2,101 +2,183 @@
 
 <PageTitle>系統健康檢查</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-2">系統健康檢查</MudText>
-<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6">
-	檢查資料庫資料表狀態並建立缺失的資料表
-</MudText>
+<div class="health-page">
+    @* 頁面標題 *@
+    <header class="health-header">
+        <h1 class="health-title">系統健康檢查</h1>
+        <p class="health-subtitle">檢查資料庫資料表狀態並建立缺失的資料表</p>
+    </header>
 
-<MudCard Elevation="2">
-	<MudCardHeader>
-		<CardHeaderContent>
-			<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-				<MudStack Spacing="0">
-					<MudText Typo="Typo.h6">資料表狀態</MudText>
-					<MudText Typo="Typo.caption" Color="Color.Secondary">
-						@ExistsCount / @TotalCount 個資料表已建立
-					</MudText>
-				</MudStack>
-				<MudStack Row="true" Spacing="2">
-					<MudButton Variant="Variant.Outlined"
-							   Color="Color.Primary"
-							   StartIcon="@Icons.Material.Filled.Refresh"
-							   OnClick="RefreshAsync"
-							   Disabled="IsLoading">
-						重新檢查
-					</MudButton>
-					@if (MissingCount > 0)
-					{
-						<MudButton Variant="Variant.Filled"
-								   Color="Color.Primary"
-								   StartIcon="@Icons.Material.Filled.PlaylistAdd"
-								   OnClick="CreateAllMissingAsync"
-								   Disabled="IsLoading">
-							建立所有缺失表 (@MissingCount)
-						</MudButton>
-					}
-				</MudStack>
-			</MudStack>
-		</CardHeaderContent>
-	</MudCardHeader>
-	<MudDivider />
-	<MudCardContent Class="pa-0">
-		@if (IsLoading)
-		{
-			<MudProgressLinear Color="Color.Primary" Indeterminate="true" />
-		}
+    <div class="health-container">
+        @* 統計卡片區 *@
+        <div class="stats-grid">
+            @* 總資料表數 *@
+            <div class="stat-card">
+                <div class="stat-card-content">
+                    <div class="stat-icon total">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                            <path d="M3 5V19A9 3 0 0 0 21 19V5"/>
+                            <path d="M3 12A9 3 0 0 0 21 12"/>
+                        </svg>
+                    </div>
+                    <div class="stat-text">
+                        <h3>總資料表數</h3>
+                        <p class="stat-value">@TotalCount</p>
+                    </div>
+                </div>
+            </div>
 
-		<MudTable Items="@TableStatuses" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
-			<HeaderContent>
-				<MudTh>
-					<MudText Typo="Typo.subtitle2" Style="font-weight: 600;">資料表名稱</MudText>
-				</MudTh>
-				<MudTh>
-					<MudText Typo="Typo.subtitle2" Style="font-weight: 600;">狀態</MudText>
-				</MudTh>
-				<MudTh Style="width: 120px;">
-					<MudText Typo="Typo.subtitle2" Style="font-weight: 600;">操作</MudText>
-				</MudTh>
-			</HeaderContent>
-			<RowTemplate>
-				<MudTd DataLabel="資料表名稱">
-					<MudText Typo="Typo.body2" Style="font-family: monospace; font-weight: 500;">
-						@context.TableName
-					</MudText>
-				</MudTd>
-				<MudTd DataLabel="狀態">
-					@if (context.Exists)
-					{
-						<MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Filled">
-							已建立
-						</MudChip>
-					}
-					else
-					{
-						<MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Filled">
-							缺失
-						</MudChip>
-					}
-				</MudTd>
-				<MudTd DataLabel="操作">
-					@if (!context.Exists)
-					{
-						<MudButton Variant="Variant.Text"
-								   Color="Color.Primary"
-								   Size="Size.Small"
-								   OnClick="@(() => CreateTableAsync(context.TableName))"
-								   Disabled="IsLoading">
-							建立
-						</MudButton>
-					}
-				</MudTd>
-			</RowTemplate>
-			<NoRecordsContent>
-				<MudStack AlignItems="AlignItems.Center" Class="pa-8">
-					<MudIcon Icon="@Icons.Material.Filled.FolderOff" Size="Size.Large" Color="Color.Secondary" />
-					<MudText Typo="Typo.body1" Color="Color.Secondary">找不到任何 SQL 定義檔</MudText>
-				</MudStack>
-			</NoRecordsContent>
-		</MudTable>
-	</MudCardContent>
-</MudCard>
+            @* 已建立 *@
+            <div class="stat-card">
+                <div class="stat-card-content">
+                    <div class="stat-icon success">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <div class="stat-text">
+                        <h3>已建立</h3>
+                        <p class="stat-value">@ExistsCount</p>
+                    </div>
+                </div>
+            </div>
+
+            @* 待建立 *@
+            <div class="stat-card">
+                <div class="stat-card-content">
+                    <div class="stat-icon warning">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </div>
+                    <div class="stat-text">
+                        <h3>待建立</h3>
+                        <p class="stat-value">@MissingCount</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* 資料表狀態面板 *@
+        <div class="glass-panel">
+            <div class="glass-header">
+                <div class="glass-header-content">
+                    <div>
+                        <h2>資料表狀態</h2>
+                        <p class="glass-header-meta">@ExistsCount / @TotalCount 個資料表已建立</p>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn-secondary" @onclick="RefreshAsync" disabled="@IsLoading">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                            </svg>
+                            重新檢查
+                        </button>
+                        @if (MissingCount > 0)
+                        {
+                            <button type="button" class="btn-primary-teal" @onclick="CreateAllMissingAsync" disabled="@IsLoading">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <line x1="12" y1="5" x2="12" y2="19"/>
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                </svg>
+                                建立所有缺失表 (@MissingCount)
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="glass-content">
+                @if (IsLoading)
+                {
+                    <div class="loading-bar"></div>
+                }
+
+                @if (TableStatuses.Count > 0)
+                {
+                    @if (MissingCount == 0)
+                    {
+                        <div class="all-success-banner">
+                            <div class="success-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                    <polyline points="22 4 12 14.01 9 11.01"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4>所有資料表已就緒</h4>
+                                <p>系統資料庫結構完整，所有 @TotalCount 個資料表皆已建立</p>
+                            </div>
+                        </div>
+                    }
+
+                    <table class="health-table">
+                        <thead>
+                            <tr>
+                                <th>資料表名稱</th>
+                                <th>狀態</th>
+                                <th class="action-column">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var status in TableStatuses)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="table-name">@status.TableName</span>
+                                    </td>
+                                    <td>
+                                        @if (status.Exists)
+                                        {
+                                            <span class="status-chip success">
+                                                <span class="status-dot"></span>
+                                                已建立
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-chip error">
+                                                <span class="status-dot"></span>
+                                                缺失
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="action-column">
+                                        @if (!status.Exists)
+                                        {
+                                            <button type="button"
+                                                    class="action-btn"
+                                                    @onclick="@(() => CreateTableAsync(status.TableName))"
+                                                    disabled="@IsLoading">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <line x1="12" y1="5" x2="12" y2="19"/>
+                                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                                </svg>
+                                                建立
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>
+                            </svg>
+                        </div>
+                        <h3>找不到任何 SQL 定義檔</h3>
+                        <p>請確認 Doc/MySqlTableScheme 目錄中是否有 SQL 檔案</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

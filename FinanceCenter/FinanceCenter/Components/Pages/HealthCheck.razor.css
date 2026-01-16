@@ -1,0 +1,473 @@
+/* ===========================================
+   Health Check Page - Bento Grid + Glassmorphism
+   Created: 2026-01-16
+   =========================================== */
+
+/* 頁面背景漸層 */
+.health-page {
+	min-height: 100vh;
+	background: linear-gradient(135deg, #F0FDFA 0%, #E0F2F1 50%, #F0FDFA 100%);
+	padding: 2rem;
+	position: relative;
+}
+
+.health-page::before {
+	content: '';
+	position: absolute;
+	top: 10%;
+	left: 5%;
+	width: 300px;
+	height: 300px;
+	background: radial-gradient(circle, rgba(15, 118, 110, 0.1) 0%, transparent 70%);
+	border-radius: 50%;
+	pointer-events: none;
+}
+
+.health-page::after {
+	content: '';
+	position: absolute;
+	bottom: 10%;
+	right: 10%;
+	width: 400px;
+	height: 400px;
+	background: radial-gradient(circle, rgba(20, 184, 166, 0.08) 0%, transparent 70%);
+	border-radius: 50%;
+	pointer-events: none;
+}
+
+/* 頁面標題區 */
+.health-header {
+	margin-bottom: 2rem;
+}
+
+.health-title {
+	font-size: 2rem;
+	font-weight: 700;
+	color: #134E4A;
+	margin: 0 0 0.5rem 0;
+	letter-spacing: -0.025em;
+}
+
+.health-subtitle {
+	font-size: 0.95rem;
+	color: #5F7A76;
+	margin: 0;
+}
+
+/* 主要內容容器 */
+.health-container {
+	position: relative;
+	z-index: 1;
+}
+
+/* 統計卡片區 */
+.stats-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 1.5rem;
+	margin-bottom: 2rem;
+}
+
+@media (max-width: 900px) {
+	.stats-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 600px) {
+	.stats-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* 統計卡片 - 玻璃效果 */
+.stat-card {
+	background: rgba(255, 255, 255, 0.7);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1px solid rgba(255, 255, 255, 0.8);
+	border-radius: 16px;
+	padding: 1.5rem;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow:
+		0 4px 6px -1px rgba(0, 0, 0, 0.05),
+		0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.stat-card:hover {
+	background: rgba(255, 255, 255, 0.85);
+	transform: translateY(-2px);
+	box-shadow:
+		0 10px 15px -3px rgba(0, 0, 0, 0.08),
+		0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+.stat-card-content {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.stat-icon {
+	width: 56px;
+	height: 56px;
+	border-radius: 14px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.3s ease;
+}
+
+.stat-icon svg {
+	width: 28px;
+	height: 28px;
+}
+
+.stat-icon.total {
+	background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);
+	color: #0F766E;
+}
+
+.stat-icon.success {
+	background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+	color: #059669;
+}
+
+.stat-icon.warning {
+	background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+	color: #D97706;
+}
+
+.stat-text h3 {
+	font-size: 0.85rem;
+	font-weight: 500;
+	color: #5F7A76;
+	margin: 0 0 0.25rem 0;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.stat-value {
+	font-size: 1.75rem;
+	font-weight: 700;
+	color: #134E4A;
+	margin: 0;
+	line-height: 1.2;
+}
+
+/* 內容區 - 玻璃卡片 */
+.glass-panel {
+	background: rgba(255, 255, 255, 0.75);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	border: 1px solid rgba(255, 255, 255, 0.9);
+	border-radius: 20px;
+	overflow: hidden;
+	box-shadow:
+		0 25px 50px -12px rgba(0, 0, 0, 0.08),
+		0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.glass-header {
+	padding: 1.5rem 2rem;
+	border-bottom: 1px solid rgba(15, 118, 110, 0.1);
+	background: rgba(255, 255, 255, 0.5);
+}
+
+.glass-header-content {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 1rem;
+}
+
+.glass-header h2 {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #134E4A;
+	margin: 0;
+}
+
+.glass-header-meta {
+	font-size: 0.85rem;
+	color: #5F7A76;
+	margin-top: 0.25rem;
+}
+
+.glass-content {
+	padding: 0;
+}
+
+/* 按鈕群組 */
+.btn-group {
+	display: flex;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+}
+
+/* 主要按鈕樣式 */
+.btn-primary-teal {
+	background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+	color: white;
+	border: none;
+	padding: 0.6rem 1.25rem;
+	border-radius: 10px;
+	font-size: 0.9rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.btn-primary-teal:hover:not(:disabled) {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+}
+
+.btn-primary-teal:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.btn-primary-teal svg {
+	width: 18px;
+	height: 18px;
+}
+
+/* 次要按鈕樣式 */
+.btn-secondary {
+	background: rgba(255, 255, 255, 0.8);
+	color: #0F766E;
+	border: 1px solid rgba(15, 118, 110, 0.3);
+	padding: 0.6rem 1.25rem;
+	border-radius: 10px;
+	font-size: 0.9rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.btn-secondary:hover:not(:disabled) {
+	background: rgba(15, 118, 110, 0.08);
+	border-color: rgba(15, 118, 110, 0.5);
+}
+
+.btn-secondary:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.btn-secondary svg {
+	width: 18px;
+	height: 18px;
+}
+
+/* 表格樣式 */
+.health-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.health-table th {
+	text-align: left;
+	padding: 1rem 1.5rem;
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: #5F7A76;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	background: rgba(15, 118, 110, 0.03);
+	border-bottom: 1px solid rgba(15, 118, 110, 0.1);
+}
+
+.health-table td {
+	padding: 1rem 1.5rem;
+	font-size: 0.95rem;
+	color: #134E4A;
+	border-bottom: 1px solid rgba(15, 118, 110, 0.05);
+}
+
+.health-table tr:last-child td {
+	border-bottom: none;
+}
+
+.health-table tr:hover td {
+	background: rgba(15, 118, 110, 0.02);
+}
+
+/* 資料表名稱欄位 */
+.table-name {
+	font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+	font-size: 0.9rem;
+	font-weight: 500;
+	color: #0F766E;
+	background: rgba(15, 118, 110, 0.08);
+	padding: 0.35rem 0.75rem;
+	border-radius: 6px;
+	display: inline-block;
+}
+
+/* 狀態標籤 */
+.status-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.35rem 0.75rem;
+	border-radius: 20px;
+	font-size: 0.8rem;
+	font-weight: 500;
+}
+
+.status-chip.success {
+	background: rgba(16, 185, 129, 0.1);
+	color: #059669;
+}
+
+.status-chip.error {
+	background: rgba(239, 68, 68, 0.1);
+	color: #DC2626;
+}
+
+.status-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+/* 操作按鈕 */
+.action-btn {
+	background: transparent;
+	color: #0F766E;
+	border: 1px solid rgba(15, 118, 110, 0.3);
+	padding: 0.4rem 0.85rem;
+	border-radius: 8px;
+	font-size: 0.85rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.action-btn:hover:not(:disabled) {
+	background: rgba(15, 118, 110, 0.08);
+	border-color: rgba(15, 118, 110, 0.5);
+}
+
+.action-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.action-btn svg {
+	width: 16px;
+	height: 16px;
+}
+
+/* 操作欄位寬度 */
+.health-table th.action-column,
+.health-table td.action-column {
+	width: 100px;
+	text-align: center;
+}
+
+/* 載入進度條 */
+.loading-bar {
+	height: 3px;
+	background: linear-gradient(90deg, transparent, #14B8A6, transparent);
+	animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(100%);
+	}
+}
+
+/* 空狀態 */
+.empty-state {
+	text-align: center;
+	padding: 4rem 2rem;
+}
+
+.empty-icon {
+	width: 64px;
+	height: 64px;
+	margin: 0 auto 1rem;
+	background: rgba(15, 118, 110, 0.08);
+	border-radius: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #5F7A76;
+}
+
+.empty-icon svg {
+	width: 32px;
+	height: 32px;
+}
+
+.empty-state h3 {
+	font-size: 1.1rem;
+	font-weight: 500;
+	color: #134E4A;
+	margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+	font-size: 0.9rem;
+	color: #5F7A76;
+	margin: 0;
+}
+
+/* 全部成功狀態 */
+.all-success-banner {
+	background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%);
+	border: 1px solid rgba(16, 185, 129, 0.2);
+	border-radius: 12px;
+	padding: 1rem 1.5rem;
+	margin: 1.5rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.all-success-banner .success-icon {
+	width: 48px;
+	height: 48px;
+	border-radius: 12px;
+	background: rgba(16, 185, 129, 0.15);
+	color: #059669;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.all-success-banner .success-icon svg {
+	width: 24px;
+	height: 24px;
+}
+
+.all-success-banner h4 {
+	font-size: 1rem;
+	font-weight: 600;
+	color: #059669;
+	margin: 0 0 0.25rem 0;
+}
+
+.all-success-banner p {
+	font-size: 0.85rem;
+	color: #5F7A76;
+	margin: 0;
+}
