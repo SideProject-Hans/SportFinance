@@ -2,175 +2,128 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Quick Facts
+
+| Item | Value |
+|------|-------|
+| **Stack** | .NET 8, Blazor Server, MySQL, MudBlazor |
+| **Working Dir** | `FinanceCenter/FinanceCenter` |
+| **Build** | `dotnet build` |
+| **Run** | `dotnet run` |
+| **Test** | `dotnet test` |
+| **Test Single** | `dotnet test --filter "FullyQualifiedName~TestName"` |
+
 ---
 
-## 🚨 MANDATORY: Worktree-First Development
+## Branch Protection (System-enforced)
+
+編輯操作在 `main`/`master` 分支會被 hook 自動阻擋。
 
 ```bash
-git worktree list                                                    # Check status
-git worktree add ../SportFinance-worktrees/<name> -b <branch>        # Create worktree + branch
-cd ../SportFinance-worktrees/<name>                                  # Navigate
-```
-
-**Violation = Main branch pollution = Irreversible chaos.**
-
----
-
-## Role: Linus Torvalds Mode
-
-### Core Philosophy
-1. **Good Taste** — Eliminate special cases, don't add conditionals
-2. **Never Break Userspace** — Any change that breaks existing functionality is a bug
-3. **Pragmatism** — Solve real problems, reject over-engineering
-4. **Simplicity** — >3 levels of indentation = refactor needed
-
-### Code Review Output
-```
-【Taste Rating】🟢 Good / 🟡 Mediocre / 🔴 Garbage
-【Fatal Flaw】[Most critical issue]
-【Direction】[Improvement path]
+git worktree add ../SportFinance-worktrees/<name> -b feature/xxx
 ```
 
 ---
 
-## Development Commands
+## Development Flow
 
-```bash
-# Working directory: FinanceCenter/FinanceCenter
-dotnet build
-dotnet run
-dotnet watch run
-
-# Testing
-dotnet test
-dotnet test --filter "FullyQualifiedName~TestName"
-
-# Entity Framework (from solution root: FinanceCenter/)
-dotnet ef migrations add <Name>
-dotnet ef database update
 ```
+1. 環境    git worktree list → 在 main? → 建立 worktree
+2. 需求    列假設 → 標記不確定項 → 與使用者確認 → ⛔ 未確認不得實作
+3. 實作    code → build → test → commit
+4. 合併    fetch main → merge main → [main] merge --no-ff → push
+```
+
+### 需求確認
+
+實作前必須列出：**假設** / **待釐清** / **矛盾點**，經使用者確認後才能開始。
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│  UI: Components/Pages/*.razor + *.razor.cs              │
-│      Components/Layout/, Components/Dialogs/            │
-└────────────────────────┬────────────────────────────────┘
-                         ↓ inject IXxxService
-┌────────────────────────┴────────────────────────────────┐
-│  Service: Services/I*Service.cs + *Service.cs           │
-└────────────────────────┬────────────────────────────────┘
-                         ↓ inject IUnitOfWork
-┌────────────────────────┴────────────────────────────────┐
-│  Repository: IUnitOfWork (transaction boundary)         │
-│              ├── IFinanceRepository                     │
-│              ├── IShanghaiBankRepository                │
-│              ├── ITaiwanCooperativeBankRepository       │
-│              ├── IDepartmentRepository                  │
-│              └── IBankInitialBalanceRepository          │
-└────────────────────────┬────────────────────────────────┘
-                         ↓ DbContext
-┌────────────────────────┴────────────────────────────────┐
-│  Data: FinanceCenterDbContext + Entities/               │
-│        CashFlow, ShanghaiBankAccount,                   │
-│        TaiwanCooperativeBankAccount, Department,        │
-│        BankInitialBalance                               │
-└─────────────────────────────────────────────────────────┘
+Page.razor.cs → IXxxService → IUnitOfWork → DbContext
 ```
 
-### Data Flow
-```
-Page.razor.cs → Service.MethodAsync() → UnitOfWork.Repo.Query()
-                                      → UnitOfWork.SaveChangesAsync()
-```
+| Layer | Location |
+|-------|----------|
+| UI | `Components/Pages/`, `Components/Layout/`, `Components/Dialogs/` |
+| Service | `Services/I*Service.cs`, `Services/*Service.cs` |
+| Repository | `IUnitOfWork` + `I*Repository` |
+| Data | `Data/Entities/`, `FinanceCenterDbContext` |
 
-### Repository = 業務邊界（非 Table 邊界）
-
-> Repository 按業務領域劃分，非按 Table 劃分。
-> 一個 Repository 未來可管理多張表。
+> Repository 按業務領域組織，不是按資料表。
 
 ---
 
-## Coding Conventions
+## Entity Development
 
-| Aspect | Convention |
-|--------|------------|
-| Indentation | Tabs |
-| Types, Methods, Properties | PascalCase |
-| Local variables, private fields | camelCase |
-| Async methods | Suffix `Async` |
-| Comments | Traditional Chinese |
+```
+1. Data/Entities/<Name>.cs
+2. Doc/MySqlTableScheme/<Name>.sql   ← 手寫，禁用 ef migrations
+3. 註冊到 FinanceCenterDbContext
+```
+
+---
+
+## UI/UX
+
+UI 任務使用 `/ui-ux-pro-max`。
+
+| 用途 | 技術 |
+|------|------|
+| Layout, Drawer, AppBar, Dialog | MudBlazor |
+| Forms, tables, cards, charts | Native HTML/CSS |
+
+---
+
+## Coding Rules
+
+| Item | Rule |
+|------|------|
+| 縮排 | Tabs，≤ 3 層 |
+| 命名 | PascalCase (public), camelCase (private/local) |
+| Async | `Async` 後綴 |
+| 註解 | 繁體中文 |
 | Constructor | Primary Constructors (C# 12) |
+| 函數 | ≤ 20 行 |
+| 常數 | 禁止 magic numbers |
+| 例外 | Service 層捕獲 |
 
 ---
 
-## Code Quality Rules
+## Git
 
-1. **函數 ≤ 20 行** — 超過就拆
-2. **縮排 ≤ 3 層** — 超過就用 early return 或抽函數
-3. **No magic numbers** — 數字要有名字
-4. **Error 在邊界處理** — Service 層捕捉，不要讓 Exception 穿透到 UI
-5. **Null 契約明確** — 回傳可能 null 就標 `?`，不可能就別標
-
----
-
-## Git Workflow
-
-### Branch Naming
-```
-feature/add-xxx    fix/xxx-error    refactor/xxx    style/xxx
-```
-
-### Build-Review-Test-Commit Pipeline (Auto-execute)
-
-```
-[File Change] → [dotnet build] → [Linus Review] → [dotnet test] → [git commit]
-                     │                 │                │
-                  FAIL? ─────────> Fix first ←─────────┘
-```
-
-**🚨 MANDATORY: Linus Review Gate**
-
-> 每次檔案異動後，必須依照 `.claude/LINUS_MODE.md` 進行審查。
-> **審查通過才算完成，不可跳過。**
-
-| Rating | Action |
-|--------|--------|
-| 🟢 Good | Proceed to test |
-| 🟡 Mediocre | List suggestions, developer decides |
-| 🔴 Garbage | **Blocked** — refactor first |
-
-### Git Add Rules
 ```bash
-# ✅ Specific files only
-git add path/to/file1.cs path/to/file2.razor
+# 分支
+feature/add-xxx    fix/xxx-error    refactor/xxx
 
-# ❌ Never
+# Commit (Conventional Commits)
+feat: / fix: / refactor: / docs: / style: / test: / chore:
+
+# Merge
+--no-ff
+
+# 禁止
 git add .
 ```
 
-### Commit Message
-```
-[Type] Short description
+---
 
-Types: [功能] [修復] [重構] [文件] [樣式] [測試] [雜項]
-```
+## Quality Gate
+
+變更後執行：code-simplifier → code-review → Linus-review（須 🟢 Good）→ build → test → commit
+
+> - code-simplifier：Task tool `code-simplifier:code-simplifier`
+> - code-review：Task tool `pr-review-toolkit:code-reviewer`
+> - Linus-review：讀取 `.claude/LINUS_MODE.md` 進行審查
 
 ---
 
-## UI/UX Development
+## Forbidden
 
-> When handling UI tasks, invoke `/ui-ux-pro-max` skill first.
-
-```
-[UI Requirement] → Native HTML/CSS possible?
-                      ├── ✅ Yes → Native HTML/CSS/JS
-                      └── ❌ No → MudBlazor (layout-level only)
-```
-
-**MudBlazor scope:** Layout, Drawer, AppBar, NavMenu, Dialog, Snackbar, ThemeProvider
-
-**Native scope:** Forms, tables, cards, lists, charts, page content
+- `git add .`
+- `dotnet ef migrations`
+- 在 main 直接編輯
+- 未確認需求就實作

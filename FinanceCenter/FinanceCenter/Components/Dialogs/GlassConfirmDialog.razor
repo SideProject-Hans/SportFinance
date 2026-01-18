@@ -1,0 +1,202 @@
+@using MudBlazor
+
+<MudDialog Class="glass-confirm-dialog">
+	<TitleContent>
+		<div class="glass-modal__header">
+			<div class="glass-modal__header-icon @IconClass">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+					@((MarkupString)GetIconPath())
+				</svg>
+			</div>
+			<h3 class="glass-modal__title">@Title</h3>
+		</div>
+	</TitleContent>
+	<DialogContent>
+		<div class="glass-modal__body">
+			<p class="glass-confirm-dialog__message">@ContentText</p>
+			@if (!string.IsNullOrEmpty(WarningText))
+			{
+				<div class="glass-alert glass-alert--warning">
+					<svg class="glass-alert__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+					</svg>
+					<span>@WarningText</span>
+				</div>
+			}
+		</div>
+	</DialogContent>
+	<DialogActions>
+		<div class="glass-modal__footer">
+			<button class="glass-btn glass-btn--outline" @onclick="Cancel">取消</button>
+			<button class="glass-btn @ButtonClass" @onclick="Submit">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+					@((MarkupString)GetButtonIconPath())
+				</svg>
+				@ButtonText
+			</button>
+		</div>
+	</DialogActions>
+</MudDialog>
+
+<style>
+	/* 覆蓋 MudDialog 預設樣式 */
+	.glass-confirm-dialog {
+		background: transparent !important;
+		box-shadow: none !important;
+	}
+
+	::deep .mud-dialog {
+		background: var(--glass-bg-card-active) !important;
+		backdrop-filter: blur(16px) !important;
+		-webkit-backdrop-filter: blur(16px) !important;
+		border: 1px solid var(--glass-border) !important;
+		border-radius: var(--glass-radius-xl) !important;
+		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+		overflow: hidden !important;
+	}
+
+	::deep .mud-dialog-title {
+		padding: 0 !important;
+		background: transparent !important;
+	}
+
+	::deep .mud-dialog-content {
+		padding: 0 !important;
+		overflow: visible !important;
+	}
+
+	::deep .mud-dialog-actions {
+		padding: 0 !important;
+		background: transparent !important;
+		justify-content: stretch !important;
+	}
+
+	.glass-modal__header {
+		display: flex;
+		align-items: center;
+		gap: var(--glass-space-md);
+		padding: var(--glass-space-lg);
+		border-bottom: 1px solid var(--glass-border-subtle);
+		background: var(--glass-bg-header);
+	}
+
+	.glass-modal__header-icon {
+		width: 40px;
+		height: 40px;
+		border-radius: var(--glass-radius);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+	}
+
+	.glass-modal__header-icon svg {
+		width: 20px;
+		height: 20px;
+	}
+
+	.glass-modal__header-icon--danger {
+		background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+		color: var(--glass-text-inverse);
+	}
+
+	.glass-modal__header-icon--warning {
+		background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+		color: var(--glass-text-inverse);
+	}
+
+	.glass-modal__header-icon--primary {
+		background: var(--glass-gradient-primary);
+		color: var(--glass-text-inverse);
+	}
+
+	.glass-modal__title {
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: var(--glass-text);
+		margin: 0;
+	}
+
+	.glass-modal__body {
+		padding: var(--glass-space-lg);
+	}
+
+	.glass-confirm-dialog__message {
+		font-size: 0.95rem;
+		color: var(--glass-text);
+		margin: 0 0 var(--glass-space-md) 0;
+		line-height: 1.6;
+	}
+
+	.glass-confirm-dialog__message:last-child {
+		margin-bottom: 0;
+	}
+
+	.glass-modal__footer {
+		display: flex;
+		justify-content: flex-end;
+		gap: var(--glass-space-sm);
+		padding: var(--glass-space-md) var(--glass-space-lg);
+		border-top: 1px solid var(--glass-border-subtle);
+		background: rgba(15, 118, 110, 0.02);
+		width: 100%;
+	}
+</style>
+
+@code {
+	[CascadingParameter]
+	private IMudDialogInstance MudDialog { get; set; } = null!;
+
+	[Parameter]
+	public string Title { get; set; } = "確認操作";
+
+	[Parameter]
+	public string ContentText { get; set; } = "確定要執行此操作嗎？";
+
+	[Parameter]
+	public string? WarningText { get; set; }
+
+	[Parameter]
+	public string ButtonText { get; set; } = "確認";
+
+	[Parameter]
+	public DialogType Type { get; set; } = DialogType.Primary;
+
+	public enum DialogType
+	{
+		Primary,
+		Danger,
+		Warning
+	}
+
+	private string IconClass => Type switch
+	{
+		DialogType.Danger => "glass-modal__header-icon--danger",
+		DialogType.Warning => "glass-modal__header-icon--warning",
+		_ => "glass-modal__header-icon--primary"
+	};
+
+	private string ButtonClass => Type switch
+	{
+		DialogType.Danger => "glass-btn--danger",
+		DialogType.Warning => "glass-btn--primary",
+		_ => "glass-btn--primary"
+	};
+
+	private string GetIconPath() => Type switch
+	{
+		DialogType.Danger => "<path d=\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z\"/>",
+		DialogType.Warning => "<path d=\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z\"/>",
+		_ => "<path d=\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z\"/>"
+	};
+
+	private string GetButtonIconPath() => Type switch
+	{
+		DialogType.Danger => "<path d=\"M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z\"/>",
+		DialogType.Warning => "<path d=\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z\"/>",
+		_ => "<path d=\"M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z\"/>"
+	};
+
+	private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+	private void Cancel() => MudDialog.Cancel();
+}

@@ -1,0 +1,1317 @@
+/* ===========================================
+   Glassmorphism Design System
+   Teal-based glass effect with modern aesthetics
+   Created: 2026-01-14
+   =========================================== */
+
+/* =============== CSS Variables =============== */
+:root {
+	/* 主色調 - Teal */
+	--glass-primary: #0F766E;
+	--glass-primary-light: #14B8A6;
+	--glass-primary-dark: #134E4A;
+	--glass-gradient-primary: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+
+	/* 背景色 */
+	--glass-bg-page: linear-gradient(135deg, #F0FDFA 0%, #E0F2F1 50%, #F0FDFA 100%);
+	--glass-bg-card: rgba(255, 255, 255, 0.75);
+	--glass-bg-card-hover: rgba(255, 255, 255, 0.85);
+	--glass-bg-card-active: rgba(255, 255, 255, 0.9);
+	--glass-bg-header: rgba(255, 255, 255, 0.5);
+	--glass-bg-icon: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);
+	--glass-bg-icon-active: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+
+	/* 文字色 */
+	--glass-text: #134E4A;
+	--glass-text-secondary: #5F7A76;
+	--glass-text-muted: #94A3B8;
+	--glass-text-inverse: #FFFFFF;
+
+	/* 邊框 */
+	--glass-border: rgba(255, 255, 255, 0.8);
+	--glass-border-active: #0F766E;
+	--glass-border-subtle: rgba(15, 118, 110, 0.1);
+	--glass-border-hover: rgba(15, 118, 110, 0.2);
+
+	/* 狀態色 */
+	--glass-profit: #22c55e;
+	--glass-profit-bg: rgba(16, 185, 129, 0.1);
+	--glass-loss: #ef4444;
+	--glass-loss-bg: rgba(239, 68, 68, 0.1);
+	--glass-fee: #f59e0b;
+	--glass-fee-bg: rgba(245, 158, 11, 0.1);
+	--glass-info: #3b82f6;
+	--glass-info-bg: rgba(59, 130, 246, 0.1);
+
+	/* 陰影 */
+	--glass-shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+	--glass-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+	--glass-shadow-active: 0 10px 15px -3px rgba(15, 118, 110, 0.15), 0 4px 6px -4px rgba(15, 118, 110, 0.1);
+	--glass-shadow-panel: 0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5);
+	--glass-shadow-btn: 0 4px 12px rgba(15, 118, 110, 0.3);
+
+	/* 間距 */
+	--glass-space-xs: 0.25rem;
+	--glass-space-sm: 0.5rem;
+	--glass-space-md: 1rem;
+	--glass-space-lg: 1.5rem;
+	--glass-space-xl: 2rem;
+	--glass-space-2xl: 3rem;
+
+	/* 圓角 */
+	--glass-radius-sm: 6px;
+	--glass-radius: 10px;
+	--glass-radius-md: 12px;
+	--glass-radius-lg: 16px;
+	--glass-radius-xl: 20px;
+
+	/* 動畫 */
+	--glass-transition-fast: 150ms ease;
+	--glass-transition: 200ms ease;
+	--glass-transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:root {
+		--glass-transition-fast: 0ms;
+		--glass-transition: 0ms;
+		--glass-transition-slow: 0ms;
+	}
+}
+
+/* =============== Page Layout =============== */
+.glass-page {
+	min-height: 100vh;
+	background: var(--glass-bg-page);
+	padding: var(--glass-space-xl);
+	position: relative;
+}
+
+/* 裝飾性背景光暈 */
+.glass-page::before {
+	content: '';
+	position: absolute;
+	top: 10%;
+	left: 5%;
+	width: 300px;
+	height: 300px;
+	background: radial-gradient(circle, rgba(15, 118, 110, 0.1) 0%, transparent 70%);
+	border-radius: 50%;
+	pointer-events: none;
+}
+
+.glass-page::after {
+	content: '';
+	position: absolute;
+	bottom: 10%;
+	right: 10%;
+	width: 400px;
+	height: 400px;
+	background: radial-gradient(circle, rgba(20, 184, 166, 0.08) 0%, transparent 70%);
+	border-radius: 50%;
+	pointer-events: none;
+}
+
+@media (max-width: 640px) {
+	.glass-page {
+		padding: var(--glass-space-md);
+	}
+}
+
+/* =============== Page Header =============== */
+.glass-page-header {
+	margin-bottom: var(--glass-space-xl);
+	position: relative;
+	z-index: 1;
+}
+
+.glass-page-title {
+	font-size: 2rem;
+	font-weight: 700;
+	color: var(--glass-text);
+	margin: 0 0 var(--glass-space-sm) 0;
+	letter-spacing: -0.025em;
+}
+
+.glass-page-subtitle {
+	font-size: 0.95rem;
+	color: var(--glass-text-secondary);
+	margin: 0;
+}
+
+/* 帶有圖示的標題 */
+.glass-page-header--with-icon {
+	display: flex;
+	align-items: center;
+	gap: var(--glass-space-md);
+}
+
+.glass-page-header__icon {
+	width: 56px;
+	height: 56px;
+	border-radius: var(--glass-radius-md);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	color: var(--glass-text-inverse);
+}
+
+.glass-page-header__icon svg {
+	width: 28px;
+	height: 28px;
+}
+
+.glass-page-header__icon--teal {
+	background: var(--glass-gradient-primary);
+}
+
+/* =============== Glass Panel (主內容區) =============== */
+.glass-panel {
+	background: var(--glass-bg-card);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius-xl);
+	overflow: hidden;
+	box-shadow: var(--glass-shadow-panel);
+	position: relative;
+	z-index: 1;
+}
+
+.glass-panel__header {
+	padding: var(--glass-space-lg) var(--glass-space-xl);
+	border-bottom: 1px solid var(--glass-border-subtle);
+	background: var(--glass-bg-header);
+}
+
+.glass-panel__header-content {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--glass-space-md);
+}
+
+.glass-panel__header h2 {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: var(--glass-text);
+	margin: 0;
+}
+
+.glass-panel__header-meta {
+	font-size: 0.85rem;
+	color: var(--glass-text-secondary);
+	margin-top: var(--glass-space-xs);
+}
+
+.glass-panel__content {
+	padding: 0;
+}
+
+.glass-panel__content--padded {
+	padding: var(--glass-space-lg) var(--glass-space-xl);
+}
+
+@media (max-width: 640px) {
+	.glass-panel__header {
+		padding: var(--glass-space-md);
+	}
+
+	.glass-panel__header-content {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+
+/* =============== Stats Cards (統計卡片) =============== */
+.glass-stats {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: var(--glass-space-lg);
+	margin-bottom: var(--glass-space-xl);
+	position: relative;
+	z-index: 1;
+}
+
+@media (max-width: 1200px) {
+	.glass-stats {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 640px) {
+	.glass-stats {
+		grid-template-columns: 1fr;
+		gap: var(--glass-space-md);
+	}
+}
+
+.glass-stat-card {
+	background: var(--glass-bg-card);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius-lg);
+	padding: var(--glass-space-lg);
+	transition: all var(--glass-transition-slow);
+	position: relative;
+	overflow: hidden;
+}
+
+.glass-stat-card::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 120px;
+	height: 120px;
+	background: radial-gradient(circle, var(--glass-primary) 0%, transparent 70%);
+	opacity: 0.03;
+	transform: translate(30%, -30%);
+	pointer-events: none;
+}
+
+.glass-stat-card:hover {
+	background: var(--glass-bg-card-hover);
+	transform: translateY(-2px);
+	box-shadow: var(--glass-shadow-hover);
+}
+
+.glass-stat-card--active {
+	border-color: var(--glass-border-active);
+	box-shadow: var(--glass-shadow-active);
+}
+
+/* 狀態卡片邊框色 */
+.glass-stat-card--profit {
+	border-left: 4px solid var(--glass-profit);
+}
+
+.glass-stat-card--loss {
+	border-left: 4px solid var(--glass-loss);
+}
+
+.glass-stat-card--info {
+	border-left: 4px solid var(--glass-info);
+}
+
+.glass-stat-card--teal {
+	border-left: 4px solid var(--glass-primary);
+}
+
+.glass-stat-card__header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: var(--glass-space-sm);
+}
+
+.glass-stat-card__label {
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--glass-text-secondary);
+}
+
+.glass-stat-card__icon {
+	width: 20px;
+	height: 20px;
+	color: var(--glass-text-muted);
+	opacity: 0.7;
+}
+
+.glass-stat-card__value {
+	font-size: 1.75rem;
+	font-weight: 700;
+	color: var(--glass-text);
+	margin-bottom: var(--glass-space-xs);
+	font-variant-numeric: tabular-nums;
+	line-height: 1.2;
+}
+
+.glass-stat-card__value--profit {
+	color: var(--glass-profit);
+}
+
+.glass-stat-card__value--loss {
+	color: var(--glass-loss);
+}
+
+.glass-stat-card__subtitle {
+	font-size: 0.75rem;
+	color: var(--glass-text-muted);
+}
+
+/* =============== Buttons =============== */
+.glass-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--glass-space-sm);
+	padding: 0.6rem 1.25rem;
+	font-size: 0.9rem;
+	font-weight: 500;
+	border: none;
+	border-radius: var(--glass-radius);
+	cursor: pointer;
+	transition: all var(--glass-transition);
+	white-space: nowrap;
+	text-decoration: none;
+}
+
+.glass-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+.glass-btn svg {
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
+}
+
+/* 主要按鈕 - Teal 漸層 */
+.glass-btn--primary {
+	background: var(--glass-gradient-primary);
+	color: var(--glass-text-inverse);
+}
+
+.glass-btn--primary:hover:not(:disabled) {
+	transform: translateY(-1px);
+	box-shadow: var(--glass-shadow-btn);
+}
+
+/* 次要按鈕 - 透明邊框 */
+.glass-btn--outline {
+	background: transparent;
+	border: 1px solid var(--glass-border-hover);
+	color: var(--glass-text);
+}
+
+.glass-btn--outline:hover:not(:disabled) {
+	background: rgba(15, 118, 110, 0.05);
+	border-color: var(--glass-primary);
+	color: var(--glass-primary);
+}
+
+/* 危險按鈕 */
+.glass-btn--danger {
+	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+	color: var(--glass-text-inverse);
+}
+
+.glass-btn--danger:hover:not(:disabled) {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* 幽靈按鈕 */
+.glass-btn--ghost {
+	background: transparent;
+	color: var(--glass-text-secondary);
+	padding: var(--glass-space-sm);
+}
+
+.glass-btn--ghost:hover:not(:disabled) {
+	background: rgba(15, 118, 110, 0.08);
+	color: var(--glass-primary);
+}
+
+/* 圖示按鈕 */
+.glass-btn--icon {
+	padding: var(--glass-space-sm);
+	border-radius: var(--glass-radius-sm);
+}
+
+/* 載入中狀態 */
+.glass-btn--loading {
+	position: relative;
+	color: transparent !important;
+}
+
+.glass-btn--loading::after {
+	content: '';
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-top-color: white;
+	border-radius: 50%;
+	animation: glass-spin 0.6s linear infinite;
+}
+
+@keyframes glass-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* 按鈕群組 */
+.glass-btn-group {
+	display: flex;
+	gap: var(--glass-space-sm);
+	flex-wrap: wrap;
+}
+
+/* =============== Table =============== */
+.glass-table-wrapper {
+	overflow-x: auto;
+}
+
+.glass-table {
+	width: 100%;
+	border-collapse: collapse;
+	min-width: 800px;
+}
+
+.glass-table th {
+	text-align: left;
+	padding: var(--glass-space-md) var(--glass-space-lg);
+	font-size: 0.8rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--glass-text-secondary);
+	background: rgba(15, 118, 110, 0.03);
+	border-bottom: 1px solid var(--glass-border-subtle);
+	white-space: nowrap;
+}
+
+.glass-table th:last-child,
+.glass-table td:last-child {
+	text-align: right;
+}
+
+.glass-table td {
+	padding: var(--glass-space-md) var(--glass-space-lg);
+	font-size: 0.95rem;
+	color: var(--glass-text);
+	border-bottom: 1px solid rgba(15, 118, 110, 0.05);
+	vertical-align: middle;
+}
+
+.glass-table tbody tr {
+	transition: background-color var(--glass-transition-fast);
+}
+
+.glass-table tbody tr:hover {
+	background: rgba(15, 118, 110, 0.02);
+}
+
+.glass-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+/* 表格欄位樣式 */
+.glass-cell-date {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--glass-space-xs);
+	padding: var(--glass-space-xs) var(--glass-space-sm);
+	background: rgba(15, 118, 110, 0.05);
+	border-radius: var(--glass-radius-sm);
+	font-size: 0.8125rem;
+	font-weight: 500;
+	color: var(--glass-text-secondary);
+}
+
+.glass-cell-truncate {
+	max-width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.glass-cell-amount {
+	font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+	font-weight: 500;
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
+.glass-cell-amount--expense {
+	color: var(--glass-loss);
+}
+
+.glass-cell-amount--income {
+	color: var(--glass-profit);
+}
+
+.glass-cell-amount--fee {
+	color: var(--glass-fee);
+}
+
+.glass-cell-amount--muted {
+	color: var(--glass-text-muted);
+}
+
+.glass-cell-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: var(--glass-space-xs) var(--glass-space-sm);
+	border-radius: var(--glass-radius-sm);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+.glass-cell-badge--profit {
+	background: var(--glass-profit-bg);
+	color: var(--glass-profit);
+	border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.glass-cell-badge--loss {
+	background: var(--glass-loss-bg);
+	color: var(--glass-loss);
+	border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* 代號標籤 */
+.glass-code-badge {
+	font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+	font-size: 0.85rem;
+	font-weight: 500;
+	color: var(--glass-primary);
+	background: rgba(15, 118, 110, 0.08);
+	padding: var(--glass-space-xs) 0.6rem;
+	border-radius: var(--glass-radius-sm);
+}
+
+/* 狀態標籤 */
+.glass-status-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.35rem 0.75rem;
+	border-radius: 20px;
+	font-size: 0.8rem;
+	font-weight: 500;
+}
+
+.glass-status-chip--active {
+	background: var(--glass-profit-bg);
+	color: #059669;
+}
+
+.glass-status-chip--inactive {
+	background: rgba(107, 114, 128, 0.1);
+	color: #6B7280;
+}
+
+.glass-status-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+/* =============== Pagination =============== */
+.glass-pagination {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: var(--glass-space-md) var(--glass-space-lg);
+	border-top: 1px solid var(--glass-border-subtle);
+	background: rgba(15, 118, 110, 0.02);
+	flex-wrap: wrap;
+	gap: var(--glass-space-md);
+}
+
+.glass-pagination__info {
+	font-size: 0.875rem;
+	color: var(--glass-text-secondary);
+}
+
+.glass-pagination__controls {
+	display: flex;
+	align-items: center;
+	gap: var(--glass-space-xs);
+	flex-wrap: wrap;
+}
+
+.glass-pagination__btn {
+	padding: var(--glass-space-xs) var(--glass-space-sm);
+	font-size: 0.875rem;
+	border: 1px solid var(--glass-border-hover);
+	border-radius: var(--glass-radius-sm);
+	background: var(--glass-bg-card);
+	color: var(--glass-text);
+	cursor: pointer;
+	transition: all var(--glass-transition-fast);
+	min-width: 32px;
+	text-align: center;
+}
+
+.glass-pagination__btn:hover:not(:disabled) {
+	background: rgba(15, 118, 110, 0.05);
+	border-color: var(--glass-primary);
+}
+
+.glass-pagination__btn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.glass-pagination__btn--active {
+	background: var(--glass-primary);
+	color: var(--glass-text-inverse);
+	border-color: var(--glass-primary);
+}
+
+.glass-pagination__select {
+	padding: var(--glass-space-xs) var(--glass-space-sm);
+	border: 1px solid var(--glass-border-hover);
+	border-radius: var(--glass-radius-sm);
+	background: var(--glass-bg-card);
+	font-size: 0.875rem;
+	color: var(--glass-text);
+	cursor: pointer;
+}
+
+@media (max-width: 640px) {
+	.glass-pagination {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+
+/* =============== Empty State =============== */
+.glass-empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: var(--glass-space-2xl) var(--glass-space-lg);
+	text-align: center;
+}
+
+.glass-empty-state__icon {
+	width: 64px;
+	height: 64px;
+	margin: 0 auto var(--glass-space-md);
+	background: rgba(15, 118, 110, 0.08);
+	border-radius: var(--glass-radius-lg);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--glass-text-secondary);
+}
+
+.glass-empty-state__icon svg {
+	width: 32px;
+	height: 32px;
+}
+
+.glass-empty-state h3 {
+	font-size: 1.1rem;
+	font-weight: 500;
+	color: var(--glass-text);
+	margin: 0 0 var(--glass-space-sm) 0;
+}
+
+.glass-empty-state p {
+	font-size: 0.9rem;
+	color: var(--glass-text-secondary);
+	margin: 0 0 var(--glass-space-lg) 0;
+}
+
+/* =============== Year Select =============== */
+.glass-year-select {
+	position: relative;
+	width: 100%;
+}
+
+.glass-year-select__input {
+	width: 100%;
+	padding: var(--glass-space-sm) var(--glass-space-md);
+	padding-right: 2.5rem;
+	font-size: 1rem;
+	font-weight: 500;
+	color: var(--glass-text);
+	background: rgba(15, 118, 110, 0.05);
+	border: 1px solid var(--glass-border-hover);
+	border-radius: var(--glass-radius);
+	appearance: none;
+	cursor: pointer;
+	transition: all var(--glass-transition-fast);
+}
+
+.glass-year-select__input:hover {
+	border-color: var(--glass-primary);
+}
+
+.glass-year-select__input:focus {
+	outline: none;
+	border-color: var(--glass-primary);
+	box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+}
+
+.glass-year-select__arrow {
+	position: absolute;
+	right: var(--glass-space-md);
+	top: 50%;
+	transform: translateY(-50%);
+	width: 16px;
+	height: 16px;
+	pointer-events: none;
+	color: var(--glass-text-secondary);
+}
+
+/* =============== Action Button =============== */
+.glass-action-btn {
+	width: 36px;
+	height: 36px;
+	border: none;
+	background: transparent;
+	border-radius: var(--glass-radius-sm);
+	cursor: pointer;
+	color: var(--glass-text-secondary);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: all var(--glass-transition);
+}
+
+.glass-action-btn:hover {
+	background: rgba(15, 118, 110, 0.08);
+	color: var(--glass-primary);
+}
+
+.glass-action-btn svg {
+	width: 18px;
+	height: 18px;
+}
+
+/* =============== Modal =============== */
+.glass-modal-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(19, 78, 74, 0.4);
+	backdrop-filter: blur(4px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 9999;
+	padding: var(--glass-space-lg);
+	opacity: 0;
+	visibility: hidden;
+	transition: all var(--glass-transition);
+}
+
+.glass-modal-overlay--active {
+	opacity: 1;
+	visibility: visible;
+}
+
+.glass-modal {
+	background: var(--glass-bg-card-active);
+	backdrop-filter: blur(16px);
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius-xl);
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+	width: 100%;
+	max-width: 640px;
+	max-height: 90vh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	transform: scale(0.95) translateY(10px);
+	transition: transform var(--glass-transition);
+}
+
+.glass-modal-overlay--active .glass-modal {
+	transform: scale(1) translateY(0);
+}
+
+.glass-modal--small {
+	max-width: 400px;
+}
+
+.glass-modal--large {
+	max-width: 720px;
+}
+
+.glass-modal__header {
+	display: flex;
+	align-items: center;
+	gap: var(--glass-space-md);
+	padding: var(--glass-space-lg);
+	border-bottom: 1px solid var(--glass-border-subtle);
+	background: var(--glass-bg-header);
+}
+
+.glass-modal__header-icon {
+	width: 40px;
+	height: 40px;
+	border-radius: var(--glass-radius);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.glass-modal__header-icon--teal {
+	background: var(--glass-gradient-primary);
+	color: var(--glass-text-inverse);
+}
+
+.glass-modal__header-icon--danger {
+	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+	color: var(--glass-text-inverse);
+}
+
+.glass-modal__header-icon svg {
+	width: 20px;
+	height: 20px;
+}
+
+.glass-modal__title {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: var(--glass-text);
+	margin: 0;
+	flex: 1;
+}
+
+.glass-modal__close {
+	padding: var(--glass-space-sm);
+	background: transparent;
+	border: none;
+	border-radius: var(--glass-radius-sm);
+	cursor: pointer;
+	color: var(--glass-text-muted);
+	transition: all var(--glass-transition-fast);
+	margin-left: auto;
+}
+
+.glass-modal__close:hover {
+	background: rgba(15, 118, 110, 0.08);
+	color: var(--glass-text);
+}
+
+.glass-modal__close svg {
+	width: 20px;
+	height: 20px;
+}
+
+.glass-modal__body {
+	padding: var(--glass-space-lg);
+	overflow-y: auto;
+	flex: 1;
+}
+
+.glass-modal__footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--glass-space-sm);
+	padding: var(--glass-space-md) var(--glass-space-lg);
+	border-top: 1px solid var(--glass-border-subtle);
+	background: rgba(15, 118, 110, 0.02);
+}
+
+/* =============== Form =============== */
+.glass-form-section {
+	margin-bottom: var(--glass-space-lg);
+}
+
+.glass-form-section:last-child {
+	margin-bottom: 0;
+}
+
+.glass-form-section__title {
+	display: flex;
+	align-items: center;
+	gap: var(--glass-space-sm);
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--glass-text-secondary);
+	margin-bottom: var(--glass-space-md);
+	padding-bottom: var(--glass-space-sm);
+	border-bottom: 1px solid var(--glass-border-subtle);
+}
+
+.glass-form-section__title svg {
+	width: 16px;
+	height: 16px;
+	opacity: 0.7;
+}
+
+.glass-form-row {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: var(--glass-space-md);
+}
+
+@media (max-width: 480px) {
+	.glass-form-row {
+		grid-template-columns: 1fr;
+	}
+}
+
+.glass-form-row--thirds {
+	grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 640px) {
+	.glass-form-row--thirds {
+		grid-template-columns: 1fr;
+	}
+}
+
+.glass-form-group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--glass-space-xs);
+}
+
+.glass-form-group--full {
+	grid-column: 1 / -1;
+}
+
+.glass-form-label {
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: var(--glass-text-secondary);
+}
+
+.glass-form-label--required::after {
+	content: ' *';
+	color: var(--glass-loss);
+}
+
+.glass-form-input {
+	padding: var(--glass-space-sm) var(--glass-space-md);
+	font-size: 0.9375rem;
+	color: var(--glass-text);
+	background: var(--glass-bg-card-active);
+	border: 1px solid var(--glass-border-hover);
+	border-radius: var(--glass-radius);
+	transition: all var(--glass-transition-fast);
+}
+
+.glass-form-input:hover {
+	border-color: var(--glass-primary);
+}
+
+.glass-form-input:focus {
+	outline: none;
+	border-color: var(--glass-primary);
+	box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+}
+
+.glass-form-input::placeholder {
+	color: var(--glass-text-muted);
+}
+
+.glass-form-input--error {
+	border-color: var(--glass-loss);
+}
+
+.glass-form-input--error:focus {
+	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.glass-form-textarea {
+	min-height: 80px;
+	resize: vertical;
+	font-family: inherit;
+}
+
+.glass-form-select {
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235F7A76' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right var(--glass-space-md) center;
+	padding-right: 2.5rem;
+	cursor: pointer;
+}
+
+.glass-form-error {
+	font-size: 0.75rem;
+	color: var(--glass-loss);
+}
+
+/* =============== Alert =============== */
+.glass-alert {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--glass-space-sm);
+	padding: var(--glass-space-md);
+	border-radius: var(--glass-radius);
+	font-size: 0.875rem;
+	line-height: 1.5;
+}
+
+.glass-alert--warning {
+	background: var(--glass-fee-bg);
+	border: 1px solid rgba(245, 158, 11, 0.3);
+	color: #92400e;
+}
+
+.glass-alert--danger {
+	background: var(--glass-loss-bg);
+	border: 1px solid rgba(239, 68, 68, 0.3);
+	color: #991b1b;
+}
+
+.glass-alert--info {
+	background: var(--glass-info-bg);
+	border: 1px solid rgba(59, 130, 246, 0.3);
+	color: #1e40af;
+}
+
+.glass-alert--success {
+	background: var(--glass-profit-bg);
+	border: 1px solid rgba(34, 197, 94, 0.3);
+	color: #166534;
+}
+
+.glass-alert__icon {
+	width: 20px;
+	height: 20px;
+	flex-shrink: 0;
+	margin-top: 1px;
+}
+
+/* =============== Tooltip =============== */
+[data-glass-tooltip] {
+	position: relative;
+	cursor: help;
+}
+
+[data-glass-tooltip]::after {
+	content: attr(data-glass-tooltip);
+	position: absolute;
+	bottom: calc(100% + 8px);
+	left: 50%;
+	transform: translateX(-50%) scale(0.95);
+	padding: var(--glass-space-sm) var(--glass-space-md);
+	background: var(--glass-text);
+	color: var(--glass-text-inverse);
+	font-size: 0.75rem;
+	font-weight: 400;
+	border-radius: var(--glass-radius-sm);
+	opacity: 0;
+	visibility: hidden;
+	transition: all var(--glass-transition-fast);
+	z-index: 1000;
+	max-width: 300px;
+	white-space: normal;
+	text-align: left;
+	box-shadow: var(--glass-shadow-hover);
+	pointer-events: none;
+}
+
+[data-glass-tooltip]::before {
+	content: '';
+	position: absolute;
+	bottom: calc(100% + 4px);
+	left: 50%;
+	transform: translateX(-50%);
+	border: 4px solid transparent;
+	border-top-color: var(--glass-text);
+	opacity: 0;
+	visibility: hidden;
+	transition: all var(--glass-transition-fast);
+	z-index: 1000;
+}
+
+[data-glass-tooltip]:hover::after,
+[data-glass-tooltip]:hover::before {
+	opacity: 1;
+	visibility: visible;
+	transform: translateX(-50%) scale(1);
+}
+
+[data-glass-tooltip]:hover::before {
+	transform: translateX(-50%);
+}
+
+/* =============== Utility Classes =============== */
+.glass-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}
+
+.glass-text-right {
+	text-align: right;
+}
+
+.glass-text-center {
+	text-align: center;
+}
+
+.glass-font-mono {
+	font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+}
+
+/* =============== Panel Header Left Section =============== */
+.glass-panel__header-left {
+	display: flex;
+	align-items: center;
+	gap: var(--glass-space-lg);
+}
+
+.glass-panel__header-info h2 {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: var(--glass-text);
+	margin: 0;
+}
+
+.glass-panel__year-select {
+	flex-shrink: 0;
+}
+
+/* =============== Compact Select =============== */
+.glass-select {
+	appearance: none;
+	background: var(--glass-bg-input);
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius-md);
+	padding: var(--glass-space-sm) var(--glass-space-xl) var(--glass-space-sm) var(--glass-space-md);
+	font-size: 0.95rem;
+	color: var(--glass-text);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 8px center;
+	background-size: 20px;
+}
+
+.glass-select:hover {
+	border-color: var(--glass-primary);
+}
+
+.glass-select:focus {
+	outline: none;
+	border-color: var(--glass-primary);
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.glass-select--compact {
+	padding: var(--glass-space-xs) var(--glass-space-xl) var(--glass-space-xs) var(--glass-space-md);
+	font-size: 1rem;
+	font-weight: 600;
+	min-width: 120px;
+}
+
+/* =============== Table Actions =============== */
+.glass-table__actions-header {
+	width: 100px;
+	text-align: center;
+}
+
+.glass-table__actions {
+	display: flex;
+	justify-content: center;
+	gap: var(--glass-space-xs);
+}
+
+.glass-action-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border: none;
+	border-radius: var(--glass-radius-md);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	background: transparent;
+}
+
+.glass-action-btn svg {
+	width: 18px;
+	height: 18px;
+}
+
+.glass-action-btn--edit {
+	color: var(--glass-primary);
+}
+
+.glass-action-btn--edit:hover {
+	background: rgba(59, 130, 246, 0.1);
+	color: var(--glass-primary);
+}
+
+.glass-action-btn--delete {
+	color: var(--glass-danger);
+}
+
+.glass-action-btn--delete:hover {
+	background: rgba(239, 68, 68, 0.1);
+	color: var(--glass-danger);
+}
+
+/* =============== Delete Preview =============== */
+.glass-delete-preview {
+	background: var(--glass-bg-input);
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius-md);
+	padding: var(--glass-space-md);
+	margin-bottom: var(--glass-space-md);
+}
+
+.glass-delete-preview__item {
+	display: flex;
+	justify-content: space-between;
+	padding: var(--glass-space-xs) 0;
+	border-bottom: 1px solid var(--glass-border-subtle);
+}
+
+.glass-delete-preview__item:last-child {
+	border-bottom: none;
+}
+
+.glass-delete-preview__label {
+	color: var(--glass-text-secondary);
+	font-size: 0.85rem;
+}
+
+.glass-delete-preview__value {
+	color: var(--glass-text);
+	font-weight: 500;
+	font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+	.glass-panel__header-left {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--glass-space-sm);
+	}
+
+	.glass-table__actions-header {
+		width: 80px;
+	}
+
+	.glass-action-btn {
+		width: 28px;
+		height: 28px;
+	}
+
+	.glass-action-btn svg {
+		width: 16px;
+		height: 16px;
+	}
+}
+
+/* =============== Modal Header Icon - Primary =============== */
+.glass-modal__header-icon--primary {
+	background: var(--glass-gradient-primary);
+	color: var(--glass-text-inverse);
+}

@@ -2,6 +2,467 @@
 
 <PageTitle>年度預算</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-4">年度預算</MudText>
+<div class="glass-page">
+	@* 頁面標題 *@
+	<header class="glass-page-header">
+		<h1 class="glass-page-title">年度預算</h1>
+		<p class="glass-page-subtitle">管理各部門年度預算</p>
+	</header>
 
-<MudAlert Severity="Severity.Info">此頁面尚在開發中</MudAlert>
+	<div class="budget-container">
+		@* 左側：部門預算清單 *@
+		<aside class="budget-sidebar">
+			<div class="glass-panel">
+				<div class="glass-panel__header">
+					<h2>部門預算清單</h2>
+				</div>
+				<div class="glass-panel__content--padded">
+					<div class="glass-year-select">
+						<select class="glass-year-select__input" @onchange="OnYearSelectChanged">
+							@foreach (var year in AvailableYears)
+							{
+								<option value="@year" selected="@(year == SelectedYear)">@year 年</option>
+							}
+						</select>
+						<svg class="glass-year-select__arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M7 10l5 5 5-5H7z"/>
+						</svg>
+					</div>
+				</div>
+
+				<div class="budget-list">
+					@foreach (var budget in Budgets)
+					{
+						<div class="budget-list__item @(SelectedBudget?.Id == budget.Id ? "budget-list__item--active" : "")">
+							<div class="budget-list__item-content" @onclick="@(() => SelectBudgetAsync(budget))">
+								<div class="budget-list__item-info">
+									<span class="budget-list__item-name">@GetDepartmentName(budget.DepartmentCode)</span>
+									<span class="budget-list__item-code">@budget.DepartmentCode</span>
+								</div>
+								<span class="budget-list__item-amount">@budget.TotalAmount.ToString("N0")</span>
+							</div>
+							<button class="budget-list__item-delete"
+									title="刪除此部門預算"
+									@onclick="@(() => DeleteBudgetAsync(budget))"
+									@onclick:stopPropagation="true">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+									<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+								</svg>
+							</button>
+						</div>
+					}
+
+					@if (!Budgets.Any())
+					{
+						<div class="glass-empty-state" style="padding: 2rem;">
+							<div class="glass-empty-state__icon">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<rect x="2" y="5" width="20" height="14" rx="2"/>
+									<path d="M2 10h20"/>
+								</svg>
+							</div>
+							<h3>@SelectedYear 年尚無預算資料</h3>
+							<p>請從下方新增部門預算</p>
+						</div>
+					}
+				</div>
+
+				@* 年度總預算 *@
+				@if (Budgets.Any())
+				{
+					<div class="budget-total">
+						<span class="budget-total__label">年度總預算</span>
+						<span class="budget-total__value">@YearlyTotalBudget.ToString("N0") 元</span>
+					</div>
+				}
+
+				@* 新增部門預算 *@
+				<div class="budget-add">
+					<label class="glass-form-label">新增部門預算</label>
+					<select class="glass-form-input glass-form-select"
+							@onchange="OnAddDepartmentSelect"
+							disabled="@(!AvailableDepartments.Any())">
+						<option value="">選擇部門...</option>
+						@foreach (var dept in AvailableDepartments)
+						{
+							<option value="@dept.Code">@dept.Name (@dept.Code)</option>
+						}
+					</select>
+					@if (!AvailableDepartments.Any() && Departments.Any())
+					{
+						<p class="budget-add__hint">所有部門都已設定預算</p>
+					}
+				</div>
+			</div>
+		</aside>
+
+		@* 右側：預算明細 *@
+		<main class="budget-main">
+			@if (SelectedBudget is not null)
+			{
+				<div class="glass-panel">
+					<div class="glass-panel__header">
+						<div class="glass-panel__header-content">
+							<div>
+								<h2>@GetDepartmentName(SelectedBudget.DepartmentCode)</h2>
+								<p class="glass-panel__header-meta">@SelectedYear 年度預算明細</p>
+							</div>
+							<button class="glass-btn glass-btn--danger" @onclick="ClearBudgetItemsAsync">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+									<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+								</svg>
+								清除預算
+							</button>
+						</div>
+					</div>
+
+					<div class="glass-panel__content--padded">
+						<div class="budget-items">
+							@foreach (var (item, index) in EditingItems.Select((item, i) => (item, i)))
+							{
+								<div class="budget-item-card">
+									<div class="budget-item-card__row">
+										<span class="budget-item-card__number">@(index + 1)</span>
+										<div class="glass-form-group budget-item-card__name">
+											<label class="glass-form-label">項目名稱</label>
+											<input type="text"
+												   class="glass-form-input"
+												   @bind="item.ItemName"
+												   placeholder="輸入項目名稱" />
+										</div>
+										<div class="glass-form-group budget-item-card__amount">
+											<label class="glass-form-label">金額</label>
+											<MudNumericField T="decimal"
+															 @bind-Value="item.Amount"
+															 Format="N0"
+															 Variant="Variant.Outlined"
+															 Adornment="Adornment.Start"
+															 AdornmentText="$"
+															 HideSpinButtons="true"
+															 Margin="Margin.Dense" />
+										</div>
+										<div class="glass-form-group budget-item-card__desc">
+											<label class="glass-form-label">說明（選填）</label>
+											<input type="text"
+												   class="glass-form-input"
+												   @bind="item.Description"
+												   placeholder="輸入說明" />
+										</div>
+										<button class="glass-action-btn budget-item-card__delete"
+												title="刪除此項目"
+												@onclick="@(() => RemoveItem(index))">
+											<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+												<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+											</svg>
+										</button>
+									</div>
+								</div>
+							}
+
+							@if (!EditingItems.Any())
+							{
+								<div class="glass-alert glass-alert--info">
+									<svg class="glass-alert__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+										<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+									</svg>
+									<span>尚未新增任何預算項目，請點擊下方「新增項目」按鈕</span>
+								</div>
+							}
+
+							<button class="glass-btn glass-btn--outline" style="width: 100%;" @onclick="AddItem">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+									<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+								</svg>
+								新增項目
+							</button>
+						</div>
+					</div>
+
+					<div class="budget-footer">
+						<span class="budget-footer__total">
+							總計：<strong>@EditingItems.Sum(x => x.Amount).ToString("N0")</strong> 元
+						</span>
+						<button class="glass-btn glass-btn--primary"
+								@onclick="SaveBudgetAsync"
+								disabled="@(!HasChanges)">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+								<path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+							</svg>
+							儲存
+						</button>
+					</div>
+				</div>
+			}
+			else
+			{
+				<div class="glass-panel">
+					<div class="glass-empty-state" style="padding: 4rem;">
+						<div class="glass-empty-state__icon">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+								<path d="M14 2v6h6"/>
+								<path d="M12 18v-6"/>
+								<path d="M9 15h6"/>
+							</svg>
+						</div>
+						<h3>請從左側選擇部門</h3>
+						<p>或新增部門預算開始編輯</p>
+					</div>
+				</div>
+			}
+		</main>
+	</div>
+</div>
+
+<style>
+	.budget-container {
+		display: grid;
+		grid-template-columns: 320px 1fr;
+		gap: var(--glass-space-xl);
+		position: relative;
+		z-index: 1;
+	}
+
+	@@media (max-width: 900px) {
+		.budget-container {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.budget-sidebar {
+		position: sticky;
+		top: 2rem;
+		height: fit-content;
+		max-height: calc(100vh - 4rem);
+		overflow-y: auto;
+	}
+
+	.budget-list {
+		border-top: 1px solid var(--glass-border-subtle);
+	}
+
+	.budget-list__item {
+		display: flex;
+		align-items: center;
+		border-bottom: 1px solid var(--glass-border-subtle);
+		transition: all var(--glass-transition);
+	}
+
+	.budget-list__item:hover {
+		background: rgba(15, 118, 110, 0.03);
+	}
+
+	.budget-list__item--active {
+		background: rgba(15, 118, 110, 0.08);
+		border-left: 3px solid var(--glass-primary);
+	}
+
+	.budget-list__item-content {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		flex: 1;
+		padding: var(--glass-space-md) var(--glass-space-md) var(--glass-space-md) var(--glass-space-lg);
+		cursor: pointer;
+	}
+
+	.budget-list__item-delete {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+		margin-right: var(--glass-space-sm);
+		background: transparent;
+		border: none;
+		border-radius: var(--glass-radius-sm);
+		color: var(--glass-text-secondary);
+		cursor: pointer;
+		opacity: 0;
+		transition: all var(--glass-transition);
+	}
+
+	.budget-list__item:hover .budget-list__item-delete {
+		opacity: 1;
+	}
+
+	.budget-list__item-delete:hover {
+		background: rgba(220, 38, 38, 0.1);
+		color: var(--glass-danger);
+	}
+
+	.budget-list__item-info {
+		display: flex;
+		flex-direction: column;
+		gap: var(--glass-space-xs);
+	}
+
+	.budget-list__item-name {
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: var(--glass-text);
+	}
+
+	.budget-list__item-code {
+		font-size: 0.75rem;
+		color: var(--glass-text-secondary);
+	}
+
+	.budget-list__item-amount {
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: var(--glass-text);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.budget-total {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--glass-space-md) var(--glass-space-lg);
+		background: rgba(15, 118, 110, 0.05);
+		border-top: 1px solid var(--glass-border-subtle);
+	}
+
+	.budget-total__label {
+		font-size: 0.85rem;
+		color: var(--glass-text-secondary);
+	}
+
+	.budget-total__value {
+		font-size: 1.1rem;
+		font-weight: 700;
+		color: var(--glass-primary);
+	}
+
+	.budget-add {
+		padding: var(--glass-space-lg);
+		border-top: 1px solid var(--glass-border-subtle);
+	}
+
+	.budget-add__hint {
+		font-size: 0.75rem;
+		color: var(--glass-text-secondary);
+		margin-top: var(--glass-space-sm);
+	}
+
+	.budget-items {
+		display: flex;
+		flex-direction: column;
+		gap: var(--glass-space-md);
+	}
+
+	.budget-item-card {
+		background: rgba(255, 255, 255, 0.6);
+		border: 1px solid var(--glass-border-subtle);
+		border-radius: var(--glass-radius-md);
+		padding: var(--glass-space-md) var(--glass-space-lg);
+	}
+
+	.budget-item-card__row {
+		display: flex;
+		gap: var(--glass-space-md);
+		align-items: flex-end;
+	}
+
+	.budget-item-card__number {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 28px;
+		height: 28px;
+		background: var(--glass-primary);
+		color: white;
+		border-radius: 50%;
+		font-size: 0.85rem;
+		font-weight: 600;
+		flex-shrink: 0;
+		margin-bottom: 4px;
+	}
+
+	.budget-item-card__name {
+		flex: 2;
+		min-width: 150px;
+	}
+
+	.budget-item-card__amount {
+		flex: 1;
+		min-width: 120px;
+	}
+
+	.budget-item-card__desc {
+		flex: 2;
+		min-width: 150px;
+	}
+
+	.budget-item-card__delete {
+		flex-shrink: 0;
+		margin-bottom: 4px;
+	}
+
+	@@media (max-width: 900px) {
+		.budget-item-card__row {
+			flex-wrap: wrap;
+		}
+
+		.budget-item-card__name,
+		.budget-item-card__amount,
+		.budget-item-card__desc {
+			flex: 1 1 calc(50% - var(--glass-space-md));
+			min-width: 120px;
+		}
+	}
+
+	@@media (max-width: 640px) {
+		.budget-item-card__row {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.budget-item-card__number {
+			align-self: flex-start;
+			margin-bottom: var(--glass-space-sm);
+		}
+
+		.budget-item-card__name,
+		.budget-item-card__amount,
+		.budget-item-card__desc {
+			flex: 1 1 100%;
+		}
+
+		.budget-item-card__delete {
+			align-self: flex-end;
+		}
+	}
+
+	.budget-footer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--glass-space-md) var(--glass-space-lg);
+		border-top: 1px solid var(--glass-border-subtle);
+		background: rgba(15, 118, 110, 0.02);
+	}
+
+	.budget-footer__total {
+		font-size: 1rem;
+		color: var(--glass-text);
+	}
+
+	.budget-footer__total strong {
+		color: var(--glass-primary);
+	}
+
+	/* MudBlazor 元件樣式覆蓋 */
+	::deep .mud-input-outlined .mud-input-outlined-border {
+		border-color: var(--glass-border-hover);
+	}
+
+	::deep .mud-input-outlined:hover .mud-input-outlined-border {
+		border-color: var(--glass-primary);
+	}
+
+	::deep .mud-input-outlined.mud-input-focused .mud-input-outlined-border {
+		border-color: var(--glass-primary);
+	}
+</style>

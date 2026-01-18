@@ -1,7 +1,7 @@
-using FinanceCenter.Components.Dialogs;
 using FinanceCenter.Data.Entities;
 using FinanceCenter.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 
 namespace FinanceCenter.Components.Pages;
@@ -9,33 +9,39 @@ namespace FinanceCenter.Components.Pages;
 /// <summary>
 /// 設定頁面
 /// </summary>
-public partial class Settings
+public partial class Settings : IDisposable
 {
 	[Inject]
 	private ISettingsService SettingsService { get; set; } = null!;
 
 	[Inject]
-	private IDialogService DialogService { get; set; } = null!;
-
-	[Inject]
 	private ISnackbar Snackbar { get; set; } = null!;
 
-	private List<Department> Departments { get; set; } = new();
-	private List<BankInitialBalance> BankBalances { get; set; } = new();
-	private int SelectedTab { get; set; } = 0;
-	private IEnumerable<int> AvailableYears => Enumerable.Range(DateTime.Now.Year - 5, 11);
+	private List<Department> Departments { get; set; } = [];
+	private List<BankInitialBalance> BankBalances { get; set; } = [];
+	private int SelectedTab { get; set; }
+	private List<int> AvailableYears { get; } = Enumerable.Range(2015, DateTime.Now.Year - 2015 + 6).ToList();
 	private CancellationTokenSource? _saveCts;
+
+	// 對話窗狀態
+	private bool IsDialogVisible { get; set; }
+	private bool IsEditMode { get; set; }
+	private Department DialogDepartment { get; set; } = new();
 
 	private void SelectTab(int tab)
 	{
 		SelectedTab = tab;
 	}
 
-	private string GetNavCardClass(int tab)
+	/// <summary>
+	/// 處理導航卡片的鍵盤事件
+	/// </summary>
+	private void HandleNavKeyDown(KeyboardEventArgs e, int tab)
 	{
-		return SelectedTab == tab
-			? "mud-border-primary"
-			: "";
+		if (e.Key is "Enter" or " ")
+		{
+			SelectTab(tab);
+		}
 	}
 
 	protected override async Task OnInitializedAsync()
@@ -53,21 +59,20 @@ public partial class Settings
 	{
 		var balances = await SettingsService.GetAllBankInitialBalancesAsync();
 
-		// 確保兩個銀行都有資料
-		BankBalances = new List<BankInitialBalance>
+		BankBalances =
+		[
+			GetOrCreateBankBalance(balances, "ShanghaiBank"),
+			GetOrCreateBankBalance(balances, "TaiwanCooperativeBank")
+		];
+	}
+
+	private static BankInitialBalance GetOrCreateBankBalance(List<BankInitialBalance> balances, string bankType)
+	{
+		return balances.FirstOrDefault(b => b.BankType == bankType) ?? new BankInitialBalance
 		{
-			balances.FirstOrDefault(b => b.BankType == "ShanghaiBank") ?? new BankInitialBalance
-			{
-				BankType = "ShanghaiBank",
-				InitialBalance = 0,
-				EffectiveYear = DateTime.Now.Year
-			},
-			balances.FirstOrDefault(b => b.BankType == "TaiwanCooperativeBank") ?? new BankInitialBalance
-			{
-				BankType = "TaiwanCooperativeBank",
-				InitialBalance = 0,
-				EffectiveYear = DateTime.Now.Year
-			}
+			BankType = bankType,
+			InitialBalance = 0,
+			EffectiveYear = DateTime.Now.Year
 		};
 	}
 
@@ -78,18 +83,46 @@ public partial class Settings
 		_ => bankType
 	};
 
-	private async Task OpenAddDepartmentDialogAsync()
+	private void OpenAddDepartmentDialog()
 	{
-		var parameters = new DialogParameters<DepartmentDialog>
+		DialogDepartment = new Department { IsActive = true };
+		IsEditMode = false;
+		IsDialogVisible = true;
+	}
+
+	private void OpenEditDepartmentDialog(Department department)
+	{
+		DialogDepartment = new Department
 		{
-			{ x => x.IsEdit, false },
-			{ x => x.Department, new Department() }
+			Id = department.Id,
+			Code = department.Code,
+			Name = department.Name,
+			IsActive = department.IsActive,
+			SortOrder = department.SortOrder
 		};
+		IsEditMode = true;
+		IsDialogVisible = true;
+	}
 
-		var dialog = await DialogService.ShowAsync<DepartmentDialog>("新增部門", parameters);
-		var result = await dialog.Result;
+	private void CloseDialog()
+	{
+		IsDialogVisible = false;
+	}
 
-		if (result is { Canceled: false, Data: Department department })
+	private async Task HandleDepartmentSubmit(Department department)
+	{
+		if (IsEditMode)
+		{
+			if (await SettingsService.IsDepartmentCodeExistsAsync(department.Code, department.Id))
+			{
+				Snackbar.Add("部門代號已存在", Severity.Error);
+				return;
+			}
+
+			await SettingsService.UpdateDepartmentAsync(department);
+			Snackbar.Add("更新成功", Severity.Success);
+		}
+		else
 		{
 			if (await SettingsService.IsDepartmentCodeExistsAsync(department.Code))
 			{
@@ -99,42 +132,10 @@ public partial class Settings
 
 			await SettingsService.AddDepartmentAsync(department);
 			Snackbar.Add("新增成功", Severity.Success);
-			await LoadDataAsync();
 		}
-	}
 
-	private async Task OpenEditDepartmentDialogAsync(Department department)
-	{
-		var editDepartment = new Department
-		{
-			Id = department.Id,
-			Code = department.Code,
-			Name = department.Name,
-			IsActive = department.IsActive,
-			SortOrder = department.SortOrder
-		};
-
-		var parameters = new DialogParameters<DepartmentDialog>
-		{
-			{ x => x.IsEdit, true },
-			{ x => x.Department, editDepartment }
-		};
-
-		var dialog = await DialogService.ShowAsync<DepartmentDialog>("編輯部門", parameters);
-		var result = await dialog.Result;
-
-		if (result is { Canceled: false, Data: Department updated })
-		{
-			if (await SettingsService.IsDepartmentCodeExistsAsync(updated.Code, updated.Id))
-			{
-				Snackbar.Add("部門代號已存在", Severity.Error);
-				return;
-			}
-
-			await SettingsService.UpdateDepartmentAsync(updated);
-			Snackbar.Add("更新成功", Severity.Success);
-			await LoadDataAsync();
-		}
+		CloseDialog();
+		await LoadDataAsync();
 	}
 
 	private async Task SaveBankBalancesAsync()
@@ -150,16 +151,30 @@ public partial class Settings
 	private void ScheduleSave()
 	{
 		_saveCts?.Cancel();
+		_saveCts?.Dispose();
 		_saveCts = new CancellationTokenSource();
 		var token = _saveCts.Token;
 
-		_ = Task.Run(async () =>
+		_ = DelayedSaveAsync(token);
+	}
+
+	private async Task DelayedSaveAsync(CancellationToken token)
+	{
+		try
 		{
 			await Task.Delay(400, token);
-			if (!token.IsCancellationRequested)
-			{
-				await InvokeAsync(SaveBankBalancesAsync);
-			}
-		}, token);
+			await InvokeAsync(SaveBankBalancesAsync);
+		}
+		catch (TaskCanceledException)
+		{
+			// Debounce 觸發新的儲存 - 預期行為
+		}
+	}
+
+	public void Dispose()
+	{
+		_saveCts?.Cancel();
+		_saveCts?.Dispose();
+		GC.SuppressFinalize(this);
 	}
 }

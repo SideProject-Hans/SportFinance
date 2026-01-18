@@ -1,0 +1,450 @@
+/* ===========================================
+   Settings Page - Bento Grid + Glassmorphism
+   Created: 2026-01-14
+   =========================================== */
+
+/* 頁面背景漸層 */
+.settings-page {
+	min-height: 100vh;
+	background: linear-gradient(135deg, #F0FDFA 0%, #E0F2F1 50%, #F0FDFA 100%);
+	padding: 2rem;
+	position: relative;
+}
+
+.settings-page::before {
+	content: '';
+	position: absolute;
+	top: 10%;
+	left: 5%;
+	width: 300px;
+	height: 300px;
+	background: radial-gradient(circle, rgba(15, 118, 110, 0.1) 0%, transparent 70%);
+	border-radius: 50%;
+	pointer-events: none;
+}
+
+.settings-page::after {
+	content: '';
+	position: absolute;
+	bottom: 10%;
+	right: 10%;
+	width: 400px;
+	height: 400px;
+	background: radial-gradient(circle, rgba(20, 184, 166, 0.08) 0%, transparent 70%);
+	border-radius: 50%;
+	pointer-events: none;
+}
+
+/* 頁面標題區 */
+.settings-header {
+	margin-bottom: 2rem;
+}
+
+.settings-title {
+	font-size: 2rem;
+	font-weight: 700;
+	color: #134E4A;
+	margin: 0 0 0.5rem 0;
+	letter-spacing: -0.025em;
+}
+
+.settings-subtitle {
+	font-size: 0.95rem;
+	color: #5F7A76;
+	margin: 0;
+}
+
+/* 主要佈局容器 */
+.settings-container {
+	display: grid;
+	grid-template-columns: 280px 1fr;
+	gap: 2rem;
+	position: relative;
+	z-index: 1;
+}
+
+@media (max-width: 900px) {
+	.settings-container {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Bento Grid 導航區 */
+.bento-nav {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+/* Bento 導航卡片 - 玻璃效果 */
+.bento-card {
+	background: rgba(255, 255, 255, 0.7);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1px solid rgba(255, 255, 255, 0.8);
+	border-radius: 16px;
+	padding: 1.25rem;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow:
+		0 4px 6px -1px rgba(0, 0, 0, 0.05),
+		0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.bento-card:hover {
+	background: rgba(255, 255, 255, 0.85);
+	transform: translateY(-2px);
+	box-shadow:
+		0 10px 15px -3px rgba(0, 0, 0, 0.08),
+		0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+.bento-card.active {
+	background: rgba(255, 255, 255, 0.9);
+	border-color: #0F766E;
+	box-shadow:
+		0 10px 15px -3px rgba(15, 118, 110, 0.15),
+		0 4px 6px -4px rgba(15, 118, 110, 0.1),
+		inset 0 0 0 1px rgba(15, 118, 110, 0.1);
+}
+
+.bento-card-content {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.bento-icon {
+	width: 48px;
+	height: 48px;
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);
+	color: #0F766E;
+	transition: all 0.3s ease;
+}
+
+.bento-card.active .bento-icon {
+	background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+	color: white;
+}
+
+.bento-icon svg {
+	width: 24px;
+	height: 24px;
+}
+
+.bento-text h3 {
+	font-size: 1rem;
+	font-weight: 600;
+	color: #134E4A;
+	margin: 0 0 0.25rem 0;
+}
+
+.bento-text p {
+	font-size: 0.8rem;
+	color: #5F7A76;
+	margin: 0;
+}
+
+/* 內容區 - 玻璃卡片 */
+.glass-panel {
+	background: rgba(255, 255, 255, 0.75);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	border: 1px solid rgba(255, 255, 255, 0.9);
+	border-radius: 20px;
+	overflow: hidden;
+	box-shadow:
+		0 25px 50px -12px rgba(0, 0, 0, 0.08),
+		0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.glass-header {
+	padding: 1.5rem 2rem;
+	border-bottom: 1px solid rgba(15, 118, 110, 0.1);
+	background: rgba(255, 255, 255, 0.5);
+}
+
+.glass-header-content {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.glass-header h2 {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #134E4A;
+	margin: 0;
+}
+
+.glass-header-meta {
+	font-size: 0.85rem;
+	color: #5F7A76;
+	margin-top: 0.25rem;
+}
+
+.glass-content {
+	padding: 0;
+}
+
+/* 主要按鈕樣式 */
+.btn-primary-teal {
+	background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+	color: white;
+	border: none;
+	padding: 0.6rem 1.25rem;
+	border-radius: 10px;
+	font-size: 0.9rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.btn-primary-teal:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+}
+
+.btn-primary-teal svg {
+	width: 18px;
+	height: 18px;
+}
+
+/* 表格樣式覆蓋 */
+.settings-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.settings-table th {
+	text-align: left;
+	padding: 1rem 1.5rem;
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: #5F7A76;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	background: rgba(15, 118, 110, 0.03);
+	border-bottom: 1px solid rgba(15, 118, 110, 0.1);
+}
+
+.settings-table td {
+	padding: 1rem 1.5rem;
+	font-size: 0.95rem;
+	color: #134E4A;
+	border-bottom: 1px solid rgba(15, 118, 110, 0.05);
+}
+
+.settings-table tr:last-child td {
+	border-bottom: none;
+}
+
+.settings-table tr:hover td {
+	background: rgba(15, 118, 110, 0.02);
+}
+
+/* 代號欄位 */
+.code-badge {
+	font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+	font-size: 0.85rem;
+	font-weight: 500;
+	color: #0F766E;
+	background: rgba(15, 118, 110, 0.08);
+	padding: 0.25rem 0.6rem;
+	border-radius: 6px;
+}
+
+/* 狀態標籤 */
+.status-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.35rem 0.75rem;
+	border-radius: 20px;
+	font-size: 0.8rem;
+	font-weight: 500;
+}
+
+.status-chip.active {
+	background: rgba(16, 185, 129, 0.1);
+	color: #059669;
+}
+
+.status-chip.inactive {
+	background: rgba(107, 114, 128, 0.1);
+	color: #6B7280;
+}
+
+.status-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+/* 操作按鈕 */
+.action-btn {
+	width: 36px;
+	height: 36px;
+	border: none;
+	background: transparent;
+	border-radius: 8px;
+	cursor: pointer;
+	color: #5F7A76;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+	background: rgba(15, 118, 110, 0.08);
+	color: #0F766E;
+}
+
+.action-btn svg {
+	width: 18px;
+	height: 18px;
+}
+
+/* 銀行設定卡片 */
+.bank-card {
+	background: rgba(255, 255, 255, 0.6);
+	border: 1px solid rgba(15, 118, 110, 0.1);
+	border-radius: 16px;
+	padding: 1.5rem;
+	margin: 1.5rem;
+	transition: all 0.2s ease;
+}
+
+.bank-card:hover {
+	background: rgba(255, 255, 255, 0.8);
+	box-shadow: 0 4px 12px rgba(15, 118, 110, 0.08);
+}
+
+.bank-card-header {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	margin-bottom: 1.25rem;
+}
+
+.bank-avatar {
+	width: 48px;
+	height: 48px;
+	border-radius: 12px;
+	background: linear-gradient(135deg, #0369A1 0%, #0EA5E9 100%);
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.bank-avatar svg {
+	width: 24px;
+	height: 24px;
+}
+
+.bank-info h4 {
+	font-size: 1rem;
+	font-weight: 600;
+	color: #134E4A;
+	margin: 0 0 0.25rem 0;
+}
+
+.bank-info p {
+	font-size: 0.8rem;
+	color: #5F7A76;
+	margin: 0;
+}
+
+.bank-card-fields {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1rem;
+}
+
+@media (max-width: 600px) {
+	.bank-card-fields {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* 空狀態 */
+.empty-state {
+	text-align: center;
+	padding: 4rem 2rem;
+}
+
+.empty-icon {
+	width: 64px;
+	height: 64px;
+	margin: 0 auto 1rem;
+	background: rgba(15, 118, 110, 0.08);
+	border-radius: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #5F7A76;
+}
+
+.empty-icon svg {
+	width: 32px;
+	height: 32px;
+}
+
+.empty-state h3 {
+	font-size: 1.1rem;
+	font-weight: 500;
+	color: #134E4A;
+	margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+	font-size: 0.9rem;
+	color: #5F7A76;
+	margin: 0 0 1.5rem 0;
+}
+
+/* MudBlazor 元件覆蓋 */
+::deep .mud-table {
+	background: transparent !important;
+	box-shadow: none !important;
+}
+
+::deep .mud-table-container {
+	overflow: visible;
+}
+
+::deep .mud-input-outlined .mud-input-outlined-border {
+	border-color: rgba(15, 118, 110, 0.2);
+}
+
+::deep .mud-input-outlined:hover .mud-input-outlined-border {
+	border-color: rgba(15, 118, 110, 0.4);
+}
+
+::deep .mud-input-outlined.mud-input-focused .mud-input-outlined-border {
+	border-color: #0F766E;
+}
+
+::deep .mud-select .mud-input-outlined-border {
+	border-radius: 10px;
+}
+
+::deep .mud-input-label {
+	color: #5F7A76;
+}
+
+/* 操作欄位寬度 */
+.settings-table th.action-column,
+.settings-table td.action-column {
+	width: 80px;
+}

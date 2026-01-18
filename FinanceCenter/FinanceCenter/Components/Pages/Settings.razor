@@ -1,187 +1,216 @@
 @page "/settings"
+@using FinanceCenter.Components.Dialogs
 
 <PageTitle>設定</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-2">設定</MudText>
-<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6">管理系統設定、部門資料與銀行初始金額</MudText>
+<div class="settings-page">
+    @* 頁面標題 *@
+    <header class="settings-header">
+        <h1 class="settings-title">設定</h1>
+        <p class="settings-subtitle">管理系統設定、部門資料與銀行初始金額</p>
+    </header>
 
-<MudGrid Spacing="4">
-    @* 左側導航卡片 *@
-    <MudItem xs="12" md="3">
-        <MudStack Spacing="2">
+    <div class="settings-container">
+        @* 左側 Bento 導航 *@
+        <nav class="bento-nav" role="tablist" aria-label="設定導航">
             @* 部門管理卡片 *@
-            <MudCard Elevation="@(SelectedTab == 0 ? 4 : 1)"
-                     Class="@GetNavCardClass(0)"
-                     Style="cursor: pointer; transition: all 0.2s ease-out;"
-                     @onclick="@(() => SelectTab(0))">
-                <MudCardContent Class="pa-4">
-                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
-                        <MudAvatar Color="@(SelectedTab == 0 ? Color.Primary : Color.Default)"
-                                   Variant="Variant.Filled" Size="Size.Medium">
-                            <MudIcon Icon="@Icons.Material.Filled.Business" />
-                        </MudAvatar>
-                        <MudStack Spacing="0">
-                            <MudText Typo="Typo.subtitle1" Style="font-weight: 600;">部門管理</MudText>
-                            <MudText Typo="Typo.caption" Color="Color.Secondary">新增、編輯部門資料</MudText>
-                        </MudStack>
-                    </MudStack>
-                </MudCardContent>
-            </MudCard>
+            <div class="bento-card @(SelectedTab == 0 ? "active" : "")"
+                 role="tab"
+                 tabindex="0"
+                 aria-selected="@(SelectedTab == 0)"
+                 @onclick="@(() => SelectTab(0))"
+                 @onkeydown="@(e => HandleNavKeyDown(e, 0))">
+                <div class="bento-card-content">
+                    <div class="bento-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 21h18"/>
+                            <path d="M9 8h1"/>
+                            <path d="M9 12h1"/>
+                            <path d="M9 16h1"/>
+                            <path d="M14 8h1"/>
+                            <path d="M14 12h1"/>
+                            <path d="M14 16h1"/>
+                            <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/>
+                        </svg>
+                    </div>
+                    <div class="bento-text">
+                        <h3>部門管理</h3>
+                        <p>新增、編輯部門資料</p>
+                    </div>
+                </div>
+            </div>
 
             @* 銀行設定卡片 *@
-            <MudCard Elevation="@(SelectedTab == 1 ? 4 : 1)"
-                     Class="@GetNavCardClass(1)"
-                     Style="cursor: pointer; transition: all 0.2s ease-out;"
-                     @onclick="@(() => SelectTab(1))">
-                <MudCardContent Class="pa-4">
-                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
-                        <MudAvatar Color="@(SelectedTab == 1 ? Color.Primary : Color.Default)"
-                                   Variant="Variant.Filled" Size="Size.Medium">
-                            <MudIcon Icon="@Icons.Material.Filled.AccountBalance" />
-                        </MudAvatar>
-                        <MudStack Spacing="0">
-                            <MudText Typo="Typo.subtitle1" Style="font-weight: 600;">銀行設定</MudText>
-                            <MudText Typo="Typo.caption" Color="Color.Secondary">設定各銀行初始金額</MudText>
-                        </MudStack>
-                    </MudStack>
-                </MudCardContent>
-            </MudCard>
-        </MudStack>
-    </MudItem>
+            <div class="bento-card @(SelectedTab == 1 ? "active" : "")"
+                 role="tab"
+                 tabindex="0"
+                 aria-selected="@(SelectedTab == 1)"
+                 @onclick="@(() => SelectTab(1))"
+                 @onkeydown="@(e => HandleNavKeyDown(e, 1))">
+                <div class="bento-card-content">
+                    <div class="bento-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <path d="M9 22V12h6v10"/>
+                        </svg>
+                    </div>
+                    <div class="bento-text">
+                        <h3>銀行設定</h3>
+                        <p>設定各銀行初始金額</p>
+                    </div>
+                </div>
+            </div>
+        </nav>
 
-    @* 右側內容區 *@
-    <MudItem xs="12" md="9">
-        @switch (SelectedTab)
-        {
-            case 0:
-                @* 部門管理 *@
-                <MudCard Elevation="2">
-                    <MudCardHeader>
-                        <CardHeaderContent>
-                            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                                <MudStack Spacing="0">
-                                    <MudText Typo="Typo.h6">部門管理</MudText>
-                                    <MudText Typo="Typo.caption" Color="Color.Secondary">共 @Departments.Count 個部門</MudText>
-                                </MudStack>
-                                <MudButton Variant="Variant.Filled"
-                                           Color="Color.Primary"
-                                           StartIcon="@Icons.Material.Filled.Add"
-                                           OnClick="OpenAddDepartmentDialogAsync"
-                                           Size="Size.Small">
+        @* 右側內容區 *@
+        <main role="tabpanel">
+            @switch (SelectedTab)
+            {
+                case 0:
+                    @* 部門管理面板 *@
+                    <div class="glass-panel">
+                        <div class="glass-header">
+                            <div class="glass-header-content">
+                                <div>
+                                    <h2>部門管理</h2>
+                                    <p class="glass-header-meta">共 @Departments.Count 個部門</p>
+                                </div>
+                                <button type="button" class="btn-primary-teal" @onclick="OpenAddDepartmentDialog">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <line x1="12" y1="5" x2="12" y2="19"/>
+                                        <line x1="5" y1="12" x2="19" y2="12"/>
+                                    </svg>
                                     新增部門
-                                </MudButton>
-                            </MudStack>
-                        </CardHeaderContent>
-                    </MudCardHeader>
-                    <MudDivider />
-                    <MudCardContent Class="pa-0">
-                        <MudTable Items="@Departments" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
-                            <HeaderContent>
-                                <MudTh><MudText Typo="Typo.subtitle2" Style="font-weight: 600;">代號</MudText></MudTh>
-                                <MudTh><MudText Typo="Typo.subtitle2" Style="font-weight: 600;">名稱</MudText></MudTh>
-                                <MudTh><MudText Typo="Typo.subtitle2" Style="font-weight: 600;">狀態</MudText></MudTh>
-                                <MudTh Style="width: 80px;"><MudText Typo="Typo.subtitle2" Style="font-weight: 600;">操作</MudText></MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd DataLabel="代號">
-                                    <MudText Typo="Typo.body2" Style="font-family: monospace; font-weight: 500;">@context.Code</MudText>
-                                </MudTd>
-                                <MudTd DataLabel="名稱">
-                                    <MudText Typo="Typo.body2">@context.Name</MudText>
-                                </MudTd>
-                                <MudTd DataLabel="狀態">
-                                    <MudChip T="string"
-                                             Size="Size.Small"
-                                             Color="@(context.IsActive ? Color.Success : Color.Default)"
-                                             Variant="Variant.Filled">
-                                        @(context.IsActive ? "啟用" : "停用")
-                                    </MudChip>
-                                </MudTd>
-                                <MudTd DataLabel="操作">
-                                    <MudTooltip Text="編輯部門">
-                                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                                       Size="Size.Small"
-                                                       Color="Color.Primary"
-                                                       OnClick="@(() => OpenEditDepartmentDialogAsync(context))" />
-                                    </MudTooltip>
-                                </MudTd>
-                            </RowTemplate>
-                            <NoRecordsContent>
-                                <MudStack AlignItems="AlignItems.Center" Class="pa-8">
-                                    <MudIcon Icon="@Icons.Material.Filled.FolderOff" Size="Size.Large" Color="Color.Secondary" />
-                                    <MudText Typo="Typo.body1" Color="Color.Secondary">尚無部門資料</MudText>
-                                    <MudButton Variant="Variant.Text"
-                                               Color="Color.Primary"
-                                               StartIcon="@Icons.Material.Filled.Add"
-                                               OnClick="OpenAddDepartmentDialogAsync">
+                                </button>
+                            </div>
+                        </div>
+                        <div class="glass-content">
+                            @if (Departments.Count > 0)
+                            {
+                                <table class="settings-table">
+                                    <thead>
+                                        <tr>
+                                            <th>代號</th>
+                                            <th>名稱</th>
+                                            <th>狀態</th>
+                                            <th class="action-column">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var dept in Departments)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <span class="code-badge">@dept.Code</span>
+                                                </td>
+                                                <td>@dept.Name</td>
+                                                <td>
+                                                    <span class="status-chip @(dept.IsActive ? "active" : "inactive")">
+                                                        <span class="status-dot"></span>
+                                                        @(dept.IsActive ? "啟用" : "停用")
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button type="button"
+                                                            class="action-btn"
+                                                            title="編輯部門"
+                                                            aria-label="編輯 @dept.Name 部門"
+                                                            @onclick="@(() => OpenEditDepartmentDialog(dept))">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                                                            <path d="m15 5 4 4"/>
+                                                        </svg>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <div class="empty-state">
+                                    <div class="empty-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>
+                                            <path d="M12 10v6"/>
+                                            <path d="m9 13 3-3 3 3"/>
+                                        </svg>
+                                    </div>
+                                    <h3>尚無部門資料</h3>
+                                    <p>建立您的第一個部門以開始管理</p>
+                                    <button type="button" class="btn-primary-teal" @onclick="OpenAddDepartmentDialog">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <line x1="12" y1="5" x2="12" y2="19"/>
+                                            <line x1="5" y1="12" x2="19" y2="12"/>
+                                        </svg>
                                         新增第一個部門
-                                    </MudButton>
-                                </MudStack>
-                            </NoRecordsContent>
-                        </MudTable>
-                    </MudCardContent>
-                </MudCard>
-                break;
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    break;
 
-            case 1:
-                @* 銀行初始金額 *@
-                <MudCard Elevation="2">
-                    <MudCardHeader>
-                        <CardHeaderContent>
-                            <MudStack Spacing="0">
-                                <MudText Typo="Typo.h6">銀行初始金額</MudText>
-                                <MudText Typo="Typo.caption" Color="Color.Secondary">設定各銀行帳戶的年度初始餘額</MudText>
-                            </MudStack>
-                        </CardHeaderContent>
-                    </MudCardHeader>
-                    <MudDivider />
-                    <MudCardContent>
-                        <MudStack Spacing="4">
+                case 1:
+                    @* 銀行初始金額面板 *@
+                    <div class="glass-panel">
+                        <div class="glass-header">
+                            <div>
+                                <h2>銀行初始金額</h2>
+                                <p class="glass-header-meta">設定各銀行帳戶的年度初始餘額</p>
+                            </div>
+                        </div>
+                        <div class="glass-content">
                             @foreach (var balance in BankBalances)
                             {
-                                <MudPaper Elevation="0" Class="pa-4" Style="border: 1px solid var(--mud-palette-lines-default); border-radius: 8px;">
-                                    <MudGrid Spacing="3">
-                                        <MudItem xs="12" sm="4">
-                                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                                                <MudAvatar Color="Color.Info" Variant="Variant.Filled" Size="Size.Medium">
-                                                    <MudIcon Icon="@Icons.Material.Filled.AccountBalance" />
-                                                </MudAvatar>
-                                                <MudStack Spacing="0">
-                                                    <MudText Typo="Typo.subtitle1" Style="font-weight: 600;">@GetBankDisplayName(balance.BankType)</MudText>
-                                                    <MudText Typo="Typo.caption" Color="Color.Secondary">@balance.BankType</MudText>
-                                                </MudStack>
-                                            </MudStack>
-                                        </MudItem>
-                                        <MudItem xs="12" sm="4">
-                                            <MudNumericField T="decimal"
-                                                             Value="balance.InitialBalance"
-                                                             ValueChanged="@(v => { balance.InitialBalance = v; ScheduleSave(); })"
-                                                             Label="初始金額"
-                                                             Format="N0"
-                                                             Variant="Variant.Outlined"
-                                                             Adornment="Adornment.Start"
-                                                             AdornmentText="$"
-                                                             HideSpinButtons="true" />
-                                        </MudItem>
-                                        <MudItem xs="12" sm="4">
-                                            <MudSelect T="int"
-                                                       Value="balance.EffectiveYear"
-                                                       ValueChanged="@(v => { balance.EffectiveYear = v; ScheduleSave(); })"
-                                                       Label="生效年份"
-                                                       Variant="Variant.Outlined">
-                                                @foreach (var year in AvailableYears)
-                                                {
-                                                    <MudSelectItem Value="year">@year</MudSelectItem>
-                                                }
-                                            </MudSelect>
-                                        </MudItem>
-                                    </MudGrid>
-                                </MudPaper>
+                                <div class="bank-card">
+                                    <div class="bank-card-header">
+                                        <div class="bank-avatar">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                                <path d="M9 22V12h6v10"/>
+                                            </svg>
+                                        </div>
+                                        <div class="bank-info">
+                                            <h4>@GetBankDisplayName(balance.BankType)</h4>
+                                            <p>@balance.BankType</p>
+                                        </div>
+                                    </div>
+                                    <div class="bank-card-fields">
+                                        <MudNumericField T="decimal"
+                                                         Value="balance.InitialBalance"
+                                                         ValueChanged="@(v => { balance.InitialBalance = v; ScheduleSave(); })"
+                                                         Label="初始金額"
+                                                         Format="N0"
+                                                         Variant="Variant.Outlined"
+                                                         Adornment="Adornment.Start"
+                                                         AdornmentText="$"
+                                                         HideSpinButtons="true" />
+                                        <MudSelect T="int"
+                                                   Value="balance.EffectiveYear"
+                                                   ValueChanged="@(v => { balance.EffectiveYear = v; ScheduleSave(); })"
+                                                   Label="生效年份"
+                                                   Variant="Variant.Outlined">
+                                            @foreach (var year in AvailableYears)
+                                            {
+                                                <MudSelectItem Value="year">@year</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    </div>
+                                </div>
                             }
-                        </MudStack>
-                    </MudCardContent>
-                </MudCard>
-                break;
-        }
-    </MudItem>
-</MudGrid>
+                        </div>
+                    </div>
+                    break;
+            }
+        </main>
+    </div>
+</div>
+
+@* 部門對話窗 *@
+<DepartmentDialog Department="DialogDepartment"
+                  IsEdit="IsEditMode"
+                  IsVisible="IsDialogVisible"
+                  OnCancel="CloseDialog"
+                  OnSubmit="HandleDepartmentSubmit" />

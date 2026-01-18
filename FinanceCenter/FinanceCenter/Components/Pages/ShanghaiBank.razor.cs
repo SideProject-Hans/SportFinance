@@ -1,8 +1,6 @@
-using FinanceCenter.Components.Dialogs;
 using FinanceCenter.Data.Entities;
 using FinanceCenter.Services;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 
 namespace FinanceCenter.Components.Pages;
 
@@ -18,46 +16,43 @@ public partial class ShanghaiBank
 	private ISettingsService SettingsService { get; set; } = null!;
 
 	[Inject]
-	private IDialogService DialogService { get; set; } = null!;
-
-	[Inject]
-	private ISnackbar Snackbar { get; set; } = null!;
-
-	[Inject]
 	private IWebHostEnvironment WebHostEnvironment { get; set; } = null!;
 
 	private List<ShanghaiBankAccount> Accounts { get; set; } = new();
 	private List<Department> Departments { get; set; } = new();
 
 	/// <summary>
-	/// 可選擇的年份清單
+	/// 每筆紀錄的累計餘額（Key: 紀錄 Id, Value: 累計餘額）
 	/// </summary>
-	private List<int> AvailableYears { get; set; } = new();
+	private Dictionary<int, decimal> AccountBalances { get; set; } = new();
 
 	/// <summary>
 	/// 目前選擇的年份
 	/// </summary>
 	private int SelectedYear { get; set; } = DateTime.Now.Year;
 
-	/// <summary>
-	/// 年初餘額（上一年度累計淨金額）
-	/// </summary>
-	private decimal OpeningBalance { get; set; }
+	// Loading 狀態
+	private bool IsInitializing { get; set; }
+	private bool IsDeleting { get; set; }
 
-	/// <summary>
-	/// 本年度淨金額總和
-	/// </summary>
-	private decimal CurrentYearNetAmount => Accounts.Sum(a => a.NetAmount);
+	// Dialog 狀態
+	private bool IsAddDialogOpen { get; set; }
+	private bool IsEditDialogOpen { get; set; }
+	private bool IsConfirmDialogOpen { get; set; }
+	private bool IsDeleteDialogOpen { get; set; }
 
-	/// <summary>
-	/// 目前餘額（年初餘額 + 本年度淨金額）
-	/// </summary>
-	private decimal CurrentBalance => OpeningBalance + CurrentYearNetAmount;
+	// 編輯/刪除中的紀錄
+	private ShanghaiBankAccount? EditingAccount { get; set; }
+	private ShanghaiBankAccount? DeletingAccount { get; set; }
+
+	// 分頁相關
+	private int _currentPage = 1;
+	private int _pageSize = 15;
+	private int TotalPages => Math.Max(1, (int)Math.Ceiling((double)Accounts.Count / _pageSize));
 
 	protected override async Task OnInitializedAsync()
 	{
 		Departments = await SettingsService.GetAllDepartmentsAsync();
-		await LoadAvailableYearsAsync();
 		await LoadDataAsync();
 	}
 
@@ -69,99 +64,188 @@ public partial class ShanghaiBank
 	}
 
 	/// <summary>
-	/// 載入可選擇的年份清單
-	/// </summary>
-	private async Task LoadAvailableYearsAsync()
-	{
-		AvailableYears = await ShanghaiBankService.GetAvailableYearsAsync();
-		
-		// 如果有資料，預設選擇最新年份
-		if (AvailableYears.Count > 0 && !AvailableYears.Contains(SelectedYear))
-		{
-			SelectedYear = AvailableYears.First();
-		}
-		
-		// 如果沒有資料，加入當前年份作為預設選項
-		if (AvailableYears.Count == 0)
-		{
-			AvailableYears.Add(DateTime.Now.Year);
-		}
-	}
-
-	/// <summary>
 	/// 年份變更事件處理
 	/// </summary>
-	private async Task OnYearChangedAsync(int year)
+	private async Task OnYearChangedAsync(ChangeEventArgs e)
 	{
-		SelectedYear = year;
-		await LoadDataAsync();
+		if (int.TryParse(e.Value?.ToString(), out var year))
+		{
+			SelectedYear = year;
+			_currentPage = 1;
+			await LoadDataAsync();
+		}
 	}
 
 	private async Task LoadDataAsync()
 	{
 		Accounts = await ShanghaiBankService.GetByYearAsync(SelectedYear);
-		OpeningBalance = await ShanghaiBankService.GetOpeningBalanceAsync(SelectedYear);
+		var openingBalance = await ShanghaiBankService.GetOpeningBalanceAsync(SelectedYear);
+		CalculateAccountBalances(openingBalance);
 	}
 
-	private async Task RefreshDataAsync()
+	/// <summary>
+	/// 計算每筆紀錄的累計餘額
+	/// </summary>
+	private void CalculateAccountBalances(decimal openingBalance)
 	{
-		await LoadAvailableYearsAsync();
+		AccountBalances.Clear();
+		var runningBalance = openingBalance;
+
+		foreach (var account in Accounts)
+		{
+			runningBalance += account.NetAmount;
+			AccountBalances[account.Id] = runningBalance;
+		}
+	}
+
+	/// <summary>
+	/// 取得指定紀錄的累計餘額
+	/// </summary>
+	private decimal GetBalance(int accountId)
+	{
+		return AccountBalances.TryGetValue(accountId, out var balance) ? balance : 0;
+	}
+
+	// 分頁方法
+	private IEnumerable<ShanghaiBankAccount> GetPagedAccounts()
+	{
+		return Accounts
+			.Skip((_currentPage - 1) * _pageSize)
+			.Take(_pageSize);
+	}
+
+	private void GoToPage(int page)
+	{
+		if (page >= 1 && page <= TotalPages)
+		{
+			_currentPage = page;
+		}
+	}
+
+	private void NextPage()
+	{
+		if (_currentPage < TotalPages)
+		{
+			_currentPage++;
+		}
+	}
+
+	private void PreviousPage()
+	{
+		if (_currentPage > 1)
+		{
+			_currentPage--;
+		}
+	}
+
+	private void OnPageSizeChanged(ChangeEventArgs e)
+	{
+		if (int.TryParse(e.Value?.ToString(), out var size))
+		{
+			_pageSize = size;
+			_currentPage = 1;
+		}
+	}
+
+	// 新增 Dialog 相關
+	private void OpenAddDialog()
+	{
+		IsAddDialogOpen = true;
+	}
+
+	private void CloseAddDialog()
+	{
+		IsAddDialogOpen = false;
+	}
+
+	private async Task OnAddDialogSubmitAsync(ShanghaiBankAccount account)
+	{
+		await ShanghaiBankService.AddAsync(account);
 		await LoadDataAsync();
+		IsAddDialogOpen = false;
 	}
 
-	private async Task OpenAddDialogAsync()
+	// 編輯 Dialog 相關
+	private void OpenEditDialog(ShanghaiBankAccount account)
 	{
-		var dialog = await DialogService.ShowAsync<AddShanghaiBankAccountDialog>("新增上海銀行帳戶明細");
-		var result = await dialog.Result;
-
-		if (result is { Canceled: false, Data: ShanghaiBankAccount account })
-		{
-			await ShanghaiBankService.AddAsync(account);
-			await LoadDataAsync();
-		}
+		EditingAccount = account;
+		IsEditDialogOpen = true;
 	}
 
-	private async Task OpenInitializeDialogAsync()
+	private void CloseEditDialog()
 	{
-		var parameters = new DialogParameters<ConfirmDialog>
-		{
-			{ x => x.Title, "初始化資料確認" },
-			{ x => x.ContentText, "此操作會清空所有現有資料，並從 Excel 檔案重新匯入。" },
-			{ x => x.WarningText, "此操作無法復原，請確認已備份重要資料。" },
-			{ x => x.ButtonText, "確認初始化" },
-			{ x => x.Color, Color.Error }
-		};
-
-		var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small };
-		var dialog = await DialogService.ShowAsync<ConfirmDialog>(string.Empty, parameters, options);
-		var result = await dialog.Result;
-
-		if (result is { Canceled: false })
-		{
-			await InitializeDataAsync();
-		}
+		IsEditDialogOpen = false;
+		EditingAccount = null;
 	}
 
-	private async Task InitializeDataAsync()
+	private async Task OnEditDialogSubmitAsync(ShanghaiBankAccount account)
 	{
+		await ShanghaiBankService.UpdateAsync(account);
+		await LoadDataAsync();
+		IsEditDialogOpen = false;
+		EditingAccount = null;
+	}
+
+	// 刪除 Dialog 相關
+	private void OpenDeleteDialog(ShanghaiBankAccount account)
+	{
+		DeletingAccount = account;
+		IsDeleteDialogOpen = true;
+	}
+
+	private void CloseDeleteDialog()
+	{
+		IsDeleteDialogOpen = false;
+		DeletingAccount = null;
+	}
+
+	private async Task OnConfirmDeleteAsync()
+	{
+		if (DeletingAccount == null) return;
+
+		IsDeleting = true;
+		StateHasChanged();
+
 		try
 		{
-			// Excel 檔案路徑
-			var contentRoot = WebHostEnvironment.ContentRootPath;
-			var excelFilePath = Path.Combine(contentRoot, "Doc", "Temp", "上海-收支表.xlsx");
-
-			var importedCount = await ShanghaiBankService.ImportFromExcelAsync(excelFilePath);
-			
-			Snackbar.Add($"成功匯入 {importedCount} 筆資料", Severity.Success);
+			await ShanghaiBankService.DeleteAsync(DeletingAccount.Id);
 			await LoadDataAsync();
 		}
-		catch (FileNotFoundException ex)
+		finally
 		{
-			Snackbar.Add($"找不到 Excel 檔案: {ex.Message}", Severity.Error);
+			IsDeleting = false;
+			IsDeleteDialogOpen = false;
+			DeletingAccount = null;
 		}
-		catch (Exception ex)
+	}
+
+	// 初始化確認 Dialog 相關
+	private void OpenInitializeDialog()
+	{
+		IsConfirmDialogOpen = true;
+	}
+
+	private void CloseConfirmDialog()
+	{
+		IsConfirmDialogOpen = false;
+	}
+
+	private async Task OnConfirmInitializeAsync()
+	{
+		IsInitializing = true;
+		IsConfirmDialogOpen = false;
+		StateHasChanged();
+
+		try
 		{
-			Snackbar.Add($"匯入失敗: {ex.Message}", Severity.Error);
+			var contentRoot = WebHostEnvironment.ContentRootPath;
+			var excelFilePath = Path.Combine(contentRoot, "Doc", "Temp", "上海-收支表.xlsx");
+			await ShanghaiBankService.ImportFromExcelAsync(excelFilePath);
+			await LoadDataAsync();
+		}
+		finally
+		{
+			IsInitializing = false;
 		}
 	}
 }

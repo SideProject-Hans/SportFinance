@@ -1,36 +1,43 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dotnet build:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(dotnet test)",
-      "Bash(dotnet test:*)",
-      "WebSearch",
-      "Bash(claude mcp list:*)",
-      "Bash(claude mcp add --help:*)",
-      "Bash(claude mcp add --scope user --transport stdio filesystem -- cmd /c npx -y @anthropic-ai/server-filesystem .)",
-      "Bash(cmd /c npx -y @modelcontextprotocol/server-filesystem --help)",
+      "Bash(dotnet:*)",
+      "Bash(git:*)",
+      "Bash(gh:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(cd:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(rm:*)",
+      "Bash(touch:*)",
+      "Bash(chmod:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(find:*)",
+      "Bash(sed:*)",
+      "Bash(grep:*)",
+      "Bash(echo:*)",
+      "Bash(pwd:*)",
+      "Bash(which:*)",
       "Bash(npx:*)",
       "Bash(python:*)",
-      "Bash(findstr:*)",
-      "Bash(chcp:*)",
-      "Bash(set:*)",
       "Bash(python3:*)",
-      "Bash(git checkout:*)",
-      "Bash(git merge:*)",
-      "Bash(git branch:*)",
-      "Bash(git stash:*)",
       "mcp__filesystem__list_directory",
       "mcp__filesystem__read_multiple_files",
-      "Bash(git worktree:*)",
       "mcp__filesystem__directory_tree",
       "mcp__filesystem__edit_file",
-      "Bash(gh repo view:*)",
-      "Bash(find:*)",
-      "Bash(git -C /Users/hanshuang/Documents/Github/SportFinance log --oneline -1 -- FinanceCenter/FinanceCenter/appsettings.json)",
-      "Bash(/usr/bin/find:*)",
-      "Bash(git push)"
+      "mcp__filesystem__read_text_file",
+      "mcp__filesystem__write_file",
+      "WebSearch",
+      "Edit",
+      "Write",
+      "MultiEdit",
+      "Skill(ui-ux-pro-max)",
+      "WebFetch(domain:www.index.dev)",
+      "mcp__sequential-thinking__sequentialthinking",
+      "mcp__filesystem__list_allowed_directories"
     ]
   },
   "enableAllProjectMcpServers": true,
@@ -42,5 +49,31 @@
     "fetch",
     "git",
     "time"
-  ]
+  ],
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "branch=$(git branch --show-current 2>/dev/null); if [ \"$branch\" = \"main\" ] || [ \"$branch\" = \"master\" ]; then echo '{\"block\": true, \"message\": \"⛔ Cannot edit files on main branch. Run Phase 0 first:\\n\\n  git worktree add ../SportFinance-worktrees/<name> -b feature/xxx\\n  cd ../SportFinance-worktrees/<name>\"}' >&2; exit 2; fi",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '📋 Phase 4: □ simplifier □ reviewer □ build □ Linus □ test'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
 }

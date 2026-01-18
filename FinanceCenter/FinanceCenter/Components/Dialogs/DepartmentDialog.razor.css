@@ -1,0 +1,398 @@
+/* ===========================================
+   Department Dialog - Glassmorphism Style
+   Created: 2026-01-14
+   =========================================== */
+
+/* 對話窗覆蓋層 */
+.dialog-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(15, 23, 42, 0.4);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	opacity: 0;
+	visibility: hidden;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dialog-overlay.visible {
+	opacity: 1;
+	visibility: visible;
+}
+
+/* 對話窗容器 */
+.dialog-container {
+	width: 100%;
+	max-width: 480px;
+	margin: 1rem;
+	background: rgba(255, 255, 255, 0.9);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	border: 1px solid rgba(255, 255, 255, 0.95);
+	border-radius: 24px;
+	box-shadow:
+		0 25px 50px -12px rgba(0, 0, 0, 0.15),
+		0 0 0 1px rgba(255, 255, 255, 0.5),
+		inset 0 1px 0 rgba(255, 255, 255, 0.5);
+	transform: scale(0.95) translateY(10px);
+	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	overflow: hidden;
+}
+
+.dialog-overlay.visible .dialog-container {
+	transform: scale(1) translateY(0);
+}
+
+/* 對話窗標題 */
+.dialog-header {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 1.5rem 1.5rem 1.25rem;
+	border-bottom: 1px solid rgba(15, 118, 110, 0.1);
+	background: rgba(255, 255, 255, 0.5);
+}
+
+.dialog-header-icon {
+	width: 48px;
+	height: 48px;
+	border-radius: 14px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.dialog-header-icon.add {
+	background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+	color: white;
+}
+
+.dialog-header-icon.edit {
+	background: linear-gradient(135deg, #0369A1 0%, #0EA5E9 100%);
+	color: white;
+}
+
+.dialog-header-icon svg {
+	width: 24px;
+	height: 24px;
+}
+
+.dialog-header-text {
+	flex: 1;
+}
+
+.dialog-header-text h2 {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #134E4A;
+	margin: 0 0 0.25rem 0;
+}
+
+.dialog-header-text p {
+	font-size: 0.85rem;
+	color: #5F7A76;
+	margin: 0;
+}
+
+.dialog-close-btn {
+	width: 36px;
+	height: 36px;
+	border: none;
+	background: transparent;
+	border-radius: 10px;
+	cursor: pointer;
+	color: #5F7A76;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	flex-shrink: 0;
+}
+
+.dialog-close-btn:hover {
+	background: rgba(15, 118, 110, 0.08);
+	color: #134E4A;
+}
+
+.dialog-close-btn svg {
+	width: 20px;
+	height: 20px;
+}
+
+/* 對話窗內容 */
+.dialog-content {
+	padding: 1.5rem;
+}
+
+/* 表單群組 */
+.form-group {
+	margin-bottom: 1.25rem;
+}
+
+.form-group:last-of-type {
+	margin-bottom: 0;
+}
+
+.form-group label {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.9rem;
+	font-weight: 500;
+	color: #134E4A;
+	margin-bottom: 0.5rem;
+}
+
+.label-icon {
+	width: 18px;
+	height: 18px;
+	color: #5F7A76;
+}
+
+.label-icon svg {
+	width: 100%;
+	height: 100%;
+}
+
+.required-mark {
+	color: #DC2626;
+	font-weight: 600;
+}
+
+/* 輸入框 */
+.form-group input[type="text"] {
+	width: 100%;
+	padding: 0.75rem 1rem;
+	font-size: 0.95rem;
+	color: #134E4A;
+	background: rgba(255, 255, 255, 0.8);
+	border: 1.5px solid rgba(15, 118, 110, 0.2);
+	border-radius: 12px;
+	outline: none;
+	transition: all 0.2s ease;
+	box-sizing: border-box;
+}
+
+.form-group input[type="text"]::placeholder {
+	color: #94A3B8;
+}
+
+.form-group input[type="text"]:hover:not(:disabled) {
+	border-color: rgba(15, 118, 110, 0.4);
+}
+
+.form-group input[type="text"]:focus {
+	border-color: #0F766E;
+	background: white;
+	box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+}
+
+.form-group input[type="text"].disabled,
+.form-group input[type="text"]:disabled {
+	background: rgba(241, 245, 249, 0.8);
+	color: #64748B;
+	cursor: not-allowed;
+	border-color: rgba(148, 163, 184, 0.3);
+}
+
+/* 表單提示 */
+.form-hint {
+	font-size: 0.8rem;
+	color: #5F7A76;
+	margin: 0.5rem 0 0 0;
+}
+
+.hint-locked {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	color: #64748B;
+}
+
+.hint-locked svg {
+	width: 14px;
+	height: 14px;
+}
+
+/* 狀態切換群組 */
+.status-group {
+	margin-top: 1.5rem;
+}
+
+.status-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1rem 1.25rem;
+	background: rgba(255, 255, 255, 0.7);
+	border: 1.5px solid rgba(15, 118, 110, 0.15);
+	border-radius: 14px;
+	transition: all 0.2s ease;
+}
+
+.status-card:hover {
+	background: rgba(255, 255, 255, 0.9);
+	border-color: rgba(15, 118, 110, 0.25);
+}
+
+.status-info {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.status-label {
+	font-size: 0.95rem;
+	font-weight: 500;
+	color: #134E4A;
+}
+
+.status-desc {
+	font-size: 0.8rem;
+	color: #5F7A76;
+}
+
+/* Toggle 開關 */
+.toggle-switch {
+	position: relative;
+	width: 52px;
+	height: 28px;
+	cursor: pointer;
+}
+
+.toggle-switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.toggle-slider {
+	position: absolute;
+	inset: 0;
+	background: #CBD5E1;
+	border-radius: 28px;
+	transition: all 0.3s ease;
+}
+
+.toggle-slider::before {
+	content: '';
+	position: absolute;
+	width: 22px;
+	height: 22px;
+	left: 3px;
+	bottom: 3px;
+	background: white;
+	border-radius: 50%;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+	transition: all 0.3s ease;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+	background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+	transform: translateX(24px);
+}
+
+.toggle-switch input:focus + .toggle-slider {
+	box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+}
+
+/* 對話窗按鈕區 */
+.dialog-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.75rem;
+	margin-top: 1.75rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid rgba(15, 118, 110, 0.08);
+}
+
+.btn-secondary {
+	padding: 0.65rem 1.25rem;
+	font-size: 0.9rem;
+	font-weight: 500;
+	color: #5F7A76;
+	background: transparent;
+	border: 1.5px solid rgba(15, 118, 110, 0.2);
+	border-radius: 10px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+	background: rgba(15, 118, 110, 0.05);
+	border-color: rgba(15, 118, 110, 0.3);
+	color: #134E4A;
+}
+
+.btn-primary {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.65rem 1.25rem;
+	font-size: 0.9rem;
+	font-weight: 500;
+	color: white;
+	background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+}
+
+.btn-primary:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.btn-primary svg {
+	width: 18px;
+	height: 18px;
+}
+
+/* 響應式調整 */
+@media (max-width: 520px) {
+	.dialog-container {
+		margin: 0.75rem;
+		border-radius: 20px;
+	}
+
+	.dialog-header {
+		padding: 1.25rem;
+	}
+
+	.dialog-header-icon {
+		width: 42px;
+		height: 42px;
+	}
+
+	.dialog-header-text h2 {
+		font-size: 1.1rem;
+	}
+
+	.dialog-content {
+		padding: 1.25rem;
+	}
+
+	.dialog-actions {
+		flex-direction: column-reverse;
+	}
+
+	.btn-secondary,
+	.btn-primary {
+		width: 100%;
+		justify-content: center;
+	}
+}

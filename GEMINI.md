@@ -178,9 +178,9 @@ dotnet watch run          # Hot reload
 dotnet test
 dotnet test --filter "FullyQualifiedName~=TestName"
 
-# Entity Framework
+# Entity Framework (from solution root: FinanceCenter/)
+dotnet ef migrations add <Name>
 dotnet ef database update
-dotnet ef migrations add <MigrationName>
 ```
 
 ---
@@ -188,16 +188,42 @@ dotnet ef migrations add <MigrationName>
 ## Architecture
 
 ```
-UI Layer (Components/Pages/, Components/Layout/)
-    ↓
-Service Layer (Services/)
-    ↓
-Repository Layer (Repositories/)
-    ↓
-EF Core DbContext (Data/FinanceCenterDbContext.cs)
-    ↓
-MySQL Database
+┌─────────────────────────────────────────────────────────┐
+│  UI: Components/Pages/*.razor + *.razor.cs              │
+│      Components/Layout/, Components/Dialogs/            │
+└────────────────────────┬────────────────────────────────┘
+                         ↓ inject IXxxService
+┌─────────────────────────────────────────────────────────┐
+│  Service: Services/I*Service.cs + *Service.cs           │
+└────────────────────────┬────────────────────────────────┘
+                         ↓ inject IUnitOfWork
+┌─────────────────────────────────────────────────────────┐
+│  Repository: IUnitOfWork (transaction boundary)         │
+│              ├── IFinanceRepository                     │
+│              ├── IShanghaiBankRepository                │
+│              ├── ITaiwanCooperativeBankRepository       │
+│              ├── IDepartmentRepository                  │
+│              └── IBankInitialBalanceRepository          │
+└────────────────────────┬────────────────────────────────┘
+                         ↓ DbContext
+┌─────────────────────────────────────────────────────────┐
+│  Data: FinanceCenterDbContext + Entities/               │
+│        CashFlow, ShanghaiBankAccount,                   │
+│        TaiwanCooperativeBankAccount, Department,        │
+│        BankInitialBalance                               │
+└─────────────────────────────────────────────────────────┘
 ```
+
+### Data Flow
+```
+Page.razor.cs → Service.MethodAsync() → UnitOfWork.Repo.Query()
+                                      → UnitOfWork.SaveChangesAsync()
+```
+
+### Repository = 業務邊界（非 Table 邊界）
+
+> Repository 按業務領域劃分，非按 Table 劃分。
+> 一個 Repository 未來可管理多張表。
 
 **Key Directories:**
 - `Components/Pages/` — Blazor pages (code-behind: `.razor` + `.razor.cs`)
@@ -210,12 +236,25 @@ MySQL Database
 
 ## Coding Conventions
 
-- **Indentation**: Tabs
-- **Naming**: PascalCase (types, enums), camelCase (methods, properties, variables)
-- **Async**: All data operations suffixed with `Async`, return `Task` / `Task<T>`
-- **Comments**: Traditional Chinese, JSDoc style
-- **Namespace**: Must match directory structure
-- **Constructor**: Use Primary Constructors (C# 12)
+| Aspect | Convention |
+|--------|------------|
+| Indentation | Tabs |
+| Types, Methods, Properties | PascalCase |
+| Local variables, private fields | camelCase |
+| Async methods | Suffix `Async` |
+| Comments | Traditional Chinese |
+| Constructor | Primary Constructors (C# 12) |
+| Namespace | Must match directory structure |
+
+---
+
+## Code Quality Rules
+
+1. **函數 ≤ 20 行** — 超過就拆
+2. **縮排 ≤ 3 層** — 超過就用 early return 或抽函數
+3. **No magic numbers** — 數字要有名字
+4. **Error 在邊界處理** — Service 層捕捉，不要讓 Exception 穿透到 UI
+5. **Null 契約明確** — 回傳可能 null 就標 `?`，不可能就別標
 
 ---
 
@@ -223,26 +262,13 @@ MySQL Database
 
 ### Iron Rule #0: Worktree First
 
-```
-[New Task] → [git worktree list] → [Create worktree + branch] → [Develop] → [Merge] → [Cleanup]
-```
-
-**Worktree Directory Structure:**
-```
-SportFinance/                    # Main repository (main branch)
-../SportFinance-worktrees/       # Worktree storage directory
-├── feature-add-department/      # feature/add-department
-├── fix-date-format/             # fix/date-format-error
-└── refactor-settings/           # refactor/settings-layout
-```
-
-**Commands:**
 ```bash
-git worktree list                                                    # List all worktrees
+git worktree list                                                    # Check status
 git worktree add ../SportFinance-worktrees/<name> -b <branch>        # Create
-git worktree remove ../SportFinance-worktrees/<name>                 # Remove
-git worktree prune                                                   # Prune stale references
+cd ../SportFinance-worktrees/<name>                                  # Navigate
 ```
+
+**Violation Consequence: Developing directly on main will pollute the main branch and cause irreversible chaos.**
 
 ### Iron Rule #1: Never Commit to Main
 
@@ -250,10 +276,7 @@ All changes must be developed on feature branches, merged only after completion.
 
 **Branch Naming:**
 ```bash
-feature/add-department-page      # New feature
-fix/date-format-error            # Bug fix
-refactor/settings-layout         # Refactoring
-style/update-navbar-design       # UI/style changes
+feature/add-xxx    fix/xxx-error    refactor/xxx    style/xxx
 ```
 
 ### Iron Rule #2: Merge Main to Feature First
@@ -264,10 +287,6 @@ git merge main                   # Merge main into feature first
 # Resolve conflicts, ensure no main branch code is lost
 dotnet build                     # Build passes
 dotnet test                      # Test passes
-
-# Switch to main and merge
-git checkout main
-git merge --no-ff feature/xxx -m "[功能] 合併 feature/xxx"
 ```
 
 ### Iron Rule #3: Build-Test-Commit Pipeline
@@ -288,10 +307,40 @@ git add path/to/file1.cs path/to/file2.razor
 
 # ❌ WRONG: Never do this
 git add .
-git add -A
 ```
 
 **Excluded Files:** `.claude/`, `.mcp.json`, `**/bin/`, `**/obj/`, `appsettings.Development.json`
+
+### Iron Rule #5: Merge to Main (5 Steps)
+
+```
+Step 1: [feature] Merge main into feature
+        git fetch origin main
+        git merge main
+        # Resolve conflicts if any
+
+Step 2: [feature] Verify feature branch
+        dotnet build
+        dotnet test
+        # FAIL? → Fix and retry
+
+Step 3: [main] Merge feature with --no-ff
+        git checkout main
+        git pull origin main
+        git merge --no-ff feature/xxx -m "[功能] 合併 feature/xxx"
+
+Step 4: [main] Verify main branch ← CRITICAL
+        dotnet build
+        dotnet test
+        # FAIL? → git reset --hard HEAD~1, go back to feature and fix
+
+Step 5: [main] Push and cleanup
+        git push origin main
+        git worktree remove ../SportFinance-worktrees/<name>
+        git branch -d feature/xxx
+```
+
+> **Why `--no-ff`?** Preserves branch history, enables single-commit revert of entire feature.
 
 ### Commit Message Format
 
