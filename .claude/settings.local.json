@@ -51,18 +51,6 @@
     "time"
   ],
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Edit|MultiEdit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "branch=$(git branch --show-current 2>/dev/null); if [ \"$branch\" = \"main\" ] || [ \"$branch\" = \"master\" ]; then echo '{\"block\": true, \"message\": \"⛔ Cannot edit files on main branch. Run Phase 0 first:\\n\\n  git worktree add ../SportFinance-worktrees/<name> -b feature/xxx\\n  cd ../SportFinance-worktrees/<name>\"}' >&2; exit 2; fi",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
     "PostToolUse": [
       {
         "matcher": "Edit|MultiEdit|Write",

@@ -6,32 +6,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | Item | Value |
 |------|-------|
-| **Stack** | .NET 8, Blazor Server, MySQL, MudBlazor |
-| **Working Dir** | `FinanceCenter/FinanceCenter` |
-| **Build** | `dotnet build` |
-| **Run** | `dotnet run` |
-| **Test** | `dotnet test` |
+| **Stack** | .NET 9, Blazor Server, MySQL, MudBlazor 8.x |
+| **App Dir** | `FinanceCenter/FinanceCenter` |
+| **Solution Dir** | `FinanceCenter/` |
+| **Build** | `dotnet build` (from App Dir) |
+| **Run** | `dotnet run` (from App Dir) |
+| **Test** | `dotnet test` (from Solution Dir) |
 | **Test Single** | `dotnet test --filter "FullyQualifiedName~TestName"` |
-
----
-
-## Branch Protection (System-enforced)
-
-編輯操作在 `main`/`master` 分支會被 hook 自動阻擋。
-
-```bash
-git worktree add ../SportFinance-worktrees/<name> -b feature/xxx
-```
+| **Test Framework** | xUnit + Moq |
 
 ---
 
 ## Development Flow
 
 ```
-1. 環境    git worktree list → 在 main? → 建立 worktree
-2. 需求    列假設 → 標記不確定項 → 與使用者確認 → ⛔ 未確認不得實作
-3. 實作    code → build → test → commit
-4. 合併    fetch main → merge main → [main] merge --no-ff → push
+1. 需求    列假設 → 標記不確定項 → 與使用者確認 → ⛔ 未確認不得實作
+2. 實作    code → build → test → commit
 ```
 
 ### 需求確認
@@ -96,14 +86,8 @@ UI 任務使用 `/ui-ux-pro-max`。
 ## Git
 
 ```bash
-# 分支
-feature/add-xxx    fix/xxx-error    refactor/xxx
-
 # Commit (Conventional Commits)
 feat: / fix: / refactor: / docs: / style: / test: / chore:
-
-# Merge
---no-ff
 
 # 禁止
 git add .
@@ -125,5 +109,4 @@ git add .
 
 - `git add .`
 - `dotnet ef migrations`
-- 在 main 直接編輯
 - 未確認需求就實作
