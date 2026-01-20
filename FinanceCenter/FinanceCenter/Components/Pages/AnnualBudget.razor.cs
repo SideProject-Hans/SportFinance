@@ -38,14 +38,12 @@ public partial class AnnualBudget
 	private decimal YearlyTotalBudget => Budgets.Sum(b => b.TotalAmount);
 	private bool HasChanges => !ItemsEqual(EditingItems, OriginalItems);
 
-	private List<Department> AvailableDepartments =>
-		Departments.Where(d => d.IsActive && !Budgets.Any(b => b.DepartmentCode == d.Code)).ToList();
-
 	protected override async Task OnInitializedAsync()
 	{
 		AvailableYears = BudgetService.GetAvailableYears();
 		SelectedYear = DateTime.Now.Year;
-		Departments = await SettingsService.GetActiveDepartmentsAsync();
+		// 載入所有部門（含停用），以便顯示歷史記錄的部門名稱
+		Departments = await SettingsService.GetAllDepartmentsAsync();
 		await LoadBudgetsAsync();
 	}
 
@@ -57,18 +55,6 @@ public partial class AnnualBudget
 		if (int.TryParse(e.Value?.ToString(), out var year))
 		{
 			await OnYearChangedAsync(year);
-		}
-	}
-
-	/// <summary>
-	/// 處理新增部門預算選擇 (原生 HTML select)
-	/// </summary>
-	private async Task OnAddDepartmentSelect(ChangeEventArgs e)
-	{
-		var departmentCode = e.Value?.ToString();
-		if (!string.IsNullOrEmpty(departmentCode))
-		{
-			await OnAddDepartmentBudgetAsync(departmentCode);
 		}
 	}
 
@@ -84,6 +70,27 @@ public partial class AnnualBudget
 	private async Task LoadBudgetsAsync()
 	{
 		Budgets = await BudgetService.GetBudgetsByYearAsync(SelectedYear);
+
+		// 自動為尚未建立預算的啟用部門建立預算記錄
+		var departmentsWithoutBudget = Departments
+			.Where(d => d.IsActive && !Budgets.Any(b => b.DepartmentCode == d.Code))
+			.ToList();
+
+		foreach (var dept in departmentsWithoutBudget)
+		{
+			var budget = new DepartmentBudget
+			{
+				Year = SelectedYear,
+				DepartmentCode = dept.Code
+			};
+			await BudgetService.CreateBudgetAsync(budget);
+		}
+
+		// 如果有新增預算，重新載入清單
+		if (departmentsWithoutBudget.Any())
+		{
+			Budgets = await BudgetService.GetBudgetsByYearAsync(SelectedYear);
+		}
 	}
 
 	private string GetDepartmentName(string code)
@@ -119,36 +126,6 @@ public partial class AnnualBudget
 		Description = item.Description,
 		SortOrder = item.SortOrder
 	};
-
-	private async Task OnAddDepartmentBudgetAsync(string departmentCode)
-	{
-		if (string.IsNullOrEmpty(departmentCode)) return;
-
-		try
-		{
-			var budget = new DepartmentBudget
-			{
-				Year = SelectedYear,
-				DepartmentCode = departmentCode
-			};
-
-			await BudgetService.CreateBudgetAsync(budget);
-			await LoadBudgetsAsync();
-
-			// 選取新建立的預算
-			var newBudget = Budgets.FirstOrDefault(b => b.DepartmentCode == departmentCode);
-			if (newBudget is not null)
-			{
-				await SelectBudgetAsync(newBudget);
-			}
-
-			Snackbar.Add("已新增部門預算", Severity.Success);
-		}
-		catch (Exception ex)
-		{
-			Snackbar.Add($"新增失敗：{ex.Message}", Severity.Error);
-		}
-	}
 
 	private void AddItem()
 	{

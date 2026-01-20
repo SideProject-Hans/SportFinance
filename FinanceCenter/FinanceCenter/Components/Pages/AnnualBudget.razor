@@ -76,24 +76,7 @@
 					</div>
 				}
 
-				@* 新增部門預算 *@
-				<div class="budget-add">
-					<label class="glass-form-label">新增部門預算</label>
-					<select class="glass-form-input glass-form-select"
-							@onchange="OnAddDepartmentSelect"
-							disabled="@(!AvailableDepartments.Any())">
-						<option value="">選擇部門...</option>
-						@foreach (var dept in AvailableDepartments)
-						{
-							<option value="@dept.Code">@dept.Name (@dept.Code)</option>
-						}
-					</select>
-					@if (!AvailableDepartments.Any() && Departments.Any())
-					{
-						<p class="budget-add__hint">所有部門都已設定預算</p>
-					}
 				</div>
-			</div>
 		</aside>
 
 		@* 右側：預算明細 *@
@@ -333,17 +316,6 @@
 		font-size: 1.1rem;
 		font-weight: 700;
 		color: var(--glass-primary);
-	}
-
-	.budget-add {
-		padding: var(--glass-space-lg);
-		border-top: 1px solid var(--glass-border-subtle);
-	}
-
-	.budget-add__hint {
-		font-size: 0.75rem;
-		color: var(--glass-text-secondary);
-		margin-top: var(--glass-space-sm);
 	}
 
 	.budget-items {
