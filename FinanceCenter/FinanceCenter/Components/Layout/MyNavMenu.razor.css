@@ -1,6 +1,7 @@
 /* ===========================================
    MyNavMenu - Glassmorphism Navigation
    與 Settings 頁面風格一致
+   使用 ::deep 確保樣式能套用到 NavLink 產生的元素
    =========================================== */
 
 .nav-menu {
@@ -10,11 +11,11 @@
 }
 
 /* 導航群組 */
-.nav-group {
+::deep .nav-group {
 	margin-bottom: 0.5rem;
 }
 
-.nav-group-header {
+::deep .nav-group-header {
 	width: 100%;
 	display: flex;
 	align-items: center;
@@ -28,11 +29,11 @@
 	text-align: left;
 }
 
-.nav-group-header:hover {
+::deep .nav-group-header:hover {
 	background: rgba(15, 118, 110, 0.06);
 }
 
-.nav-group-icon {
+::deep .nav-group-icon {
 	width: 36px;
 	height: 36px;
 	border-radius: 10px;
@@ -45,47 +46,47 @@
 	transition: all 0.2s ease;
 }
 
-.nav-group-header:hover .nav-group-icon,
-.nav-group-header.expanded .nav-group-icon {
+::deep .nav-group-header:hover .nav-group-icon,
+::deep .nav-group-header.expanded .nav-group-icon {
 	background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
 	color: white;
 }
 
-.nav-group-icon svg {
+::deep .nav-group-icon svg {
 	width: 18px;
 	height: 18px;
 }
 
-.nav-group-text {
+::deep .nav-group-text {
 	flex: 1;
 	font-size: 0.9rem;
 	font-weight: 600;
 	color: #134E4A;
 }
 
-.nav-group-arrow {
+::deep .nav-group-arrow {
 	width: 20px;
 	height: 20px;
 	color: #5F7A76;
 	transition: transform 0.2s ease;
 }
 
-.nav-group-header.expanded .nav-group-arrow {
+::deep .nav-group-header.expanded .nav-group-arrow {
 	transform: rotate(180deg);
 }
 
-.nav-group-arrow svg {
+::deep .nav-group-arrow svg {
 	width: 20px;
 	height: 20px;
 }
 
 /* 群組內項目 */
-.nav-group-items {
+::deep .nav-group-items {
 	padding-left: 1rem;
 	margin-top: 0.25rem;
 }
 
-.nav-item {
+::deep .nav-item {
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
@@ -98,18 +99,18 @@
 	transition: all 0.2s ease;
 }
 
-.nav-item:hover {
+::deep .nav-item:hover {
 	background: rgba(15, 118, 110, 0.06);
 	color: #0F766E;
 }
 
-.nav-item.active {
+::deep .nav-item.active {
 	background: rgba(15, 118, 110, 0.1);
 	color: #0F766E;
 	font-weight: 500;
 }
 
-.nav-item-dot {
+::deep .nav-item-dot {
 	width: 6px;
 	height: 6px;
 	border-radius: 50%;
@@ -118,14 +119,14 @@
 	transition: all 0.2s ease;
 }
 
-.nav-item:hover .nav-item-dot,
-.nav-item.active .nav-item-dot {
+::deep .nav-item:hover .nav-item-dot,
+::deep .nav-item.active .nav-item-dot {
 	opacity: 1;
 	transform: scale(1.2);
 }
 
 /* 獨立導航連結 */
-.nav-link {
+::deep .nav-link {
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
@@ -137,18 +138,18 @@
 	transition: all 0.2s ease;
 }
 
-.nav-link:hover {
+::deep .nav-link:hover {
 	background: rgba(15, 118, 110, 0.06);
 	color: #0F766E;
 }
 
-.nav-link.active {
+::deep .nav-link.active {
 	background: rgba(15, 118, 110, 0.1);
 	color: #0F766E;
 	font-weight: 500;
 }
 
-.nav-link-icon {
+::deep .nav-link-icon {
 	width: 36px;
 	height: 36px;
 	border-radius: 10px;
@@ -161,19 +162,19 @@
 	transition: all 0.2s ease;
 }
 
-.nav-link:hover .nav-link-icon,
-.nav-link.active .nav-link-icon {
+::deep .nav-link:hover .nav-link-icon,
+::deep .nav-link.active .nav-link-icon {
 	background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
 	color: white;
 }
 
-.nav-link-icon svg {
+::deep .nav-link-icon svg {
 	width: 18px;
 	height: 18px;
 }
 
 /* 分隔線 */
-.nav-divider {
+::deep .nav-divider {
 	height: 1px;
 	background: linear-gradient(90deg, transparent 0%, rgba(15, 118, 110, 0.15) 50%, transparent 100%);
 	margin: 0.75rem 1rem;
