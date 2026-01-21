@@ -20,13 +20,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Flow
 
 ```
-1. 需求    列假設 → 標記不確定項 → 與使用者確認 → ⛔ 未確認不得實作
-2. 實作    code → build → test → commit
+1. Requirements    List assumptions → Mark uncertainties → Confirm with user → ⛔ No implementation without confirmation
+2. Implementation  code → build → test → commit
 ```
 
-### 需求確認
+### Requirements Confirmation
 
-實作前必須列出：**假設** / **待釐清** / **矛盾點**，經使用者確認後才能開始。
+Before implementation, you must list: **Assumptions** / **Items to clarify** / **Contradictions**, and can only proceed after user confirmation.
 
 ---
 
@@ -43,7 +43,7 @@ Page.razor.cs → IXxxService → IUnitOfWork → DbContext
 | Repository | `IUnitOfWork` + `I*Repository` |
 | Data | `Data/Entities/`, `FinanceCenterDbContext` |
 
-> Repository 按業務領域組織，不是按資料表。
+> Repositories are organized by business domain, not by database table.
 
 ---
 
@@ -51,18 +51,18 @@ Page.razor.cs → IXxxService → IUnitOfWork → DbContext
 
 ```
 1. Data/Entities/<Name>.cs
-2. Doc/MySqlTableScheme/<Name>.sql   ← 手寫，禁用 ef migrations
-3. 註冊到 FinanceCenterDbContext
+2. Doc/MySqlTableScheme/<Name>.sql   ← Hand-written, EF migrations forbidden
+3. Register in FinanceCenterDbContext
 ```
 
 ---
 
 ## UI/UX
 
-UI 任務使用 `/ui-ux-pro-max`。
+Use `/ui-ux-pro-max` for UI tasks.
 
-| 用途 | 技術 |
-|------|------|
+| Purpose | Technology |
+|---------|------------|
 | Layout, Drawer, AppBar, Dialog | MudBlazor |
 | Forms, tables, cards, charts | Native HTML/CSS |
 
@@ -72,14 +72,14 @@ UI 任務使用 `/ui-ux-pro-max`。
 
 | Item | Rule |
 |------|------|
-| 縮排 | Tabs，≤ 3 層 |
-| 命名 | PascalCase (public), camelCase (private/local) |
-| Async | `Async` 後綴 |
-| 註解 | 繁體中文 |
+| Indentation | Tabs, ≤ 3 levels |
+| Naming | PascalCase (public), camelCase (private/local) |
+| Async | `Async` suffix |
+| Comments | Traditional Chinese |
 | Constructor | Primary Constructors (C# 12) |
-| 函數 | ≤ 20 行 |
-| 常數 | 禁止 magic numbers |
-| 例外 | Service 層捕獲 |
+| Functions | ≤ 20 lines |
+| Constants | No magic numbers |
+| Exceptions | Catch at Service layer |
 
 ---
 
@@ -89,7 +89,7 @@ UI 任務使用 `/ui-ux-pro-max`。
 # Commit (Conventional Commits)
 feat: / fix: / refactor: / docs: / style: / test: / chore:
 
-# 禁止
+# Forbidden
 git add .
 ```
 
@@ -97,11 +97,19 @@ git add .
 
 ## Quality Gate
 
-變更後執行：code-simplifier → code-review → Linus-review（須 🟢 Good）→ build → test → commit
+After changes: code-simplifier → code-review → Linus-review (must be 🟢 Good) → build → test → commit
 
-> - code-simplifier：Task tool `code-simplifier:code-simplifier`
-> - code-review：Task tool `pr-review-toolkit:code-reviewer`
-> - Linus-review：讀取 `.claude/LINUS_MODE.md` 進行審查
+> - code-simplifier: Task tool `code-simplifier:code-simplifier`
+> - code-review: Task tool `pr-review-toolkit:code-reviewer`
+> - Linus-review: Load `.claude/LINUS_MODE.md` for review
+
+---
+
+## Special Modes
+
+| Trigger | Action |
+|---------|--------|
+| Command contains `Linus` | Load `.claude/LINUS_MODE.md` for Linus Torvalds style review |
 
 ---
 
@@ -109,4 +117,4 @@ git add .
 
 - `git add .`
 - `dotnet ef migrations`
-- 未確認需求就實作
+- Implementation without confirmed requirements
