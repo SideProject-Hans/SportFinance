@@ -111,16 +111,31 @@
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <button type="button"
-                                                            class="action-btn"
-                                                            title="編輯部門"
-                                                            aria-label="編輯 @dept.Name 部門"
-                                                            @onclick="@(() => OpenEditDepartmentDialog(dept))">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                                                            <path d="m15 5 4 4"/>
-                                                        </svg>
-                                                    </button>
+                                                    <div class="action-btn-group">
+                                                        <button type="button"
+                                                                class="action-btn"
+                                                                title="編輯部門"
+                                                                aria-label="編輯 @dept.Name 部門"
+                                                                @onclick="@(() => OpenEditDepartmentDialog(dept))">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                                                                <path d="m15 5 4 4"/>
+                                                            </svg>
+                                                        </button>
+                                                        <button type="button"
+                                                                class="action-btn action-btn-danger"
+                                                                title="刪除部門"
+                                                                aria-label="刪除 @dept.Name 部門"
+                                                                @onclick="@(() => OpenDeleteDialog(dept))">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                                <path d="M3 6h18"/>
+                                                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                                                <line x1="10" y1="11" x2="10" y2="17"/>
+                                                                <line x1="14" y1="11" x2="14" y2="17"/>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         }
@@ -208,9 +223,36 @@
     </div>
 </div>
 
-@* 部門對話窗 *@
+@* 部門編輯對話窗 *@
 <DepartmentDialog Department="DialogDepartment"
                   IsEdit="IsEditMode"
                   IsVisible="IsDialogVisible"
                   OnCancel="CloseDialog"
                   OnSubmit="HandleDepartmentSubmit" />
+
+@* 刪除確認對話窗 *@
+@if (IsDeleteDialogVisible && DepartmentToDelete is not null)
+{
+    <div class="delete-dialog-overlay" @onclick="CloseDeleteDialog">
+        <div class="delete-dialog" @onclick:stopPropagation="true">
+            <div class="delete-dialog-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"/>
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+            </div>
+            <h3 class="delete-dialog-title">刪除部門</h3>
+            <p class="delete-dialog-message">
+                確定要刪除「<strong>@DepartmentToDelete.Name</strong>」嗎？
+            </p>
+            <p class="delete-dialog-warning">此操作無法復原</p>
+            <div class="delete-dialog-actions">
+                <button type="button" class="btn-cancel" @onclick="CloseDeleteDialog">取消</button>
+                <button type="button" class="btn-delete" @onclick="HandleDeleteConfirmAsync">確認刪除</button>
+            </div>
+        </div>
+    </div>
+}

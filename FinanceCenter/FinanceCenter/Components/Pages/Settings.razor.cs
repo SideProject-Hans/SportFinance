@@ -23,10 +23,14 @@ public partial class Settings : IDisposable
 	private List<int> AvailableYears { get; } = Enumerable.Range(2015, DateTime.Now.Year - 2015 + 6).ToList();
 	private CancellationTokenSource? _saveCts;
 
-	// 對話窗狀態
+	// 編輯對話窗狀態
 	private bool IsDialogVisible { get; set; }
 	private bool IsEditMode { get; set; }
 	private Department DialogDepartment { get; set; } = new();
+
+	// 刪除確認對話窗狀態
+	private bool IsDeleteDialogVisible { get; set; }
+	private Department? DepartmentToDelete { get; set; }
 
 	private void SelectTab(int tab)
 	{
@@ -107,6 +111,39 @@ public partial class Settings : IDisposable
 	private void CloseDialog()
 	{
 		IsDialogVisible = false;
+	}
+
+	private void OpenDeleteDialog(Department department)
+	{
+		DepartmentToDelete = department;
+		IsDeleteDialogVisible = true;
+	}
+
+	private void CloseDeleteDialog()
+	{
+		IsDeleteDialogVisible = false;
+		DepartmentToDelete = null;
+	}
+
+	private async Task HandleDeleteConfirmAsync()
+	{
+		if (DepartmentToDelete is null)
+		{
+			return;
+		}
+
+		var result = await SettingsService.DeleteDepartmentAsync(DepartmentToDelete.Id);
+		if (result)
+		{
+			Snackbar.Add("刪除成功", Severity.Success);
+		}
+		else
+		{
+			Snackbar.Add("刪除失敗", Severity.Error);
+		}
+
+		CloseDeleteDialog();
+		await LoadDataAsync();
 	}
 
 	private async Task HandleDepartmentSubmit(Department department)
