@@ -38,9 +38,21 @@ public class SettingsService(IUnitOfWork unitOfWork) : ISettingsService
 
 	public async Task<Department> UpdateDepartmentAsync(Department department)
 	{
-		unitOfWork.Department.Update(department);
+		// 取得已被 DbContext 追蹤的實體，避免追蹤衝突
+		var existing = await unitOfWork.Department.GetByIdAsync(department.Id);
+		if (existing is null)
+		{
+			throw new InvalidOperationException($"Department with Id {department.Id} not found.");
+		}
+
+		// 更新已追蹤實體的屬性
+		existing.Code = department.Code;
+		existing.Name = department.Name;
+		existing.IsActive = department.IsActive;
+		existing.SortOrder = department.SortOrder;
+
 		await unitOfWork.SaveChangesAsync();
-		return department;
+		return existing;
 	}
 
 	public async Task<bool> DeleteDepartmentAsync(int id)
@@ -58,13 +70,7 @@ public class SettingsService(IUnitOfWork unitOfWork) : ISettingsService
 
 	public async Task<bool> IsDepartmentCodeExistsAsync(string code, int? excludeId = null)
 	{
-		var existing = await unitOfWork.Department.GetByCodeAsync(code);
-		if (existing is null)
-		{
-			return false;
-		}
-
-		return excludeId is null || existing.Id != excludeId;
+		return await unitOfWork.Department.ExistsByCodeAsync(code, excludeId);
 	}
 
 	// 銀行初始金額相關

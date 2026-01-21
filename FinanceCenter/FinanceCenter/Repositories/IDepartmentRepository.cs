@@ -11,6 +11,7 @@ public interface IDepartmentRepository
 	Task<List<Department>> GetActiveAsync();
 	Task<Department?> GetByIdAsync(int id);
 	Task<Department?> GetByCodeAsync(string code);
+	Task<bool> ExistsByCodeAsync(string code, int? excludeId = null);
 	void Add(Department department);
 	void Update(Department department);
 	void Delete(Department department);

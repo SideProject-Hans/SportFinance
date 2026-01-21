@@ -37,6 +37,13 @@ public class DepartmentRepository(FinanceCenterDbContext context) : IDepartmentR
 			.FirstOrDefaultAsync(d => d.Code == code);
 	}
 
+	public async Task<bool> ExistsByCodeAsync(string code, int? excludeId = null)
+	{
+		return await context.Departments
+			.AsNoTracking()
+			.AnyAsync(d => d.Code == code && (excludeId == null || d.Id != excludeId));
+	}
+
 	public void Add(Department department)
 	{
 		context.Departments.Add(department);
