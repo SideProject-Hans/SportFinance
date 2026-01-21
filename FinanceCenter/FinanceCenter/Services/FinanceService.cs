@@ -55,9 +55,24 @@ public class FinanceService(IUnitOfWork unitOfWork) : IFinanceService
 	/// </summary>
 	public async Task<CashFlow> UpdateCashFlowAsync(CashFlow cashFlow)
 	{
-		unitOfWork.Finance.Update(cashFlow);
+		// 取得已被 DbContext 追蹤的實體，避免追蹤衝突
+		var existing = await unitOfWork.Finance.GetCashFlowByIdAsync(cashFlow.Id);
+		if (existing is null)
+		{
+			throw new InvalidOperationException($"CashFlow with Id {cashFlow.Id} not found.");
+		}
+
+		// 更新已追蹤實體的屬性
+		existing.RemittanceDate = cashFlow.RemittanceDate;
+		existing.Department = cashFlow.Department;
+		existing.Applicant = cashFlow.Applicant;
+		existing.Reason = cashFlow.Reason;
+		existing.Income = cashFlow.Income;
+		existing.Expense = cashFlow.Expense;
+		existing.Fee = cashFlow.Fee;
+
 		await unitOfWork.SaveChangesAsync();
-		return cashFlow;
+		return existing;
 	}
 
 	/// <summary>

@@ -38,9 +38,24 @@ public class ShanghaiBankService(IUnitOfWork unitOfWork) : IShanghaiBankService
 
 	public async Task<ShanghaiBankAccount> UpdateAsync(ShanghaiBankAccount account)
 	{
-		unitOfWork.ShanghaiBank.Update(account);
+		// 取得已被 DbContext 追蹤的實體，避免追蹤衝突
+		var existing = await unitOfWork.ShanghaiBank.GetByIdAsync(account.Id);
+		if (existing is null)
+		{
+			throw new InvalidOperationException($"ShanghaiBankAccount with Id {account.Id} not found.");
+		}
+
+		// 更新已追蹤實體的屬性
+		existing.RemittanceDate = account.RemittanceDate;
+		existing.Department = account.Department;
+		existing.Applicant = account.Applicant;
+		existing.Reason = account.Reason;
+		existing.Income = account.Income;
+		existing.Expense = account.Expense;
+		existing.Fee = account.Fee;
+
 		await unitOfWork.SaveChangesAsync();
-		return account;
+		return existing;
 	}
 
 	public async Task<bool> DeleteAsync(int id)

@@ -100,7 +100,15 @@ public class FinanceServiceTests
 	public async Task Should_UpdateCashFlowAndSave_When_UpdateCashFlowAsync()
 	{
 		// Arrange
-		var cashFlow = new CashFlow
+		var existingCashFlow = new CashFlow
+		{
+			Id = 1,
+			Department = "HR",
+			Applicant = "Jane",
+			Reason = "Original",
+			Income = 1000
+		};
+		var updatedCashFlow = new CashFlow
 		{
 			Id = 1,
 			Department = "IT",
@@ -108,14 +116,18 @@ public class FinanceServiceTests
 			Reason = "Updated",
 			Income = 2000
 		};
+		_mockRepository.Setup(r => r.GetCashFlowByIdAsync(1)).ReturnsAsync(existingCashFlow);
 		_mockUnitOfWork.Setup(u => u.SaveChangesAsync(default)).ReturnsAsync(1);
 
 		// Act
-		var result = await _service.UpdateCashFlowAsync(cashFlow);
+		var result = await _service.UpdateCashFlowAsync(updatedCashFlow);
 
 		// Assert
-		Assert.Equal(cashFlow, result);
-		_mockRepository.Verify(r => r.Update(cashFlow), Times.Once);
+		Assert.Equal(existingCashFlow, result);
+		Assert.Equal("IT", existingCashFlow.Department);
+		Assert.Equal("John", existingCashFlow.Applicant);
+		Assert.Equal("Updated", existingCashFlow.Reason);
+		Assert.Equal(2000, existingCashFlow.Income);
 		_mockUnitOfWork.Verify(u => u.SaveChangesAsync(default), Times.Once);
 	}
 
