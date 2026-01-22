@@ -37,7 +37,8 @@
       "Skill(ui-ux-pro-max)",
       "WebFetch(domain:www.index.dev)",
       "mcp__sequential-thinking__sequentialthinking",
-      "mcp__filesystem__list_allowed_directories"
+      "mcp__filesystem__list_allowed_directories",
+      "Skill(superpowers:systematic-debugging)"
     ]
   },
   "enableAllProjectMcpServers": true,
