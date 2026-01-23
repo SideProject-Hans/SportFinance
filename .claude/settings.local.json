@@ -44,12 +44,8 @@
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "filesystem",
-    "github",
     "memory",
-    "sequential-thinking",
-    "fetch",
-    "git",
-    "time"
+    "sequential-thinking"
   ],
   "hooks": {
     "PostToolUse": [
@@ -64,5 +60,6 @@
         ]
       }
     ]
-  }
+  },
+  "outputStyle": "Explanatory"
 }
