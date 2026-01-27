@@ -68,40 +68,17 @@ Use `/ui-ux-pro-max` for UI tasks.
 
 ---
 
-## Coding Rules
+## Extended Guidelines
 
-| Item | Rule |
-|------|------|
-| Indentation | Tabs, ≤ 3 levels |
-| Naming | PascalCase (public), camelCase (private/local) |
-| Async | `Async` suffix |
-| Comments | Traditional Chinese |
-| Constructor | Primary Constructors (C# 12) |
-| Functions | ≤ 20 lines |
-| Constants | No magic numbers |
-| Exceptions | Catch at Service layer |
+See detailed specifications in the following files:
 
----
+| Topic | File | Description |
+|-------|------|-------------|
+| Coding Standards | [`.claude/instructions/coding-standards.md`](.claude/instructions/coding-standards.md) | Naming, formatting, function length |
+| Git Workflow | [`.claude/instructions/git-workflow.md`](.claude/instructions/git-workflow.md) | Commit conventions, branch strategy |
+| Quality Gates | [`.claude/instructions/quality-gates.md`](.claude/instructions/quality-gates.md) | Quality check process |
 
-## Git
-
-```bash
-# Commit (Conventional Commits)
-feat: / fix: / refactor: / docs: / style: / test: / chore:
-
-# Forbidden
-git add .
-```
-
----
-
-## Quality Gate
-
-After changes: code-simplifier → code-review → Linus-review (must be 🟢 Good) → build → test → commit
-
-> - code-simplifier: Task tool `code-simplifier:code-simplifier`
-> - code-review: Task tool `pr-review-toolkit:code-reviewer`
-> - Linus-review: Load `.claude/LINUS_MODE.md` for review
+> Claude Code will automatically read these files. Ensure compliance with their specifications.
 
 ---
 
